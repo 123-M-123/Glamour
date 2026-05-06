@@ -3,9 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
-    
-    // Log para ver qué manda el Brick
-    console.log('FormData recibido:', JSON.stringify(formData, null, 2));
+    const vendedorEmail = "elianamarti90@gmail.com";
 
     const response = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
@@ -14,24 +12,26 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
         'X-Idempotency-Key': crypto.randomUUID(),
       },
-      body: JSON.stringify({ ...formData, differential_pricing_id: undefined }),
+      body: JSON.stringify({ 
+        ...formData, 
+        external_reference: vendedorEmail,
+        differential_pricing_id: undefined 
+      }),
     });
 
     const data = await response.json();
-    
-    // Log para ver qué responde MP
-    console.log('Respuesta MP:', JSON.stringify(data, null, 2));
 
-    if (!response.ok) {
-      return NextResponse.json(data, { status: response.status });
+    if (response.ok && data.status === 'approved') {
+      // SI EL PAGO ES OK, AVISAMOS AL WEBHOOK PARA QUE ESCRIBA EN EL EXCEL
+      await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'payment', data: { id: data.id } })
+      });
     }
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error processing payment:', error);
-    return NextResponse.json(
-      { error: 'Error procesando el pago' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Error' }, { status: 500 });
   }
 }
