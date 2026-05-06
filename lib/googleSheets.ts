@@ -12,15 +12,17 @@ export async function getProductsFromSheets() {
     
     // FILTRAMOS: Solo los productos que pertenecen a El Campito
     return (data.values || [])
-      .filter((row: any) => row[0]?.trim().toLowerCase() === vendedorEmail.toLowerCase())
-      .map((row: any) => ({
-        id_producto: row[1],
-        titulo:      row[2],
-        precio:      Number(row[3]),
-        descripcion: row[4],
-        imagen:      row[5],
-        categoria:   row[6],
-      }));
+  .filter((row: any) => row[0]?.trim().toLowerCase() === vendedorEmail.toLowerCase())
+  .map((row: any) => ({
+    vendedor:    row[0], // A
+    id_producto: row[1], // B
+    titulo:      row[2], // C
+    precio:      Number(row[3]), // D
+    descripcion: row[4], // E
+    imagen:      row[5], // F
+    categoria:   row[6], // G
+    stock:       Number(row[7] || 0), // H (¡NUEVO!)
+  }));
   } catch (error) {
     console.error("Error Sheets:", error);
     return [];
