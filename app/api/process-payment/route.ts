@@ -5,6 +5,9 @@ export async function POST(request: NextRequest) {
     const formData = await request.json();
     const vendedorEmail = "elianamarti90@gmail.com";
 
+    // "Limpiamos" el objeto para que MP no reciba campos desconocidos
+    const { vendedorEmail: _, ...datosLimpios } = formData;
+
     const response = await fetch('https://api.mercadopago.com/v1/payments', {
       method: 'POST',
       headers: {
@@ -13,7 +16,7 @@ export async function POST(request: NextRequest) {
         'X-Idempotency-Key': crypto.randomUUID(),
       },
       body: JSON.stringify({ 
-        ...formData, 
+        ...datosLimpios, 
         external_reference: vendedorEmail,
         differential_pricing_id: undefined 
       }),
@@ -22,7 +25,6 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
 
     if (response.ok && data.status === 'approved') {
-      // SI EL PAGO ES OK, AVISAMOS AL WEBHOOK PARA QUE ESCRIBA EN EL EXCEL
       await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -32,6 +34,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Error' }, { status: 500 });
+    return NextResponse.json({ error: 'Error procesando el pago' }, { status: 500 });
   }
 }

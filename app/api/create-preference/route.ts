@@ -9,7 +9,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
     const metodo = body.metodo || 'tarjeta'
-    // EL MAIL DEL DUEÑO DE EL CAMPITO
     const vendedorEmail = "elianamarti90@gmail.com"; 
 
     let items = []
@@ -33,7 +32,6 @@ export async function POST(req: Request) {
     const result = await preference.create({
       body: {
         items,
-        // IDENTIFICADOR PARA EL PANEL
         external_reference: vendedorEmail,
         notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`,
       },
@@ -41,7 +39,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ id: result.id })
   } catch (error: any) {
-    console.error('ERROR MP:', error)
     return NextResponse.json({ error: 'Error' }, { status: 500 })
   }
 }

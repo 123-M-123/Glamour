@@ -31,7 +31,7 @@ export default function Footer() {
             lineHeight: '1.4',
           }}
         >
-         (Distribuidora) &nbsp;|&nbsp; , Cañuelas 
+         (Distribuidora) &nbsp;|&nbsp; Cañuelas | Prov. de Buenos Aires | Argentina 
         </p>
 
         <p
@@ -112,7 +112,7 @@ export default function Footer() {
           }}
         >
           <a
-            href="mailto:marcosrenemarti@gmail.com"
+            href="mailto:tiendadtiendas@gmail.com"
             style={{
               color: '#9de2c9', opacity: 0.75,
               textDecoration: 'none',
