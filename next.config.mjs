@@ -17,9 +17,19 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    // Agregamos dominios permitidos por seguridad de Next.js
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'drive.google.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com', // Este es el servidor real de fotos de Google
+      },
+    ],
   },
 
-  // ✅ ESTO ES LO NUEVO — headers para la imagen OG
   async headers() {
     return [
       {

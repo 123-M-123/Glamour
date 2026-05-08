@@ -1,11 +1,18 @@
 // lib/googleSheets.ts
 
-// Función auxiliar para convertir links de Drive en links directos de imagen
+// Función mejorada y más estable para links de Drive
 function getDriveDirectLink(url: string) {
   if (!url || !url.includes("drive.google.com")) return url;
+  
+  // Extraemos el ID del archivo sin importar el formato del link de Drive
   const match = url.match(/\/d\/(.+?)\//) || url.match(/id=(.+?)(&|$)/);
   const fileId = match ? match[1] : null;
-  return fileId ? `https://drive.google.com/uc?export=view&id=${fileId}` : url;
+  
+  if (!fileId) return url;
+
+  // Usamos el endpoint de thumbnail que es mucho más fiable para etiquetas <img>
+  // sz=w1000 pide la imagen en buena calidad (hasta 1000px)
+  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 }
 
 export async function getProductsFromSheets() {
@@ -32,14 +39,14 @@ export async function getProductsFromSheets() {
       .map((row: any) => {
         const precioExcel = Number(row[3]) || 0;
         return {
-          id:          row[1]?.toString() || "", // Columna B
-          nombre:      row[2]?.toString() || "", // Columna C
-          precio:      Math.round(precioExcel * 1.1), // Precio con +10%
+          id:          row[1]?.toString() || "",
+          nombre:      row[2]?.toString() || "",
+          precio:      Math.round(precioExcel * 1.1),
           precioTransfer: precioExcel, 
-          descripcion: row[4] || "", // Columna E
-          imagen:      getDriveDirectLink(row[5] || ""), // Columna F (PROCESADA)
-          categoria:   row[6] || "", // Columna G
-          stock:       Number(row[7]) || 0, // Columna H
+          descripcion: row[4] || "",
+          imagen:      getDriveDirectLink(row[5] || ""), // Aquí aplicamos la nueva lógica
+          categoria:   row[6] || "",
+          stock:       Number(row[7]) || 0,
         };
       });
   } catch (error) {
