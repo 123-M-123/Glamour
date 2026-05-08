@@ -20,14 +20,11 @@ export default function MielClientContent({ productos }: { productos: Producto[]
 
   if (!mounted) return null
 
-  // --- FILTRADO POR CATEGORÍA (Columna G del Excel) ---
-  // Ajusté los nombres para que coincidan con lo que suele haber en el Excel
-  const mieles = productos.filter(p => p.categoria?.toLowerCase().includes('miel'))
-  const caramelos = productos.filter(p => p.categoria?.toLowerCase().includes('caramelo'))
-  const otros = productos.filter(p => 
-    !p.categoria?.toLowerCase().includes('miel') && 
-    !p.categoria?.toLowerCase().includes('caramelo')
-  )
+  // --- FILTRADO POR CATEGORÍA EXACTA (Columna G) ---
+  // Usamos el texto exacto que aparece en tu captura del Excel
+  const mieles = productos.filter(p => p.categoria === "Miel Envasada")
+  const caramelos = productos.filter(p => p.categoria === "Caramelo")
+  const otros = productos.filter(p => p.categoria === "Otros Derivados")
 
   return (
     <main className={styles.page}>
@@ -37,14 +34,13 @@ export default function MielClientContent({ productos }: { productos: Producto[]
         <p>Del campo a tu mesa: productos cuidadosamente elaborados, bajo estrictas normas de higiene y salubridad.</p>
       </section>
 
-      {/* 1. MIEL ENVASADA (Categoría Miel) */}
+      {/* 1. MIEL ENVASADA */}
       {mieles.length > 0 && (
         <section className={styles.section}>
           <h2>Miel Envasada</h2>
           <div className={styles.bubbles}>
             {mieles.map((item) => (
               <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
-                {/* CORRECCIÓN: Usamos item.imagen (Columna F) */}
                 <img src={item.imagen} alt={item.nombre} />
                 <span>{item.nombre.toUpperCase().replace('MIEL ', '')}</span>
               </div>
@@ -53,7 +49,7 @@ export default function MielClientContent({ productos }: { productos: Producto[]
         </section>
       )}
 
-      {/* 2. CARAMELOS (Categoría Caramelos) */}
+      {/* 2. CARAMELOS */}
       {caramelos.length > 0 && (
         <section className={styles.section}>
           <h2>Caramelos de Miel, Bolsitas de 10 U.</h2>
@@ -61,6 +57,7 @@ export default function MielClientContent({ productos }: { productos: Producto[]
             {caramelos.map((item) => (
               <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
                 <img src={item.imagen} alt={item.nombre} />
+                {/* Mostramos "V" + el ID para mantener tu estilo de V1, V2... */}
                 <span>V{item.id}</span>
               </div>
             ))}
@@ -68,7 +65,7 @@ export default function MielClientContent({ productos }: { productos: Producto[]
         </section>
       )}
 
-      {/* 3. EXTRAS (Cualquier otra categoría) */}
+      {/* 3. EXTRAS */}
       {otros.length > 0 && (
         <section className={styles.section}>
           <h2>Más Productos Derivados</h2>
