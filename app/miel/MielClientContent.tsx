@@ -20,21 +20,13 @@ export default function MielClientContent({ productos }: { productos: Producto[]
 
   if (!mounted) return null
 
-  // --- NUEVA LÓGICA DE FILTRADO BASADA EN EL NOMBRE ---
-  
-  // 1. Mieles: Nombre contiene "Miel" pero NO contiene "Pack" (para no mezclar con caramelos)
-  const mieles = productos.filter(p => 
-    p.nombre.toLowerCase().includes('miel') && !p.nombre.toLowerCase().includes('pack')
-  )
-
-  // 2. Caramelos: Nombre contiene "Pack" o "car."
-  const caramelos = productos.filter(p => 
-    p.nombre.toLowerCase().includes('pack') || p.nombre.toLowerCase().includes('car.')
-  )
-
-  // 3. Extras: IDs 11, 12 y 13 (Polen, Tintura, Panal según tu Excel)
-  const extras = productos.filter(p => 
-    ['11', '12', '13'].includes(p.id) || p.nombre.toLowerCase().includes('polen')
+  // --- FILTRADO POR CATEGORÍA (Columna G del Excel) ---
+  // Ajusté los nombres para que coincidan con lo que suele haber en el Excel
+  const mieles = productos.filter(p => p.categoria?.toLowerCase().includes('miel'))
+  const caramelos = productos.filter(p => p.categoria?.toLowerCase().includes('caramelo'))
+  const otros = productos.filter(p => 
+    !p.categoria?.toLowerCase().includes('miel') && 
+    !p.categoria?.toLowerCase().includes('caramelo')
   )
 
   return (
@@ -45,46 +37,51 @@ export default function MielClientContent({ productos }: { productos: Producto[]
         <p>Del campo a tu mesa: productos cuidadosamente elaborados, bajo estrictas normas de higiene y salubridad.</p>
       </section>
 
-      {/* 1. MIEL ENVASADA */}
-      <section className={styles.section}>
-        <h2>Miel Envasada</h2>
-        <div className={styles.bubbles}>
-          {mieles.map((item) => (
-            <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
-              <img src={item.imagen || '/placeholder.png'} alt={item.nombre} />
-              {/* Intentamos mostrar solo el peso si el nombre es "Miel 1kg" */}
-              <span>{item.nombre.toLowerCase().replace('miel ', '').toUpperCase()}</span>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* 1. MIEL ENVASADA (Categoría Miel) */}
+      {mieles.length > 0 && (
+        <section className={styles.section}>
+          <h2>Miel Envasada</h2>
+          <div className={styles.bubbles}>
+            {mieles.map((item) => (
+              <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
+                {/* CORRECCIÓN: Usamos item.imagen (Columna F) */}
+                <img src={item.imagen} alt={item.nombre} />
+                <span>{item.nombre.toUpperCase().replace('MIEL ', '')}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* 2. CARAMELOS */}
-      <section className={styles.section}>
-        <h2>Caramelos de Miel</h2>
-        <div className={styles.bubbles}>
-          {caramelos.map((item) => (
-            <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
-              <img src={item.imagen || '/placeholder.png'} alt={item.nombre} />
-              {/* Mostramos "V" + ID (ej: V4, V5) para mantener tu estética */}
-              <span>V{item.id}</span>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* 2. CARAMELOS (Categoría Caramelos) */}
+      {caramelos.length > 0 && (
+        <section className={styles.section}>
+          <h2>Caramelos de Miel, Bolsitas de 10 U.</h2>
+          <div className={styles.bubbles}>
+            {caramelos.map((item) => (
+              <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
+                <img src={item.imagen} alt={item.nombre} />
+                <span>V{item.id}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* 3. EXTRAS */}
-      <section className={styles.section}>
-        <h2>Más Productos Derivados</h2>
-        <div className={styles.bubbles}>
-          {extras.map((item) => (
-            <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
-              <img src={item.imagen || '/placeholder.png'} alt={item.nombre} />
-              <span>{item.nombre.split(' ')[0]}</span>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* 3. EXTRAS (Cualquier otra categoría) */}
+      {otros.length > 0 && (
+        <section className={styles.section}>
+          <h2>Más Productos Derivados</h2>
+          <div className={styles.bubbles}>
+            {otros.map((item) => (
+              <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
+                <img src={item.imagen} alt={item.nombre} />
+                <span>{item.nombre}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* MODAL */}
       <ProductModal
