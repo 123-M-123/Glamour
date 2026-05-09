@@ -5,7 +5,7 @@
 .header {
   /* 🔥 SOLO tamaños internos (la altura viene de globals.css) */
   --icon-size: 50px;
-  --logo-size: 70px;
+  --logo-size: 35px;
   --badge-size: 21px;
 
   position: fixed;
@@ -20,7 +20,7 @@
   align-items: center;
   justify-content: space-between;
 
-  background: #1f723f;
+  background: #Ff0000;
   z-index: 1000;
 }
 
@@ -33,7 +33,7 @@
     height: var(--header-h-desktop); /* 👈 sincronizado con globals */
 
     --icon-size: 65px;
-    --logo-size: 110px;
+    --logo-size: 70px;
     --badge-size: 28px;
 
     padding: 0 24px;

@@ -8,23 +8,22 @@ import "./globals.css"
 import BackButton from "./components/BackButton"
 
 export const metadata: Metadata = {
-  title: "Granja Agroecológica - El Campito Cañuelas",
-  description: "Somos distribuidores de: Huevos de Gallinas Libres, Miel Envasada y sus productos derivados, Origen Cañuelas",
-  generator: "El Campito",
-  metadataBase: new URL("https://granja-el-campito.vercel.app"),
+  title: "Glamour Urquiza | Indumentaria y Accesorios",
+  description: "Nombre Largo ej=> Glamour Urquiza (aca tiene que ir algo como de esta cantidad de texto que llame a la acción y genere ventas o visitas)   ",
+  metadataBase: new URL("https://glamour-urquiza.vercel.app"),
 
   openGraph: {
-    title: "Granja Agroecológica | El Campito | Cañuelas",
-    description: "Somos distribuidores de: Huevos de Gallinas Libres, Miel Envasada y sus productos derivados, Origen Cañuelas",
-    url: "https://granja-el-campito.vercel.app",
-    siteName: "El Campito",
+    title: "Glamour Urquiza | Indumentaria y Accesorios",
+    description: "Nombre Largo ej=> Glamour Urquiza (aca tiene que ir algo como de esta cantidad de texto que llame a la acción y genere ventas o visitas)",
+    url: "https://glamour-urquiza.vercel.app",
+    siteName: "Glamour | Urquiza",
     images: [
       {
-        url: "/og/image.jpg",
+        url: "/og/image-1.jpg",
         width: 1200,
         height: 630,
-        type: "image/jpg",
-        alt: "Granja Agroecológica El Campito",
+        type: "image-1/jpg",
+        alt: "Glamour Urquiza | Indumentaria y Accesorios",
       },
     ],
     locale: "es_AR",
@@ -33,9 +32,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Granja Agroecológica | El Campito | Cañuelas",
-    description: "Somos distribuidores de: Huevos de Gallinas Libres, Miel Envasada y sus productos derivados, Origen Cañuelas",
-    images: ["/og/image.jpg"],
+    title: "Glamour Urquiza | Indumentaria y Accesorios",
+    description: "Nombre Largo ej=> Glamour Urquiza (aca tiene que ir algo como de esta cantidad de texto que llame a la acción y genere ventas o visitas)",
+    images: ["/og/image-1.jpg"],
   },
 
   icons: {
@@ -48,7 +47,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "El Campito",
+    title: "Glamour",
   },
 }
 
@@ -56,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" translate="no">
       <head>
-        <meta name="theme-color" content="#008a29" />
+        <meta name="theme-color" content="Ff0000" />
 
         <meta name="google-site-verification" content="c43EWcKPaKQuTZ0w9M0U0iLPzJEgoEQmVTxKVhzfn8I" />
 

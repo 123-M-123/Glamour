@@ -7,37 +7,37 @@ export default function Footer() {
       {/* FOOTER CLIENTE (normal, baja con el contenido) */}
       <footer
         style={{
-          background: '#064f2a',
+          background: '#Ff4248',
           textAlign: 'center',
           padding: '1rem',
-          borderTop: '3px solid #ffffff',
+          borderTop: '3px solid #FC6DD3',
         }}
       >
         <p
           style={{
             fontSize: '0.85rem',
-            color: '#9de2c9', 
+            color: '#ffffff', 
             fontWeight: 700,
             lineHeight: '1.4',
           }}
         >
-         Granja Agroecológica | El Campito
+         Glamour | Urquiza
         </p>
 
         <p
           style={{
             fontSize: '0.8rem',
-            color: '#9de2c9', opacity: 0.75,
+            color: '#ffffff', opacity: 0.75,
             lineHeight: '1.4',
           }}
         >
-         (Distribuidora) &nbsp;|&nbsp; Cañuelas | Prov. de Buenos Aires | Argentina 
+         Indumentaria &nbsp;|&nbsp;| Accesorios
         </p>
 
         <p
           style={{
             fontSize: '0.8rem',
-            color: '#9de2c9', opacity: 0.75,
+            color: '#ffffff', opacity: 0.75,
             lineHeight: '1.4',
           }}
         >
@@ -51,7 +51,7 @@ export default function Footer() {
       {/* FOOTER TU MARCA (fijo abajo SIEMPRE) */}
       <footer
         style={{
-          background: '#064f2a',
+          background: '#Ff4248',
           textAlign: 'center',
           padding: '0.9rem 1rem',
           borderTop: 'none',
@@ -75,7 +75,7 @@ export default function Footer() {
     target="_blank"
     rel="noopener noreferrer"
     style={{
-      color: '#9de2c9', 
+      color: '#ffffff', 
       textDecoration: 'underline',
       display: 'inline-flex',
       alignItems: 'center',
@@ -96,7 +96,7 @@ export default function Footer() {
           <a
             href="https://tienda-de-tiendas.vercel.app"
             style={{
-              color: '#9de2c9', opacity: 0.75,
+              color: '#ffffff', opacity: 0.75,
               textDecoration: 'none',
             }}
           >
@@ -114,7 +114,7 @@ export default function Footer() {
           <a
             href="mailto:tiendadtiendas@gmail.com"
             style={{
-              color: '#9de2c9', opacity: 0.75,
+              color: '#ffffff', opacity: 0.75,
               textDecoration: 'none',
             }}
           >

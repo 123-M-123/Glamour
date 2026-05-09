@@ -21,7 +21,7 @@ export default function Header() {
         {/* IZQUIERDA */}
         <div className={styles.left}>
           <a
-            href="https://www.instagram.com/el_campito_agroecologico/"
+            href="https://www.instagram.com/glamour.urquiza"
             target="_blank"
           >
             <img src="/icons/instagram.png" className={styles.icon} />

@@ -1,11 +1,11 @@
 {
-  "name": "Granja Agroecológica - El Campito Cañuelas",
-  "short_name": "El Campito - Granja",
-  "description": "Somos distribuidores de: Huevos de Gallinas Libres, Miel Envasada y sus productos derivados, Origen Cañuelas",
+  "name": "Glamour Urquiza | Indumentaria y Accesorios",
+  "short_name": "Glamour Urquiza",
+  "description": "Nombre Largo ej=> Glamour Urquiza (aca tiene que ir algo como de esta cantidad de texto que llame a la acción y genere ventas o visitas)",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#008a29",
-  "theme_color": "#008a29",
+  "background_color": "#Ff0000",
+  "theme_color": "#Ff0000",
   "orientation": "portrait",
   "icons": [
     {

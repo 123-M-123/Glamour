@@ -1,10 +1,10 @@
 {
-  "workbench.colorTheme": "Solarized Dark",
+  "workbench.colorTheme": "Default High Contrast",
   "workbench.iconTheme": "vs-minimal",
   "workbench.colorCustomizations": {
-    "activityBar.background": "#00831c",
-    "sideBar.background": "#00831c",
-    "titleBar.activeBackground": "#00831c"
+    "activityBar.background": "#ff0062",
+    "sideBar.background": "#ff0062",
+    "titleBar.activeBackground": "#ff0062"
   },
-  "window.title": "EL-CAMPITO"
+  "window.title": "GLAMOUR.URQUIZA"
 }
