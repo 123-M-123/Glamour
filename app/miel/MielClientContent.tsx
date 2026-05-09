@@ -20,8 +20,7 @@ export default function MielClientContent({ productos }: { productos: Producto[]
 
   if (!mounted) return null
 
-  // --- FILTRADO POR CATEGORÍA EXACTA (Columna G) ---
-  // Usamos el texto exacto que aparece en tu captura del Excel
+  // --- FILTRADO POR CATEGORÍA EXACTA ---
   const mieles = productos.filter(p => p.categoria === "Miel Envasada")
   const caramelos = productos.filter(p => p.categoria === "Caramelo")
   const otros = productos.filter(p => p.categoria === "Otros Derivados")
@@ -42,7 +41,8 @@ export default function MielClientContent({ productos }: { productos: Producto[]
             {mieles.map((item) => (
               <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
                 <img src={item.imagen} alt={item.nombre} />
-                <span>{item.nombre.toUpperCase().replace('MIEL ', '')}</span>
+                {/* LIMPIEZA: Quitamos "Miel" y mostramos solo el peso (ej: 2kg) */}
+                <span>{item.nombre.toLowerCase().replace(/miel/g, '').trim().toUpperCase()}</span>
               </div>
             ))}
           </div>
@@ -57,7 +57,7 @@ export default function MielClientContent({ productos }: { productos: Producto[]
             {caramelos.map((item) => (
               <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
                 <img src={item.imagen} alt={item.nombre} />
-                {/* Mostramos "V" + el ID para mantener tu estilo de V1, V2... */}
+                {/* LIMPIEZA: Solo mostramos V + ID para que no "pise" la imagen con el texto largo */}
                 <span>V{item.id}</span>
               </div>
             ))}
@@ -65,7 +65,7 @@ export default function MielClientContent({ productos }: { productos: Producto[]
         </section>
       )}
 
-      {/* 3. EXTRAS */}
+      {/* 3. EXTRAS (Otros Derivados) */}
       {otros.length > 0 && (
         <section className={styles.section}>
           <h2>Más Productos Derivados</h2>
@@ -73,14 +73,14 @@ export default function MielClientContent({ productos }: { productos: Producto[]
             {otros.map((item) => (
               <div key={item.id} className={styles.bubble} onClick={() => handleClick(item.id)}>
                 <img src={item.imagen} alt={item.nombre} />
-                <span>{item.nombre}</span>
+                {/* LIMPIEZA: Mostramos solo la primera palabra (ej: "Polen" en vez de todo el texto) */}
+                <span>{item.nombre.split(' ')[0].toUpperCase()}</span>
               </div>
             ))}
           </div>
         </section>
       )}
 
-      {/* MODAL */}
       <ProductModal
         open={!!selected}
         producto={selected}
