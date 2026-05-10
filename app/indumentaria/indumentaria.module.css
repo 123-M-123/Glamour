@@ -1,0 +1,116 @@
+.container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ff0000; /* Rojo Glamour */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 16px;
+}
+
+/* GRID DE CATEGORÍAS */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columnas en mobile */
+  gap: 15px;
+  margin-top: 30px;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas en desktop */
+    gap: 30px;
+  }
+}
+
+/* CARDS CON ANIMACIÓN */
+.card {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 1px solid #ffc9cb;
+  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  
+  /* Animación de entrada */
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s forwards;
+}
+
+.card:active {
+  transform: scale(0.95);
+}
+
+@media (min-width: 768px) {
+  .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(255, 0, 0, 0.15);
+    border-color: #ff0000;
+  }
+}
+
+.iconBox {
+  color: #ff0000;
+  margin-bottom: 15px;
+}
+
+.cardInfo {
+  text-align: center;
+}
+
+.catName {
+  display: block;
+  font-weight: 700;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.explore {
+  font-size: 10px;
+  font-weight: bold;
+  color: #ff9c9f;
+  letter-spacing: 1px;
+}
+
+/* BANNERS */
+.bannerContainer {
+  width: 100%;
+  margin: 20px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.bannerImg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -10,7 +10,7 @@ export default function Footer() {
           background: '#Ff4248',
           textAlign: 'center',
           padding: '1rem',
-          borderTop: '3px solid #FC6DD3',
+          borderTop: '3px solid #ffffff',
         }}
       >
         <p
@@ -31,7 +31,7 @@ export default function Footer() {
             lineHeight: '1.4',
           }}
         >
-         Indumentaria &nbsp;|&nbsp;| Accesorios
+         Indumentaria &nbsp;|&nbsp; Accesorios
         </p>
 
         <p

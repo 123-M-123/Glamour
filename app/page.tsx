@@ -11,7 +11,7 @@ function AppContent() {
   return (
     <div className="app-content">
       
-
+<HeroSection />
 
        <Footer />
 

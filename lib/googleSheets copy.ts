@@ -1,4 +1,4 @@
-// C:\Users\Marcos\proyectos ordenados 1y2\glamour-urquiza\lib\googleSheets.ts
+// C:\Users\Marcos\proyectos ordenados 1y2\el-campito\lib\googleSheets.ts
 
 function getDriveDirectLink(url: string) {
   if (!url || !url.includes("drive.google.com")) return url;
@@ -8,18 +8,10 @@ function getDriveDirectLink(url: string) {
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 }
 
-// 📧 Lista de emails autorizados (incluimos todos los que vimos en tus fotos)
-const SOCIOS_AUTORIZADOS = [
-  "elianamarti90@gmail.com", 
-  "exequiel.devita@gmail.com", 
-  "marielabasualdo1985@gmail.com",
-  "mguiyemo@gmail.com",
-  "axel2002@gmail.com"
-];
-
 export async function getProductsFromSheets() {
   const apiKey = process.env.GOOGLE_API_KEY;
   const sheetId = process.env.GOOGLE_SHEET_ID;
+  const sociosElCampito = ["elianamarti90@gmail.com", "exequiel.devita@gmail.com"];
   const range = 'Carga de productos!A2:H'; 
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
 
@@ -27,9 +19,8 @@ export async function getProductsFromSheets() {
     const res = await fetch(url, { next: { revalidate: 1 } }); 
     const data = await res.json();
     if (!data.values) return [];
-
     return data.values
-      .filter((row: any) => SOCIOS_AUTORIZADOS.includes(row[0]?.trim().toLowerCase()))
+      .filter((row: any) => sociosElCampito.includes(row[0]?.trim().toLowerCase()))
       .map((row: any) => ({
         id: row[1]?.toString() || "",
         nombre: row[2]?.toString() || "",
@@ -40,38 +31,26 @@ export async function getProductsFromSheets() {
         categoria: row[6] || "",
         stock: Number(row[7]) || 0,
       }));
-  } catch (error) { 
-    console.error("Error cargando productos:", error);
-    return []; 
-  }
+  } catch (error) { return []; }
 }
 
 export async function getBannersFromSheets() {
   const apiKey = process.env.GOOGLE_API_KEY;
   const sheetId = process.env.GOOGLE_SHEET_ID;
-  
-  // 🔥 FIX CRÍTICO: El nombre de la solapa en tu Excel es 'Baners Publicidad' (con una sola N)
-  const range = 'Baners Publicidad!A2:D'; 
+  const sociosElCampito = ["elianamarti90@gmail.com", "exequiel.devita@gmail.com"];
+  const range = 'Banners Publicidad!A2:D'; 
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
 
   try {
     const res = await fetch(url, { next: { revalidate: 1 } });
     const data = await res.json();
-    
-    if (!data.values) {
-      console.warn("No se encontraron datos en la solapa Baners Publicidad");
-      return [];
-    }
-
+    if (!data.values) return [];
     return data.values
-      .filter((row: any) => SOCIOS_AUTORIZADOS.includes(row[0]?.trim().toLowerCase()))
+      .filter((row: any) => sociosElCampito.includes(row[0]?.trim().toLowerCase()))
       .map((row: any) => ({
         imagen: getDriveDirectLink(row[1] || ""),
-        ubicacion: row[2]?.toString().toLowerCase().trim() || "",
+        ubicacion: row[2]?.toString().toLowerCase() || "",
         linkDestino: row[3] || null
       }));
-  } catch (error) { 
-    console.error("Error cargando banners:", error);
-    return []; 
-  }
+  } catch (error) { return []; }
 }

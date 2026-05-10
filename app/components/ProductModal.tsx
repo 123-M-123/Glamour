@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { X, MessageCircle } from 'lucide-react' // Usamos Lucide para el WhatsApp
 import styles from './ProductModal.module.css'
 import { Producto } from '../data/productos'
 import { useCartStore } from '../store/useCartStore'
@@ -11,113 +12,69 @@ type Props = {
   onClose: () => void
 }
 
-// 🔥 FORMATEADOR
-const formatPrice = (n: number) =>
-  new Intl.NumberFormat('es-AR').format(n)
+const formatPrice = (n: number) => new Intl.NumberFormat('es-AR').format(n)
 
-export default function ProductModal({
-  open,
-  producto,
-  onClose,
-}: Props) {
+export default function ProductModal({ open, producto, onClose }: Props) {
   const [envio, setEnvio] = useState(0)
   const { addToCart } = useCartStore()
 
   if (!open || !producto) return null
 
   const total = producto.precioTransfer + envio
+  const handleAdd = () => { addToCart(producto, envio); onClose(); }
 
-  const handleAdd = () => {
-    addToCart(producto, envio)
-    onClose()
-  }
-
-  const telefono = '5492262557322'
-  const mensaje = `Hola! Estoy comprando en la web-El Campito, quiero consultar por ${producto.nombre}. Precio: $${formatPrice(total)}. Me pasas info para coordinar puntos de Retiro o ¿tenés disponibilidad para el envio? Gracias!`
-
-  const whatsappUrl = `https://wa.me/${telefono}?text=${encodeURIComponent(
-    mensaje
-  )}`
+  // 📱 NÚMERO Y MENSAJE ACTUALIZADO
+  const telefono = '5491167914366' 
+  const mensaje = `Hola! Estoy en la web de Glamour, quiero consultar por: ${producto.nombre}. Total: $${formatPrice(total)}. ¿Tienen disponibilidad?`
+  const whatsappUrl = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div
-        className={styles.modal}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 className={styles.title}>{producto.nombre}</h2>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        
+        <button className={styles.close} onClick={onClose}><X size={24} /></button>
 
-        <img
-          src={producto.imagen}
-          alt={producto.nombre}
-          className={styles.image}
-        />
+        <div className={styles.mainLayout}>
+          {/* LADO IZQUIERDO: IMAGEN RECTANGULAR */}
+          <div className={styles.imageContainer}>
+            <img src={producto.imagen} alt={producto.nombre} className={styles.image} />
+          </div>
 
-        <p className={styles.precioOriginal}>
-          ${formatPrice(producto.precio)}
-        </p>
+          {/* LADO DERECHO: INFO */}
+          <div className={styles.infoContainer}>
+            <h2 className={styles.title}>{producto.nombre}</h2>
+            
+            <div className={styles.priceBox}>
+              <span className={styles.precioOriginal}>${formatPrice(producto.precio)}</span>
+              <span className={styles.precioTransfer}>${formatPrice(producto.precioTransfer)}</span>
+            </div>
+            <p className={styles.descuentoInfo}>10% OFF con Transferencia</p>
 
-        <p className={styles.precioTransfer}>
-          ${formatPrice(producto.precioTransfer)}
-        </p>
+            <div className={styles.shippingSection}>
+              <label>Opciones de entrega:</label>
+              <select className={styles.select} onChange={(e) => setEnvio(Number(e.target.value))}>
+                <option value={0}>Retiro Gratis</option>
+                <option value={3000}>Envío Zona 1 ($3.000)</option>
+                <option value={5000}>Envío Zona 2 ($5.000)</option>
+                <option value={7000}>Envío Zona 3 ($7.000)</option>
+                <option value={9000}>Envío Zona 4 ($9.000)</option>
+              </select>
+            </div>
 
-        <p className={styles.descuentoInfo}>
-          10% OFF con transferencia (Alias MP)
-        </p>
+            <p className={styles.total}>Total: ${formatPrice(total)}</p>
 
-        <select
-          className={styles.select}
-          onChange={(e) => setEnvio(Number(e.target.value))}
-        >
-          <option value={0}>
-            Consultar Retiro gratis por Puntos de Distribución
-          </option>
-          <option value={3000}>
-            (Consultar) Envio | Zona 1 | Valor Estimado ($3.000)
-          </option>
-          <option value={5000}>
-            (Consultar) Envio | Zona 2 | Valor Estimado ($5.000)
-          </option>
-          <option value={7000}>
-            (Consultar) Envio | Zona 3 | Valor Estimado ($7.000)
-          </option>
-          <option value={9000}>
-            (Consultar) Envio | Zona 4 | Valor Estimado ($9.000)
-          </option>
-        </select>
+            <div className={styles.actions}>
+              <button className={styles.pagar} onClick={handleAdd}>
+                AGREGAR AL CARRITO
+              </button>
 
-        <p className={styles.total}>
-          Total: ${formatPrice(total)}
-        </p>
-
-        <button className={styles.pagar} onClick={handleAdd}>
-          Agregar al carrito
-        </button>
-
-        <button className={styles.close} onClick={onClose}>
-          ✕
-        </button>
-
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          className={styles.consultar}
-          onClick={() => {
-            if (typeof window !== 'undefined' && window.gtag) {
-              window.gtag('event', 'click_whatsapp', {
-                event_category: 'engagement',
-                event_label: 'product_modal',
-              })
-            }
-          }}
-        >
-          <img
-            src="/whats.png"
-            alt="WhatsApp"
-            className={styles.whatsappIcon}
-          />
-          CONSULTAR
-        </a>
+              <a href={whatsappUrl} target="_blank" className={styles.consultar}>
+                <MessageCircle size={22} fill="white" />
+                CONSULTAR POR WHATSAPP
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

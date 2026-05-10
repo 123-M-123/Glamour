@@ -1,9 +1,7 @@
 /* =========================
-   HEADER (USA VARIABLES GLOBALES)
+   TU HEADER ORIGINAL
 ========================= */
-
 .header {
-  /* 🔥 SOLO tamaños internos (la altura viene de globals.css) */
   --icon-size: 50px;
   --logo-size: 35px;
   --badge-size: 21px;
@@ -12,96 +10,103 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: var(--header-h-mobile); /* 👈 sincronizado con globals */
-
+  height: var(--header-h-mobile);
   padding: 0 14px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   background: #Ff0000;
   z-index: 1000;
 }
 
-/* =========================
-   DESKTOP HEIGHT SYNC
-========================= */
-
 @media (min-width: 768px) {
   .header {
-    height: var(--header-h-desktop); /* 👈 sincronizado con globals */
-
+    height: var(--header-h-desktop);
     --icon-size: 65px;
     --logo-size: 70px;
     --badge-size: 28px;
-
     padding: 0 24px;
   }
 }
 
-/* =========================
-   LAYOUT
-========================= */
-
-.left,
-.center,
-.right {
-  display: flex;
-  align-items: center;
-}
-
-/* =========================
-   ICONOS
-========================= */
-
-.icon {
-  width: var(--icon-size);
-  height: var(--icon-size);
-}
-
-/* =========================
-   LOGO
-========================= */
-
-.logo {
-  height: var(--logo-size);
-  object-fit: contain;
-  margin-top:-10;
-}
-
-/* =========================
-   CARRITO
-========================= */
-
-.cart {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-/* =========================
-   BADGE
-========================= */
+.left, .center, .right { display: flex; align-items: center; gap: 10px; }
+.logo { height: var(--logo-size); object-fit: contain; }
+.cart { position: relative; display: flex; align-items: center; background: none; border: none; cursor: pointer; }
 
 .badge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
+  position: absolute; top: -6px; right: -6px;
+  background: #ffffff; color: rgb(255, 0, 0);
+  font-size: 15px; font-weight: bold;
+  padding: 2px 6px; border-radius: 999px;
+  min-width: var(--badge-size); height: var(--badge-size);
+  display: flex; align-items: center; justify-content: center;
+}
 
-  background: #ffcc00;
-  color: black;
+.menuBtn { background: none; border: none; cursor: pointer; display: flex; align-items: center; }
 
-  font-size: 15px;
-  font-weight: bold;
+/* =========================
+   SIDEBAR (MENÚ LATERAL)
+========================= */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -300px; /* Oculto por defecto */
+  width: 300px;
+  height: 100vh;
+  background: white;
+  z-index: 2000;
+  transition: left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+}
 
-  padding: 2px 6px;
-  border-radius: 999px;
+.sidebarOpen { left: 0; }
 
-  min-width: var(--badge-size);
-  height: var(--badge-size);
+.sidebarHeader {
+  padding: 20px;
+  background: #Ff0000;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
+.sidebarTitle { font-weight: bold; letter-spacing: 1px; }
+
+.sidebarHeader button { background: none; border: none; color: white; cursor: pointer; }
+
+.sidebarNav { display: flex; flex-direction: column; padding: 20px 0; }
+
+.sidebarItem {
+  padding: 15px 25px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 15px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s;
+}
+
+.sidebarItem:active { background: #fff0f0; color: #ff0000; }
+
+.sidebarIcon { color: #ff0000; }
+
+.sidebarFooter { margin-top: auto; padding: 30px 20px; text-align: center; }
+.sidebarFooter a { font-size: 12px; font-weight: bold; color: #ff0000; text-decoration: none; }
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 1500;
+}
+
+@media (max-width: 768px) {
+  .hideMobile { display: none; }
 }

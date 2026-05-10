@@ -9,7 +9,8 @@
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 20px;
-  font-family: 'Eras', sans-serif;
+  font-family: 'Josefin Sans', sans-serif;
+  color: #FF0000;
 }
 
 /* ITEM */
@@ -17,40 +18,30 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  background: #a8d5ba; /* 🟢 verde claro */
+  background: #ffc9cb; /* 🎨 Rosa Glamour */
   padding: 12px;
   border-radius: 14px;
   margin-bottom: 12px;
 }
 
-/* IMAGEN SIN FONDO */
 .img {
   width: 70px;
   height: 70px;
   object-fit: cover;
   border-radius: 10px;
-  background: transparent; /* 🔥 elimina fondo blanco */
+  background: transparent;
 }
 
-/* INFO */
 .info {
   flex: 1;
   font-size: 14px;
-  color: #0b3d2e; /* 🟢 verde oscuro */
+  color: #444; 
   text-align: left;
-  font-family: 'Eras', sans-serif;
 }
 
-.name {
-  font-weight: 600;
-}
+.name { font-weight: 600; color: #FF0000; }
+.price { font-weight: 500; margin-top: 4px; }
 
-.price {
-  font-weight: 500;
-  margin-top: 4px;
-}
-
-/* BOTÓN REMOVE */
 .remove {
   background: #ff4d4d;
   color: white;
@@ -58,68 +49,37 @@
   border-radius: 6px;
   padding: 4px 8px;
   cursor: pointer;
-  font-size: 12px; /* 🔽 más chica */
+  font-size: 12px;
 }
 
-/* TOTAL */
 .total {
   font-size: 18px;
   font-weight: 600;
   margin-top: 20px;
   text-align: right;
-  font-family: 'Eras', sans-serif;
+  color: #FF0000;
 }
 
-/* BOTONES */
-.actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
+.actions { display: flex; gap: 10px; margin-top: 20px; }
 
 .clear {
   flex: 1;
-  background: #ccc;
+  background: #eee;
   border: none;
   padding: 10px;
   border-radius: 10px;
   cursor: pointer;
-  font-family: 'Eras', sans-serif;
 }
 
 .checkout {
   flex: 1;
-  background: #16a34a;
+  background: #FF0000; /* 🎨 Rojo */
   color: white;
   border: none;
   padding: 10px;
   border-radius: 10px;
   cursor: pointer;
-  font-family: 'Eras', sans-serif;
 }
 
-/* EMPTY */
-.empty {
-  text-align: center;
-  margin-top: 80px;
-  font-size: 18px;
-}
-
-/* MOBILE AJUSTE */
-@media (max-width: 768px) {
-  .container {
-    margin: 10px auto;
-    padding: 16px;
-  }
-}
-
-.envio {
-  font-size: 14px;
-  color: #2e7d32;
-}
-
-.subtotal {
-  font-size: 16px;
-  font-weight: bold;
-  color: #1b5e20;
-}
+.envio { color: #ff9c9f; font-weight: bold; }
+.subtotal { font-size: 16px; font-weight: bold; color: #FF0000; }

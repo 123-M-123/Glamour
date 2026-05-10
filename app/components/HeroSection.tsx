@@ -1,31 +1,44 @@
 'use client'
 
-import BubbleNav from './navigation/BubbleNav'
+import { Shirt, Sparkles } from 'lucide-react' // Importamos los iconos solicitados
+
 import styles from './HeroSection.module.css'
+import Link from 'next/link'
 
 export default function HeroSection() {
   return (
     <section className={styles.hero}>
-
       <div className={styles.content}>
-        <p className={styles.subtitle}>
-          Producción Familiar Artesanal
+        <p className={styles.kicker}>
+          Indumentaria Femenina
         </p>
 
         <h1 className={styles.title}>
-          Entra a Nuestras <br />
-          Esferas de Producción
+          Resaltá tu esencia. <br />
+          Vestite como querés sentirte.
         </h1>
 
         <p className={styles.subtitle}>
-          Y enterate de todo lo que hacemos
+          Calidad, estilo y actitud en cada prenda.
         </p>
+
+        {/* Nuevos botones de acción */}
+        <div className={styles.buttonContainer}>
+          <Link href="/indumentaria" className={styles.primaryBtn}>
+            <Shirt size={20} />
+            Indumentaria
+          </Link>
+          
+          <Link href="/accesorios" className={styles.secondaryBtn}>
+            <Sparkles size={20} />
+            Accesorios
+          </Link>
+        </div>
       </div>
 
       <div suppressHydrationWarning>
-        <BubbleNav />
+      
       </div>
-
     </section>
   )
 }

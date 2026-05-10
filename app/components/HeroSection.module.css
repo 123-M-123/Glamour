@@ -2,93 +2,104 @@
 /* CONTENEDOR PRINCIPAL HERO */
 /* ========================= */
 .hero {
-  position: relative; /* permite posicionar elementos internos */
-  width: 100%; /* ocupa todo el ancho */
-
-  /* altura mínima según header mobile */
+  position: relative;
+  width: 100%;
   min-height: calc(100vh - var(--header-h-mobile));
-
-  display: flex; /* layout flexible */
-  flex-direction: column; /* elementos en columna */
-  justify-content: center; /* centra vertical */
-  align-items: center; /* centra horizontal */
-  text-align: center; /* texto centrado */
-
-  overflow: visible; /* no corta burbujas */
-  padding: 8px 14px; /* espacio interno */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: visible;
+  padding: 20px 14px;
+  background-color: #ffffff; /* Fondo limpio para resaltar el rojo */
 }
 
-/* ========================= */
-/* CONTENEDOR DEL TEXTO */
-/* ========================= */
 .content {
-  z-index: 2; /* por encima de burbujas */
-  max-width: 768px; /* límite de ancho */
-
-  /* sube el bloque de texto */
-  transform: translateY(-105px);
+  z-index: 2;
+  max-width: 768px;
+  transform: translateY(-40px); /* Ajustado para dar espacio a los botones */
 }
 
 /* ========================= */
-/* TEXTO SUPERIOR (kicker) */
+/* TEXTOS (GLAMOUR STYLE)    */
 /* ========================= */
 .kicker {
-  font-family: 'Eras', sans-serif;
-  font-weight: 600; /* semi-bold */
-  font-size: 17px; /* tamaño mobile */
-
-  color: #064f2a;
-  line-height: 1.15; /* interlineado */
+  font-family: 'Josefin Sans', sans-serif; /* Sugerida para el estilo Glamour */
+  font-weight: 600;
+  font-size: 16px;
+  color: #ff9c9f; /* Tu nuevo color secundario (Coral) */
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
 }
 
-/* ========================= */
-/* TITULO PRINCIPAL */
-/* ========================= */
 .title {
-  font-family: 'Eras', sans-serif;
-  font-weight: 700; /* bold */
-  font-size: 34px; /* tamaño mobile */
-
-  margin: 2px 0;
-  line-height: 1.1;
-}
-
-/* ========================= */
-/* SUBTITULO */
-/* ========================= */
-.subtitle {
-  font-family: 'Eras', sans-serif;
+  font-family: 'Josefin Sans', sans-serif;
   font-weight: 700;
-  font-size: 18px; /* mobile */
+  font-size: 38px;
+  color: #FF0000; /* Tu Rojo Principal */
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
 
-  color: #043d21;
-  line-height: 1.15;
+.subtitle {
+  font-family: 'Josefin Sans', sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  color: #444; /* Gris oscuro para legibilidad */
+  line-height: 1.4;
+  margin-bottom: 24px;
 }
 
 /* ========================= */
-/* DESKTOP (>= 768px) */
+/* BOTONES                   */
+/* ========================= */
+.buttonContainer {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.primaryBtn, .secondaryBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+}
+
+.primaryBtn:active, .secondaryBtn:active {
+  transform: scale(0.95);
+}
+
+.primaryBtn {
+  background-color: #FF0000; /* Rojo Glamour */
+  color: white;
+}
+
+.secondaryBtn {
+  background-color: #ff9c9f; /* Coral suave */
+  color: white;
+}
+
+/* ========================= */
+/* DESKTOP                   */
 /* ========================= */
 @media (min-width: 768px) {
-
-  /* ajusta altura según header desktop */
   .hero {
     min-height: calc(100vh - var(--header-h-desktop));
-
-    /* baja el hero completo (por header grande) */
-    transform: translateY(195px);
   }
 
-  /* 🔥 ACA CONTROLÁS EL TAMAÑO EN DESKTOP */
   .title {
-    font-size: 42px; /* antes 54 → ahora más chico */
+    font-size: 56px;
   }
 
   .subtitle {
-    font-size: 16px; /* más chico para acompañar */
-  }
-
-  .kicker {
-    font-size: 14px; /* más chico */
-    font-weight: 500; /* menos pesado */
+    font-size: 20px;
   }
 }

@@ -1,0 +1,107 @@
+/* =========================
+   HEADER (USA VARIABLES GLOBALES)
+========================= */
+
+.header {
+  /* 🔥 SOLO tamaños internos (la altura viene de globals.css) */
+  --icon-size: 50px;
+  --logo-size: 35px;
+  --badge-size: 21px;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-h-mobile); /* 👈 sincronizado con globals */
+
+  padding: 0 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: #Ff0000;
+  z-index: 1000;
+}
+
+/* =========================
+   DESKTOP HEIGHT SYNC
+========================= */
+
+@media (min-width: 768px) {
+  .header {
+    height: var(--header-h-desktop); /* 👈 sincronizado con globals */
+
+    --icon-size: 65px;
+    --logo-size: 70px;
+    --badge-size: 28px;
+
+    padding: 0 24px;
+  }
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.left,
+.center,
+.right {
+  display: flex;
+  align-items: center;
+}
+
+/* =========================
+   ICONOS
+========================= */
+
+.icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+
+/* =========================
+   LOGO
+========================= */
+
+.logo {
+  height: var(--logo-size);
+  object-fit: contain;
+  margin-top:-10;
+}
+
+/* =========================
+   CARRITO
+========================= */
+
+.cart {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* =========================
+   BADGE
+========================= */
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+
+  background: #ffffff;
+  color: rgb(255, 0, 0);
+
+  font-size: 15px;
+  font-weight: bold;
+
+  padding: 2px 6px;
+  border-radius: 999px;
+
+  min-width: var(--badge-size);
+  height: var(--badge-size);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
