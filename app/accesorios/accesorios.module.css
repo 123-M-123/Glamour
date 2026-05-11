@@ -114,21 +114,3 @@
     transform: translateY(0);
   }
 }
-
-.customIcon {
-  width: 45px;
-  height: 45px;
-  object-fit: contain;
-  /* Si tus PNG son negros y los querés rojos, podemos usar un filtro: */
-  /* filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%); */
-}
-
-/* Ajuste del contenedor del icono para que no se deforme */
-.iconBox {
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-  color: #ff0000;
-}

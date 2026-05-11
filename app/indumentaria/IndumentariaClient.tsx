@@ -2,50 +2,41 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Shirt, Moon, Wind, Sun, Trees, Zap, User, RectangleVertical, ShoppingBag } from 'lucide-react'
+import { Shirt, Sparkles, Palmtree, Zap, UserRound, ShoppingBag, Moon, Wind, Sun, Trees, Smartphone } from 'lucide-react'
 import styles from './indumentaria.module.css'
 
-// ✅ AQUÍ ESTÁN LAS 9 CATEGORÍAS, NUNCA SE FUERON
 const categories = [
-  { name: 'Remeras', slug: 'remeras', icon: <Shirt size={40} /> },
-  { name: 'Camisetas', slug: 'camisetas', icon: <ShoppingBag size={40} /> },
-  { name: 'Jeans', slug: 'jeans', icon: <RectangleVertical size={40} /> },
-  { name: 'Noche', slug: 'noche', icon: <Moon size={40} /> },
-  { name: 'Camperas', slug: 'camperas', icon: <Wind size={40} /> },
-  { name: 'Shorts', slug: 'shorts', icon: <Sun size={40} /> },
-  { name: 'Bermudas', slug: 'bermudas', icon: <Trees size={40} /> },
-  { name: 'Calzas', slug: 'calzas', icon: <Zap size={40} /> },
-  { name: 'Camisas', slug: 'camisas', icon: <User size={40} /> },
+  { name: 'Remeras', slug: 'remeras',  useImage: true }, // 👈 Usa remeras.png
+  { name: 'Camisetas', slug: 'camisetas', useImage: true }, // 👈 Usa camisetas.png
+  { name: 'Jeans', slug: 'jeans', useImage: true },       // 👈 Usa jeans.png
+  { name: 'Noche', slug: 'noche', icon: <Moon size={35} /> },  // 👈 Usa noche.png
+  { name: 'Camperas', slug: 'camperas',  useImage: true }, // 👈 Usa camperas.png
+  { name: 'Shorts', slug: 'shorts', useImage: true },
+  { name: 'Bermudas', slug: 'bermudas', useImage: true },
+  { name: 'Calzas', slug: 'calzas', useImage: true },
+  { name: 'Camisas', slug: 'camisas', useImage: true },
+  { name: 'Sweaters', slug: 'sweaters', useImage: true },
+  { name: 'Chalecos', slug: 'chalecos',  useImage: true },
 ]
 
 export default function IndumentariaClient({ productos, banners }: { productos: any[], banners: any[] }) {
   const [mounted, setMounted] = useState(false)
-  
-  useEffect(() => { 
-    setMounted(true) 
-    console.log("Banners cargados:", banners)
-  }, [banners])
+  useEffect(() => { setMounted(true) }, [])
 
   if (!mounted) return null
 
   const renderBanner = (ubicacion: string) => {
     const banner = banners.find(b => b.ubicacion === ubicacion.toLowerCase());
     if (!banner) return null;
-    
     return (
       <div className={styles.bannerContainer}>
-        <img 
-          src={banner.imagen} 
-          alt="Publicidad Glamour" 
-          className={styles.bannerImg} 
-        />
+        <img src={banner.imagen} alt="Publicidad" className={styles.bannerImg} />
       </div>
     );
   }
 
   return (
     <main className={styles.container}>
-      {/* 🚀 BANNER HERO: Se cargará si en el Excel dice 'hero-indumentaria' */}
       {renderBanner("hero-indumentaria")}
 
       <header className={styles.header}>
@@ -57,12 +48,20 @@ export default function IndumentariaClient({ productos, banners }: { productos: 
         {categories.map((cat, index) => (
           <Link 
             key={cat.slug} 
-            href={`/tienda/${cat.slug}`} 
+            href={`/indumentaria/${cat.slug}`} // 👈 Cambiado a ruta por rama como pediste
             className={styles.card}
             style={{ animationDelay: `${index * 0.1}s` }}
           >
             <div className={styles.iconBox}>
-              {cat.icon}
+              {cat.useImage ? (
+                <img 
+                  src={`/icons/${cat.slug}.png`} 
+                  alt={cat.name} 
+                  className={styles.customIcon} 
+                />
+              ) : (
+                cat.icon
+              )}
             </div>
             <div className={styles.cardInfo}>
               <span className={styles.catName}>{cat.name}</span>
@@ -72,7 +71,6 @@ export default function IndumentariaClient({ productos, banners }: { productos: 
         ))}
       </div>
 
-      {/* 🚀 BANNER FOOTER: Se cargará si en el Excel dice 'footer-indumentaria' */}
       {renderBanner("footer-indumentaria")}
     </main>
   )
