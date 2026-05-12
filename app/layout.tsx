@@ -19,10 +19,10 @@ export const metadata: Metadata = {
     siteName: "Glamour | Urquiza",
     images: [
       {
-        url: "/og/image-1.jpg",
+        url: "/og/image-2.jpg",
         width: 1200,
         height: 630,
-        type: "image-1/jpg",
+        type: "image-2/jpg",
         alt: "Glamour Urquiza | Indumentaria y Accesorios",
       },
     ],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Glamour Urquiza | Indumentaria y Accesorios",
     description: "Nombre Largo ej=> Glamour Urquiza (aca tiene que ir algo como de esta cantidad de texto que llame a la acción y genere ventas o visitas)",
-    images: ["/og/image-1.jpg"],
+    images: ["/og/image-2.jpg"],
   },
 
   icons: {

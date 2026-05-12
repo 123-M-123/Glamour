@@ -4,18 +4,15 @@ import ProductModal from '@/app/components/ProductModal'
 import styles from './category.module.css'
 
 export default function CategoryClient({ category, productos, banners }: any) {
-  // 1. DECLARACIÓN DE TODOS LOS HOOKS AL PRINCIPIO (REGLA DE ORO)
   const [selected, setSelected] = useState<any | null>(null)
   const [mounted, setMounted] = useState(false)
 
-  // Filtro de productos de esta categoría
   const productosCategoria = useMemo(() => {
     return productos.filter((p: any) => 
       p.categoria.toLowerCase().trim() === category.toLowerCase().trim()
     )
   }, [productos, category])
 
-  // Filtro de productos aleatorios (También en useMemo para que no cambie en cada re-render)
   const productosOtros = useMemo(() => {
     return productos
       .filter((p: any) => p.categoria.toLowerCase().trim() !== category.toLowerCase().trim())
@@ -23,14 +20,10 @@ export default function CategoryClient({ category, productos, banners }: any) {
       .slice(0, 10)
   }, [productos, category])
 
-  useEffect(() => { 
-    setMounted(true) 
-  }, [])
+  useEffect(() => { setMounted(true) }, [])
 
-  // 2. RECIÉN ACÁ PODEMOS HACER EL RETURN TEMPRANO
   if (!mounted) return null
 
-  // 3. LÓGICA DE RENDERIZADO
   const renderBanner = (ubicacion: string) => {
     const banner = banners.find((b: any) => b.ubicacion === ubicacion.toLowerCase());
     if (!banner) return null;
@@ -46,7 +39,7 @@ export default function CategoryClient({ category, productos, banners }: any) {
 
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>{category.toUpperCase()}</h1>
+      <h1 className={styles.title}>{category.replace(/-/g, ' ')}</h1>
 
       {/* 🎡 CARRUSEL 1: Categoría Actual */}
       {itemsSuperior.length > 0 && (
@@ -55,7 +48,8 @@ export default function CategoryClient({ category, productos, banners }: any) {
             {itemsSuperior.map((item, i) => (
               <div key={`sup-${i}`} className={styles.carouselCard} onClick={() => setSelected(item)}>
                 <img src={item.imagen} alt={item.nombre} />
-                <div className={styles.miniLabel}>{item.nombre}</div>
+                {/* 👈 Texto normalizado a minúsculas para que el CSS aplique Capitalize */}
+                <div className={styles.miniLabel}>{item.nombre.toLowerCase()}</div>
               </div>
             ))}
           </div>
@@ -70,7 +64,8 @@ export default function CategoryClient({ category, productos, banners }: any) {
           <div key={item.id} className={styles.productCard} onClick={() => setSelected(item)}>
             <div className={styles.imageBox}><img src={item.imagen} alt={item.nombre} /></div>
             <div className={styles.info}>
-              <span className={styles.productName}>{item.nombre}</span>
+              {/* 👈 Texto normalizado */}
+              <span className={styles.productName}>{item.nombre.toLowerCase()}</span>
               <span className={styles.price}>${new Intl.NumberFormat('es-AR').format(item.precioTransfer)}</span>
             </div>
           </div>
@@ -86,7 +81,8 @@ export default function CategoryClient({ category, productos, banners }: any) {
             {itemsOtros.map((item, i) => (
               <div key={`inf-${i}`} className={styles.carouselCard} onClick={() => setSelected(item)}>
                 <img src={item.imagen} alt={item.nombre} />
-                <div className={styles.miniLabel}>{item.categoria}</div>
+                {/* 👈 Categoría normalizada */}
+                <div className={styles.miniLabel}>{item.categoria.toLowerCase()}</div>
               </div>
             ))}
           </div>
@@ -94,7 +90,6 @@ export default function CategoryClient({ category, productos, banners }: any) {
       )}
 
       {renderBanner(`footer-${category}`)}
-
       <ProductModal open={!!selected} producto={selected} onClose={() => setSelected(null)} />
     </main>
   )

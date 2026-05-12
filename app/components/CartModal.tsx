@@ -1,145 +1,78 @@
 'use client'
 
+import { useState } from 'react'
 import styles from './CartModal.module.css'
 import { useCartStore } from '../store/useCartStore'
 import { useRouter } from 'next/navigation'
+import { X, Trash2 } from 'lucide-react'
 
-
-type Props = {
-  open: boolean
-  onClose: () => void
-}
-
-export default function CartModal({ open, onClose }: Props) {
+export default function CartModal({ open, onClose }: any) {
   const router = useRouter()
-  const {
-    items,
-    total,
-    removeFromCart,
-    clearCart,
-    updateEnvio, // 🔥 NUEVO
-  } = useCartStore()
+  const { items, clearCart, removeFromCart } = useCartStore()
+  const [envioGlobal, setEnvioGlobal] = useState(0)
 
   if (!open) return null
 
+  const totalTransfer = items.reduce((acc, item) => acc + (item.producto.precioTransfer * item.cantidad), 0)
+  const totalLista = items.reduce((acc, item) => acc + (item.producto.precio * item.cantidad), 0)
+  const ahorro = totalLista - totalTransfer
+  const totalFinal = totalTransfer + envioGlobal
+
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div
-        className={styles.modal}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        
         <div className={styles.header}>
-          <h2 className={styles.title}>Tu carrito</h2>
+          <h2 className={styles.title}>Mi Bolsa</h2>
+          <button className={styles.close} onClick={onClose}><X size={24} /></button>
+        </div>
 
-          <button className={styles.close} onClick={onClose}>
-            ✕
-          </button>
+        <div className={styles.shippingSection}>
+          <label className={styles.label}>¿Cómo quieres recibir tu pedido?</label>
+          <select 
+            className={styles.select} 
+            value={envioGlobal} 
+            onChange={(e) => setEnvioGlobal(Number(e.target.value))}
+          >
+            <option value={0}>Retiro Gratis (Villa Urquiza)</option>
+            <option value={3000}>Envío Zona 1 ($3.000)</option>
+            <option value={5000}>Envío Zona 2 ($5.000)</option>
+            <option value={7000}>Envío Zona 3 ($7.000)</option>
+          </select>
         </div>
 
         <div className={styles.list}>
-          {items.map((item, index) => {
-            const precioProducto =
-              item.producto.precioTransfer * item.cantidad
-
-            const subtotal = precioProducto + item.envio
-
-            return (
-              <div
-                key={`${item.producto.id}-${item.envio}-${index}`}
-                className={styles.card}
-              >
-                <img
-                  src={item.producto.imagen}
-                  className={styles.img}
-                />
-
-                <div className={styles.info}>
-                  <p className={styles.name}>
-                    {item.producto.nombre}
-                  </p>
-
-                  <p className={styles.desc}>
-                    Cant: {item.cantidad}
-                  </p>
-
-                  {/* PRODUCTO */}
-                  <div className={styles.row}>
-                    <span className={styles.productoLabel}>
-                      Producto
-                    </span>
-                    <span className={styles.price}>
-                      $ {precioProducto}
-                    </span>
-                  </div>
-
-                  <div className={styles.divider} />
-
-                  {/* 🔥 ENVÍO DINÁMICO */}
-                  <div className={styles.row}>
-                    <span className={styles.envioLabel}>
-                      Envío
-                    </span>
-
-                    <select
-                      value={item.envio}
-                      onChange={(e) =>
-                        updateEnvio(
-                          item.producto.id,
-                          item.envio,
-                          Number(e.target.value)
-                        )
-                      }
-                    >
-                      <option value={0}>Retiro             S/Costo</option>
-                      <option value={3000}>Zona 1 (est)       $3.000</option>
-                      <option value={5000}>Zona 2 (est)       $5.000</option>
-                      <option value={7000}>Zona 3 (est)       $7.000</option>
-                      <option value={9000}>Zona 4 (est)       $9.000</option>
-                    </select>
-                  </div>
-
-                  <div className={styles.divider} />
-
-                  {/* SUBTOTAL */}
-                  <div className={styles.subtotalRow}>
-                    <span className={styles.subtotalLabel}>
-                      Subtotal
-                    </span>
-                    <span className={styles.subtotal}>
-                      $ {subtotal}
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  className={styles.remove}
-                  onClick={() =>
-                    removeFromCart(item.producto.id, item.envio)
-                  }
-                >
-                  ✕
-                </button>
+          {items.map((item: any, index: number) => (
+            <div key={index} className={styles.card}>
+              <img src={item.producto.imagen} className={styles.img} alt={item.producto.nombre} />
+              <div className={styles.info}>
+                <p className={styles.name}>{item.producto.nombre}</p>
+                <p className={styles.price}>
+                  {item.cantidad} x ${new Intl.NumberFormat('es-AR').format(item.producto.precioTransfer)}
+                </p>
               </div>
-            )
-          })}
+              <button className={styles.remove} onClick={() => removeFromCart(item.producto.id, item.envio)}>
+                <Trash2 size={16} />
+              </button>
+            </div>
+          ))}
         </div>
 
         <div className={styles.footer}>
-          <div className={styles.total}>
-            Total: $ {total}
+          <div className={styles.summary}>
+            {ahorro > 0 && <div className={styles.ahorroBadge}>¡Ahorrás ${new Intl.NumberFormat('es-AR').format(ahorro)}!</div>}
+            <div className={styles.totalRow}>
+              <span>TOTAL</span>
+              <span className={styles.finalPrice}>$ {new Intl.NumberFormat('es-AR').format(totalFinal)}</span>
+            </div>
+            <p className={styles.payway}>Aceptamos todos los medios de pago (Payway)</p>
           </div>
 
           <div className={styles.actions}>
-            <button className={styles.clear} onClick={clearCart}>
-              Vaciar
+            <button className={styles.clear} onClick={clearCart}>Vaciar</button>
+            <button className={styles.buy} onClick={() => router.push('/checkout')}>
+              ELEGIR MEDIO DE PAGO
             </button>
-
-            <button
-  className={styles.buy}
-  onClick={() => router.push('/checkout')}
->
-  Comprar
-</button>
           </div>
         </div>
       </div>

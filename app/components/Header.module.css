@@ -3,7 +3,7 @@
 ========================= */
 .header {
   --icon-size: 50px;
-  --logo-size: 35px;
+  --logo-size: 65px;
   --badge-size: 21px;
 
   position: fixed;
@@ -23,7 +23,7 @@
   .header {
     height: var(--header-h-desktop);
     --icon-size: 65px;
-    --logo-size: 70px;
+    --logo-size: 100px;
     --badge-size: 28px;
     padding: 0 24px;
   }

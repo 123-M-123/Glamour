@@ -29,8 +29,8 @@ export default function Header() {
   ]
 
   const accesoriosCats = [
-    'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres de fiesta', 
-    'perfuminas', 'chokers', 'porta-celulares', 'pañuelos', 'pashminas'
+    'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres-de-fiesta', 
+    'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'
   ]
 
   // Helper para iconos (PNG > Lucide)

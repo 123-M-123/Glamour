@@ -5,8 +5,8 @@ import { Sparkles } from 'lucide-react'
 import styles from './accesorios.module.css' // Copia el CSS de indumentaria a este nuevo archivo
 
 const CATS_ACCESORIOS = [
-  'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres de fiesta', 
-  'perfuminas', 'chokers', 'porta-celulares', 'pañuelos', 'pashminas'
+  'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres-de-fiesta', 
+  'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'
 ]
 
 export default function AccesoriosClient({ productos, banners }: { productos: any[], banners: any[] }) {
