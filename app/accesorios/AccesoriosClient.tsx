@@ -6,7 +6,7 @@ import styles from './accesorios.module.css' // Copia el CSS de indumentaria a e
 
 const CATS_ACCESORIOS = [
   'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres de fiesta', 
-  'perfuminas', 'chockers', 'porta celulares', 'pañuelos', 'pashminas'
+  'perfuminas', 'chokers', 'porta-celulares', 'pañuelos', 'pashminas'
 ]
 
 export default function AccesoriosClient({ productos, banners }: { productos: any[], banners: any[] }) {
