@@ -1,5 +1,5 @@
 /* =========================
-   TU HEADER ORIGINAL
+   HEADER ORIGINAL (RESPECT)
 ========================= */
 .header {
   --icon-size: 50px;
@@ -44,21 +44,26 @@
 
 .menuBtn { background: none; border: none; cursor: pointer; display: flex; align-items: center; }
 
+@media (max-width: 768px) {
+  .hideMobile { display: none; }
+}
+
 /* =========================
    SIDEBAR (MENÚ LATERAL)
 ========================= */
 .sidebar {
   position: fixed;
   top: 0;
-  left: -300px; /* Oculto por defecto */
-  width: 300px;
+  left: -320px; /* Un poco más ancha para el contenido */
+  width: 320px;
   height: 100vh;
   background: white;
   z-index: 2000;
-  transition: left 0.3s ease;
+  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
   box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+  overflow-y: auto; /* Permite scroll si hay muchas categorías */
 }
 
 .sidebarOpen { left: 0; }
@@ -72,13 +77,18 @@
   align-items: center;
 }
 
-.sidebarTitle { font-weight: bold; letter-spacing: 1px; }
+.brand { display: flex; flex-direction: column; }
+.sidebarTitle { font-weight: 800; letter-spacing: 2px; font-size: 20px; }
+.sidebarSubtitle { font-size: 10px; opacity: 0.8; text-transform: uppercase; }
 
 .sidebarHeader button { background: none; border: none; color: white; cursor: pointer; }
 
-.sidebarNav { display: flex; flex-direction: column; padding: 20px 0; }
+/* =========================
+   ACORDEÓN Y NAVEGACIÓN
+========================= */
+.sidebarNav { display: flex; flex-direction: column; padding: 15px 0; }
 
-.sidebarItem {
+.sidebarItem, .accordionTrigger {
   padding: 15px 25px;
   display: flex;
   align-items: center;
@@ -88,14 +98,102 @@
   font-weight: 600;
   border-bottom: 1px solid #eee;
   transition: background 0.2s;
+  background: transparent;
+  border-left: 0; border-right: 0; border-top: 0;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 
-.sidebarItem:active { background: #fff0f0; color: #ff0000; }
+.accordionTrigger {
+  justify-content: space-between;
+}
 
-.sidebarIcon { color: #ff0000; }
+.triggerLeft {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
 
-.sidebarFooter { margin-top: auto; padding: 30px 20px; text-align: center; }
-.sidebarFooter a { font-size: 12px; font-weight: bold; color: #ff0000; text-decoration: none; }
+.sidebarItem:active, .active { 
+  background: #fff0f1; 
+  color: #ff0000; 
+}
+
+.rotate { transform: rotate(180deg); transition: transform 0.3s; }
+
+/* SUB-ITEMS */
+.accordionContent {
+  background: #fdfdfd;
+  display: flex;
+  flex-direction: column;
+}
+
+.subItem {
+  padding: 12px 20px 12px 60px; /* Espacio para que el texto empiece después del icono principal */
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 1px solid #f9f9f9;
+  text-transform: capitalize;
+}
+
+.subItem:hover {
+  background: #fffafa;
+  color: #ff0000;
+}
+
+/* ICONOS HÍBRIDOS (PNG + LUCIDE) */
+.iconWrapper {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.sidebarPng {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 2;
+}
+
+.sidebarLucide {
+  color: #ff0000;
+  z-index: 1;
+}
+
+/* =========================
+   FOOTER Y OVERLAY
+========================= */
+.sidebarFooter { 
+  margin-top: auto; 
+  padding: 40px 20px; 
+  text-align: center; 
+}
+
+.sidebarFooter a { 
+  font-size: 12px; 
+  font-weight: 800; 
+  color: #ff0000; 
+  text-decoration: none; 
+  border: 1px solid #ff0000;
+  padding: 10px 20px;
+  border-radius: 50px;
+  display: inline-block;
+  transition: all 0.3s;
+}
+
+.sidebarFooter a:hover {
+  background: #ff0000;
+  color: white;
+}
 
 .overlay {
   position: fixed;
@@ -105,8 +203,5 @@
   height: 100vh;
   background: rgba(0,0,0,0.5);
   z-index: 1500;
-}
-
-@media (max-width: 768px) {
-  .hideMobile { display: none; }
+  backdrop-filter: blur(2px);
 }

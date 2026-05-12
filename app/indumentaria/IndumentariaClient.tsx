@@ -1,29 +1,24 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Shirt, Sparkles, Palmtree, Zap, UserRound, ShoppingBag, Moon, Wind, Sun, Trees, Smartphone } from 'lucide-react'
+import { Shirt, Sparkles } from 'lucide-react' 
 import styles from './indumentaria.module.css'
 
-const categories = [
-  { name: 'Remeras', slug: 'remeras',  useImage: true }, // 👈 Usa remeras.png
-  { name: 'Camisetas', slug: 'camisetas', useImage: true }, // 👈 Usa camisetas.png
-  { name: 'Jeans', slug: 'jeans', useImage: true },       // 👈 Usa jeans.png
-  { name: 'Noche', slug: 'noche', icon: <Moon size={35} /> },  // 👈 Usa noche.png
-  { name: 'Camperas', slug: 'camperas',  useImage: true }, // 👈 Usa camperas.png
-  { name: 'Shorts', slug: 'shorts', useImage: true },
-  { name: 'Bermudas', slug: 'bermudas', useImage: true },
-  { name: 'Calzas', slug: 'calzas', useImage: true },
-  { name: 'Camisas', slug: 'camisas', useImage: true },
-  { name: 'Sweaters', slug: 'sweaters', useImage: true },
-  { name: 'Chalecos', slug: 'chalecos',  useImage: true },
+// Lista blanca de subcategorías de INDUMENTARIA
+const CATS_INDUMENTARIA = [
+  'remeras', 'camisetas', 'jeans', 'noche', 'camperas', 
+  'shorts', 'bermudas', 'calzas', 'camisas', 'sweaters', 'chalecos'
 ]
 
 export default function IndumentariaClient({ productos, banners }: { productos: any[], banners: any[] }) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
-
   if (!mounted) return null
+
+  // Filtramos: Solo categorías que existen en el Excel Y están en nuestra lista de Indumentaria
+  const categoriasFiltradas = Array.from(
+    new Set(productos.map((p) => p.categoria.toLowerCase().trim()))
+  ).filter(cat => CATS_INDUMENTARIA.includes(cat))
 
   const renderBanner = (ubicacion: string) => {
     const banner = banners.find(b => b.ubicacion === ubicacion.toLowerCase());
@@ -38,39 +33,33 @@ export default function IndumentariaClient({ productos, banners }: { productos: 
   return (
     <main className={styles.container}>
       {renderBanner("hero-indumentaria")}
-
       <header className={styles.header}>
         <h1 className={styles.title}>Indumentaria</h1>
         <p className={styles.subtitle}>Colecciones exclusivas Glamour</p>
       </header>
 
       <div className={styles.grid}>
-        {categories.map((cat, index) => (
-          <Link 
-            key={cat.slug} 
-            href={`/indumentaria/${cat.slug}`} // 👈 Cambiado a ruta por rama como pediste
-            className={styles.card}
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
+        {categoriasFiltradas.map((cat, index) => (
+          <Link key={cat} href={`/indumentaria/${cat.replace(/\s+/g, '-')}`} className={styles.card}>
             <div className={styles.iconBox}>
-              {cat.useImage ? (
-                <img 
-                  src={`/icons/${cat.slug}.png`} 
-                  alt={cat.name} 
-                  className={styles.customIcon} 
-                />
-              ) : (
-                cat.icon
-              )}
+              <img 
+                src={`/icons/${cat}.png`} 
+                alt="" 
+                className={styles.customIcon}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                  (e.target as HTMLImageElement).parentElement!.classList.add(styles.showFallback);
+                }}
+              />
+              <Shirt className={styles.fallbackIcon} size={35} />
             </div>
             <div className={styles.cardInfo}>
-              <span className={styles.catName}>{cat.name}</span>
+              <span className={styles.catName}>{cat.toUpperCase()}</span>
               <span className={styles.explore}>VER TODO</span>
             </div>
           </Link>
         ))}
       </div>
-
       {renderBanner("footer-indumentaria")}
     </main>
   )

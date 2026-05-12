@@ -1,0 +1,221 @@
+/* =========================
+   LAYOUT BASE & ENTRADA
+========================= */
+.page { 
+  padding: 80px 16px 40px; 
+  min-height: 100vh;
+  animation: fadeIn 0.8s ease-out; /* Entrada suave de toda la página */
+}
+
+.hero { 
+  text-align: center; 
+  margin-bottom: 30px; 
+  text-transform: uppercase; 
+}
+
+.title { 
+  color: #FF0000; 
+  font-size: 32px; 
+  letter-spacing: 3px; 
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.subtitle { 
+  color: #666; 
+  font-size: 14px; 
+  letter-spacing: 1px;
+}
+
+.sectionTitle {
+  color: #FF0000;
+  text-align: center;
+  margin: 50px 0 20px;
+  font-size: 20px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* =========================
+   CARRUSELES (SUPERIOR E INFERIOR)
+========================= */
+.carouselContainer {
+  width: 100%;
+  overflow: hidden;
+  margin: 20px 0;
+  padding: 15px 0;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: scrollX 35s linear infinite;
+}
+
+/* Animación inversa para el segundo carrusel */
+.trackReverse {
+  animation: scrollX 40s linear infinite reverse;
+}
+
+.carouselCard {
+  width: 180px;
+  height: 250px;
+  margin-right: 15px;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid #ffc9cb;
+  position: relative;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.carouselCard:hover {
+  transform: scale(1.05) translateY(-5px);
+  border-color: #FF0000;
+  z-index: 10;
+}
+
+.carouselCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.miniLabel {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  padding: 6px;
+  text-transform: uppercase;
+}
+
+/* =========================
+   GRID DE PRODUCTOS PRINCIPAL
+========================= */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 30px 0;
+}
+
+@media (min-width: 768px) {
+  .grid { grid-template-columns: repeat(4, 1fr); gap: 25px; }
+  .carouselCard { width: 240px; height: 320px; }
+}
+
+.productCard {
+  cursor: pointer;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #ffc9cb;
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease backwards; /* Entrada animada por card */
+}
+
+/* Efecto de levitación al pasar el mouse */
+.productCard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(255, 0, 0, 0.15);
+  border-color: #FF0000;
+}
+
+.imageBox { 
+  width: 100%; 
+  aspect-ratio: 3/4; 
+  overflow: hidden; 
+}
+
+.imageBox img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+  transition: transform 0.5s ease;
+}
+
+.productCard:hover .imageBox img {
+  transform: scale(1.1); /* Zoom suave en la imagen al hover */
+}
+
+.info { 
+  padding: 15px; 
+  text-align: center; 
+}
+
+.productName { 
+  display: block; 
+  font-size: 13px; 
+  font-weight: 600; 
+  color: #333; 
+  margin-bottom: 5px; 
+  text-transform: uppercase; 
+}
+
+.price { 
+  color: #FF0000; 
+  font-weight: 800; 
+  font-size: 18px; 
+}
+
+/* =========================
+   BANNERS & EXTRAS
+========================= */
+.bannerContainer { 
+  width: 100%; 
+  margin: 40px 0; 
+  border-radius: 15px; 
+  overflow: hidden; 
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.bannerImg { 
+  width: 100%; 
+  height: auto; 
+  display: block; 
+}
+
+.empty { 
+  text-align: center; 
+  padding: 100px 0; 
+  color: #999; 
+  font-style: italic;
+}
+
+/* =========================
+   ANIMACIONES (KEYFRAMES)
+========================= */
+@keyframes scrollX {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Pausar carrusel al pasar el mouse */
+.track:hover {
+  animation-play-state: paused;
+}

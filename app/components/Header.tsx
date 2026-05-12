@@ -1,8 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu, X, Instagram, ShoppingBag, Shirt, Moon, Wind, Sun, Trees, Zap, User, ChevronRight } from 'lucide-react'
+import { 
+  Menu, X, Instagram, ShoppingBag, Home, 
+  ChevronDown, ChevronRight, Shirt, Sparkles 
+} from 'lucide-react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import styles from './Header.module.css'
 import { useCartStore } from '../store/useCartStore'
 import CartModal from './CartModal'
@@ -11,27 +15,40 @@ import { C } from '@/styles/colores'
 export default function Header() {
   const { items } = useCartStore()
   const [openCart, setOpenCart] = useState(false)
-  const [openMenu, setOpenMenu] = useState(false) // Estado para el menú lateral
+  const [openMenu, setOpenMenu] = useState(false)
+  
+  // Estados para los acordeones
+  const [showIndumentaria, setShowIndumentaria] = useState(false)
+  const [showAccesorios, setShowAccesorios] = useState(false)
 
   const totalItems = items.reduce((acc, item) => acc + item.cantidad, 0)
 
-  // Las 9 categorías con iconos seguros de Lucide
-  const categories = [
-    { name: 'Remeras', slug: 'remeras', icon: <Shirt size={22} /> },
-    { name: 'Camisetas', slug: 'camisetas', icon: <Shirt size={22} /> },
-    { name: 'Jeans', slug: 'jeans', icon: <ChevronRight size={22} /> },
-    { name: 'Noche', slug: 'noche', icon: <Moon size={22} /> },
-    { name: 'Camperas', slug: 'camperas', icon: <Wind size={22} /> },
-    { name: 'Shorts', slug: 'shorts', icon: <Sun size={22} /> },
-    { name: 'Bermudas', slug: 'bermudas', icon: <Trees size={22} /> },
-    { name: 'Calzas', slug: 'calzas', icon: <Zap size={22} /> },
-    { name: 'Camisas', slug: 'camisas', icon: <User size={22} /> },
+  const indumentariaCats = [
+    'remeras', 'camisetas', 'jeans', 'noche', 'camperas', 
+    'shorts', 'bermudas', 'calzas', 'camisas', 'sweaters', 'chalecos'
   ]
+
+  const accesoriosCats = [
+    'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres de fiesta', 
+    'perfuminas', 'chokers', 'porta-celulares', 'pañuelos', 'pashminas'
+  ]
+
+  // Helper para iconos (PNG > Lucide)
+  const NavIcon = ({ slug, fallback: Fallback }: { slug: string, fallback: any }) => (
+    <div className={styles.iconWrapper}>
+      <img 
+        src={`/icons/${slug}.png`} 
+        alt="" 
+        className={styles.sidebarPng}
+        onError={(e) => (e.currentTarget.style.display = 'none')}
+      />
+      <Fallback size={20} className={styles.sidebarLucide} />
+    </div>
+  )
 
   return (
     <>
       <header className={styles.header}>
-        {/* IZQUIERDA: Hamburguesa + Instagram */}
         <div className={styles.left}>
           <button className={styles.menuBtn} onClick={() => setOpenMenu(true)}>
             <Menu color="white" size={35} />
@@ -41,51 +58,115 @@ export default function Header() {
           </a>
         </div>
 
-        {/* CENTRO: Tu Logo */}
         <div className={styles.center}>
           <Link href="/">
             <img src="/logo.png" className={styles.logo} alt="Logo" />
           </Link>
         </div>
 
-        {/* DERECHA: Carrito */}
         <div className={styles.right}>
           <button className={styles.cart} onClick={() => setOpenCart(true)}>
             <ShoppingBag color="white" size={35} />
-            {totalItems > 0 && (
-              <span className={styles.badge}>{totalItems}</span>
-            )}
+            {totalItems > 0 && <span className={styles.badge}>{totalItems}</span>}
           </button>
         </div>
       </header>
 
-      {/* MENÚ LATERAL (Sidebar Innovadora) */}
+      {/* SIDEBAR */}
       <div className={`${styles.sidebar} ${openMenu ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
-          <span className={styles.sidebarTitle}>CATEGORÍAS</span>
+          <div className={styles.brand}>
+            <span className={styles.sidebarTitle}>GLAMOUR</span>
+            <span className={styles.sidebarSubtitle}>Navegación</span>
+          </div>
           <button onClick={() => setOpenMenu(false)}><X size={30} /></button>
         </div>
+
         <nav className={styles.sidebarNav}>
-          {categories.map((cat) => (
-            <Link 
-              key={cat.slug} 
-              href={`/tienda/${cat.slug}`} 
-              className={styles.sidebarItem}
-              onClick={() => setOpenMenu(false)}
+          {/* INICIO */}
+          <Link href="/" className={styles.sidebarItem} onClick={() => setOpenMenu(false)}>
+            <Home size={22} /> Inicio
+          </Link>
+
+          {/* ACORDEÓN INDUMENTARIA */}
+          <div className={styles.accordion}>
+            <button 
+              className={`${styles.accordionTrigger} ${showIndumentaria ? styles.active : ''}`}
+              onClick={() => setShowIndumentaria(!showIndumentaria)}
             >
-              <span className={styles.sidebarIcon}>{cat.icon}</span>
-              {cat.name}
-            </Link>
-          ))}
-          <div className={styles.sidebarFooter}>
-             <a href="https://www.instagram.com/glamour.urquiza" target="_blank">SÍGUENOS EN INSTAGRAM</a>
+              <div className={styles.triggerLeft}>
+                <Shirt size={22} /> Tienda Indumentaria
+              </div>
+              <ChevronDown className={showIndumentaria ? styles.rotate : ''} size={18} />
+            </button>
+            
+            <AnimatePresence>
+              {showIndumentaria && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className={styles.accordionContent}
+                >
+                  {indumentariaCats.map(cat => (
+                    <Link 
+                      key={cat} 
+                      href={`/indumentaria/${cat}`} 
+                      className={styles.subItem}
+                      onClick={() => setOpenMenu(false)}
+                    >
+                      <NavIcon slug={cat} fallback={ChevronRight} />
+                      {cat}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* ACORDEÓN ACCESORIOS */}
+          <div className={styles.accordion}>
+            <button 
+              className={`${styles.accordionTrigger} ${showAccesorios ? styles.active : ''}`}
+              onClick={() => setShowAccesorios(!showAccesorios)}
+            >
+              <div className={styles.triggerLeft}>
+                <Sparkles size={22} /> Accesorios
+              </div>
+              <ChevronDown className={showAccesorios ? styles.rotate : ''} size={18} />
+            </button>
+
+            <AnimatePresence>
+              {showAccesorios && (
+                <motion.div 
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className={styles.accordionContent}
+                >
+                  {accesoriosCats.map(cat => (
+                    <Link 
+                      key={cat} 
+                      href={`/accesorios/${cat}`} 
+                      className={styles.subItem}
+                      onClick={() => setOpenMenu(false)}
+                    >
+                      <NavIcon slug={cat} fallback={ChevronRight} />
+                      {cat}
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </nav>
+
+        <div className={styles.sidebarFooter}>
+          <a href="https://www.instagram.com/glamour.urquiza" target="_blank">SEGUINOS EN INSTAGRAM</a>
+        </div>
       </div>
 
-      {/* Overlay para cerrar el menú */}
       {openMenu && <div className={styles.overlay} onClick={() => setOpenMenu(false)} />}
-
       <CartModal open={openCart} onClose={() => setOpenCart(false)} />
     </>
   )

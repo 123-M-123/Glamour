@@ -2,19 +2,18 @@
 
 function getDriveDirectLink(url: string) {
   if (!url || !url.includes("drive.google.com")) return url;
-  const match = url.match(/\/d\/(.+?)\//) || url.match(/id=(.+?)(&|$)/);
-  const fileId = match ? match[1] : null;
+  // Extrae el ID del archivo sin importar el formato del link
+  const match = url.match(/\/d\/(.+?)(?:\/|$)|\/file\/d\/(.+?)\/|id=(.+?)(?:&|$)/);
+  const fileId = match ? (match[1] || match[2] || match[3]) : null;
   if (!fileId) return url;
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 }
-
 // 📧 Lista de emails autorizados (incluimos todos los que vimos en tus fotos)
 const SOCIOS_AUTORIZADOS = [
-  "elianamarti90@gmail.com", 
-  "exequiel.devita@gmail.com", 
+  "gla_142@hotmail.com", 
   "marielabasualdo1985@gmail.com",
-  "mguiyemo@gmail.com",
-  "axel2002@gmail.com"
+  "marcosrenemarti@gmail.com",
+  
 ];
 
 export async function getProductsFromSheets() {

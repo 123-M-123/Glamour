@@ -1,68 +1,51 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { 
-  GripHorizontal, Briefcase, Circle, Wallet, Mail, 
-  Droplets, Disc, Smartphone, Wind, Box 
-} from 'lucide-react'
-import styles from './accesorios.module.css'
+import { Sparkles } from 'lucide-react' 
+import styles from './accesorios.module.css' // Copia el CSS de indumentaria a este nuevo archivo
 
-const categories = [
-  { name: 'Cinturones', slug: 'cinturones', icon: <GripHorizontal size={35} /> },
-  { name: 'Carteras', slug: 'carteras', icon: <Briefcase size={35} /> },
-  { name: 'Gorras', slug: 'gorras', icon: <Circle size={35} /> },
-  { name: 'Billeteras', slug: 'billeteras', icon: <Wallet size={35} /> },
-  { name: 'Sobres de fiesta', slug: 'sobres', icon: <Mail size={35} /> },
-  { name: 'Perfuminas', slug: 'perfuminas', icon: <Droplets size={35} /> },
-  { name: 'Chokers', slug: 'chokers', icon: <Disc size={35} /> },
-  { name: 'Porta-celulares', slug: 'porta-celulares', icon: <Smartphone size={35} /> },
-  { name: 'Pañuelos', slug: 'panuelos', icon: <Wind size={35} /> },
-  { name: 'Pashminas', slug: 'pashminas', icon: <Box size={35} /> },
+const CATS_ACCESORIOS = [
+  'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres de fiesta', 
+  'perfuminas', 'chockers', 'porta celulares', 'pañuelos', 'pashminas'
 ]
 
 export default function AccesoriosClient({ productos, banners }: { productos: any[], banners: any[] }) {
   const [mounted, setMounted] = useState(false)
   useEffect(() => { setMounted(true) }, [])
-
   if (!mounted) return null
 
-  const renderBanner = (ubicacion: string) => {
-    const banner = banners.find(b => b.ubicacion === ubicacion.toLowerCase());
-    if (!banner) return null;
-    return (
-      <div className={styles.bannerContainer}>
-        <img src={banner.imagen} alt="Publicidad" className={styles.bannerImg} />
-      </div>
-    );
-  }
+  const categoriasFiltradas = Array.from(
+    new Set(productos.map((p) => p.categoria.toLowerCase().trim()))
+  ).filter(cat => CATS_ACCESORIOS.includes(cat))
 
   return (
     <main className={styles.container}>
-      {renderBanner("hero-accesorios")}
-
       <header className={styles.header}>
         <h1 className={styles.title}>Accesorios</h1>
-        <p className={styles.subtitle}>El toque final para tu look Glamour</p>
+        <p className={styles.subtitle}>Complementos Glamour</p>
       </header>
-
       <div className={styles.grid}>
-        {categories.map((cat, index) => (
-          <Link 
-            key={cat.slug} 
-            href={`/tienda/${cat.slug}`} 
-            className={styles.card}
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <div className={styles.iconBox}>{cat.icon}</div>
+        {categoriasFiltradas.map((cat) => (
+          <Link key={cat} href={`/accesorios/${cat.replace(/\s+/g, '-')}`} className={styles.card}>
+            <div className={styles.iconBox}>
+              <img 
+                src={`/icons/${cat}.png`} 
+                alt="" 
+                className={styles.customIcon}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                  (e.target as HTMLImageElement).parentElement!.classList.add(styles.showFallback);
+                }}
+              />
+              <Sparkles className={styles.fallbackIcon} size={35} />
+            </div>
             <div className={styles.cardInfo}>
-              <span className={styles.catName}>{cat.name}</span>
-              <span className={styles.explore}>VER COLECCIÓN</span>
+              <span className={styles.catName}>{cat.toUpperCase()}</span>
+              <span className={styles.explore}>VER TODO</span>
             </div>
           </Link>
         ))}
       </div>
-
-      {renderBanner("footer-accesorios")}
     </main>
   )
 }

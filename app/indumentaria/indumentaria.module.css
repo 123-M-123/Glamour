@@ -132,3 +132,31 @@
   margin-bottom: 10px;
   color: #ff0000;
 }
+
+.iconBox {
+  height: 80px; /* Altura fija para todos */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.customIcon {
+  max-width: 70px;
+  max-height: 70px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+/* Solo muestra el icono de Lucide si la imagen falla */
+.fallbackIcon { display: none; color: #ff0000; }
+.showFallback .fallbackIcon { display: block; }
+
+.card:hover .customIcon {
+  transform: scale(1.1);
+}
+
+.bannerPlaceholder {
+  height: 20px; /* Evita que el título se pegue al techo si no hay banner */
+}
