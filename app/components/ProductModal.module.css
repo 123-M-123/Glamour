@@ -10,22 +10,22 @@
 }
 
 .modal {
-  background: #ffffff;
+  background: #ffe6e6; /* Tu color elegido */
   border-radius: 20px;
   width: 100%;
-  max-width: 850px; /* Alargado para desktop */
+  max-width: 850px;
+  max-height: 90vh; /* TOPE: Nunca más alto que el 90% de la pantalla */
   position: relative;
-  overflow: hidden;
+  overflow-y: auto; /* Scroll interno si el contenido es muy largo */
   animation: popIn 0.3s ease;
-  border: 2px solid #ff0000;
-  
-  /* Baja el modal para que no lo tape el header */
+  border: 4px solid #ff0000;
   margin-top: var(--header-h-mobile);
 }
 
 @media (min-width: 768px) {
-  .modal {
-    margin-top: 0; /* Centrado en desktop */
+  .modal { 
+    margin-top: 0; 
+    overflow: hidden; /* En desktop suele entrar bien sin scroll */
   }
 }
 
@@ -46,46 +46,58 @@
   z-index: 10;
 }
 
-/* LAYOUT PRINCIPAL */
 .mainLayout {
   display: flex;
   flex-direction: column;
 }
 
 @media (min-width: 768px) {
-  .mainLayout {
-    flex-direction: row; /* Apaisado en Desktop */
+  .mainLayout { 
+    flex-direction: row; 
+    height: 100%;
+    min-height: 500px;
   }
 }
 
-/* IMAGEN RECTANGULAR */
+/* CONTENEDOR DE IMAGEN MEJORADO */
 .imageContainer {
-  flex: 1;
-  background: #f8f8f8;
+  flex: 1.2; /* Un poco más de espacio para la foto */
+  background: rgba(255, 255, 255, 0.3); /* Fondo sutil para que luzca la foto */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
 }
 
 .image {
   width: 100%;
-  height: 300px;
-  object-fit: cover; /* Rectángulo perfecto */
+  height: 350px; /* Altura base en mobile */
+  object-fit: contain; /* NUNCA SE CORTA, se ajusta al centro */
   display: block;
 }
 
 @media (min-width: 768px) {
-  .image {
-    height: 100%; /* Ocupa todo el alto del modal apaisado */
-    min-height: 450px;
+  .image { 
+    height: 100%; 
+    max-height: 550px;
   }
 }
 
-/* INFO */
 .infoContainer {
   flex: 1;
   padding: 25px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  text-align: left;
+}
+
+.priceAndWishlist {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
 .title {
@@ -100,7 +112,6 @@
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-bottom: 5px;
 }
 
 .precioOriginal {
@@ -116,31 +127,51 @@
 }
 
 .descuentoInfo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.offPercent {
+  color: #ff0000;
+  font-size: 24px; /* Un poco más grande como pediste */
+  font-weight: 800;
+}
+
+.offMethod {
   color: #ff4248;
   font-size: 14px;
   font-weight: 600;
-  margin-bottom: 20px;
 }
 
-.select {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ffc9cb;
-  margin-top: 5px;
-  margin-bottom: 20px;
+@media (min-width: 768px) {
+  .descuentoInfo {
+    flex-direction: row;
+    gap: 5px;
+    align-items: baseline;
+  }
 }
 
-.total {
-  font-size: 22px;
-  font-weight: 700;
+.wishlistBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.wishlistIcon {
+  width: 85px;
+  height: auto;
+}
+
+.extraInfo {
+  margin-bottom: 20px;
+  font-size: 15px;
   color: #333;
-  margin-bottom: 25px;
-  border-top: 1px solid #eee;
-  padding-top: 15px;
 }
 
-/* BOTONES */
 .actions {
   display: flex;
   flex-direction: column;
@@ -159,8 +190,7 @@
 }
 
 .consultar {
-  background: #25D366; /* Verde WhatsApp oficial para el icono */
-  background: #ff4248; /* O Rojo si querés que todo sea Glamour */
+  background: #ff6b6b; /* Color complementario suave */
   color: white;
   padding: 14px;
   border-radius: 50px;
@@ -173,7 +203,14 @@
   font-size: 14px;
 }
 
+/* Icono WhatsApp personalizado */
+.whatsIcon {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
 @keyframes popIn {
-  from { transform: scale(0.9); opacity: 0; }
+  from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }

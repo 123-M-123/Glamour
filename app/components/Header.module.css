@@ -205,3 +205,34 @@
   z-index: 1500;
   backdrop-filter: blur(2px);
 }
+
+/* NUEVO BOTÓN WISHLIST */
+.wishlistBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 5px; /* Pequeño ajuste de separación */
+}
+
+.wishlistIcon {
+  width: 32px; /* Ajustado para que visualmente combine con ShoppingBag size 35 */
+  height: 32px;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .wishlistIcon {
+    width: 40px;
+    height: 40px;
+  }
+  .wishlistBtn {
+    margin-right: 15px;
+  }
+}
+
+/* El .badge ya lo tenés definido y se aplicará automáticamente 
+   al estar dentro de .wishlistBtn con position: relative */

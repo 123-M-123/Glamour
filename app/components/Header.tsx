@@ -9,11 +9,13 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import styles from './Header.module.css'
 import { useCartStore } from '../store/useCartStore'
+import { useWishlistStore } from '../store/useWishlistStore' // Importamos Wishlist
 import CartModal from './CartModal'
 import { C } from '@/styles/colores'
 
 export default function Header() {
   const { items } = useCartStore()
+  const { wishlist } = useWishlistStore() // Obtenemos favoritos
   const [openCart, setOpenCart] = useState(false)
   const [openMenu, setOpenMenu] = useState(false)
   
@@ -22,6 +24,7 @@ export default function Header() {
   const [showAccesorios, setShowAccesorios] = useState(false)
 
   const totalItems = items.reduce((acc, item) => acc + item.cantidad, 0)
+  const totalWishlist = wishlist.length // Contador de favoritos
 
   const indumentariaCats = [
     'remeras', 'camisetas', 'jeans', 'noche', 'camperas', 
@@ -65,6 +68,13 @@ export default function Header() {
         </div>
 
         <div className={styles.right}>
+          {/* BOTÓN WISHLIST */}
+          <Link href="/wishlist" className={styles.wishlistBtn}>
+            <img src="/icons/corazon-blanco.png" alt="Favoritos" className={styles.wishlistIcon} />
+            {totalWishlist > 0 && <span className={styles.badge}>{totalWishlist}</span>}
+          </Link>
+
+          {/* BOTÓN CARRITO */}
           <button className={styles.cart} onClick={() => setOpenCart(true)}>
             <ShoppingBag color="white" size={35} />
             {totalItems > 0 && <span className={styles.badge}>{totalItems}</span>}
@@ -72,7 +82,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR (Sin cambios en tu lógica) */}
       <div className={`${styles.sidebar} ${openMenu ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.brand}>
@@ -83,12 +93,10 @@ export default function Header() {
         </div>
 
         <nav className={styles.sidebarNav}>
-          {/* INICIO */}
           <Link href="/" className={styles.sidebarItem} onClick={() => setOpenMenu(false)}>
             <Home size={22} /> Inicio
           </Link>
 
-          {/* ACORDEÓN INDUMENTARIA */}
           <div className={styles.accordion}>
             <button 
               className={`${styles.accordionTrigger} ${showIndumentaria ? styles.active : ''}`}
@@ -124,7 +132,6 @@ export default function Header() {
             </AnimatePresence>
           </div>
 
-          {/* ACORDEÓN ACCESORIOS */}
           <div className={styles.accordion}>
             <button 
               className={`${styles.accordionTrigger} ${showAccesorios ? styles.active : ''}`}
