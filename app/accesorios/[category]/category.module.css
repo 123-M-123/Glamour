@@ -134,3 +134,47 @@
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
 .track:hover { animation-play-state: paused; }
+
+/* BOTONES FLOTANTES EN LA GRID */
+.imageBox {
+  position: relative; /* Necesario para los absolutos */
+}
+
+.quickWish, .quickBag {
+  position: absolute;
+  top: 10px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.quickWish {
+  right: 10px; /* Corazón a la derecha */
+  background: white;
+}
+
+.quickWish img {
+  width: 22px;
+  height: auto;
+}
+
+.quickBag {
+  left: 10px; /* Bolsita a la izquierda */
+  background: #FF0000;
+}
+
+.quickWish:hover, .quickBag:hover {
+  transform: scale(1.1);
+}
+
+.quickWish:active, .quickBag:active {
+  transform: scale(0.9);
+}

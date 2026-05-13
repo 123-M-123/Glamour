@@ -10,8 +10,6 @@ function getDriveDirectLink(url: string) {
 
 const SOCIOS_AUTORIZADOS = [
   "gla_142@hotmail.com", 
-  "marielabasualdo1985@gmail.com",
-  "marcosrenemarti@gmail.com",
 ];
 
 export async function getProductsFromSheets() {
