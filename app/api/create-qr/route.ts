@@ -6,42 +6,29 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { titulo, precio } = body;
 
-    if (!titulo || !precio) {
-      return NextResponse.json({ error: 'Faltan datos' }, { status: 400 });
-    }
+    if (!titulo || !precio) return NextResponse.json({ error: 'Faltan datos' }, { status: 400 });
 
     const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN;
     const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+    
+    // 🆔 Generamos un ID de pedido único para esta sesión
+    const orderId = `GLAM-${Date.now()}`;
 
-    if (!MP_ACCESS_TOKEN) {
-      return NextResponse.json({ error: 'MP_ACCESS_TOKEN no configurado' }, { status: 500 });
-    }
-
-    // 🔥 PREFERENCIA COMPLETA (IMPORTANTE)
     const preference = {
-      items: [
-        {
-          title: titulo,
-          quantity: 1,
-          currency_id: 'ARS',
-          unit_price: Number(precio),
-        },
-      ],
-
-      external_reference: JSON.stringify({
-        cliente: 'elcampito',
-        productos: titulo,
-        total: precio,
-      }),
-
+      items: [{
+        title: titulo,
+        quantity: 1,
+        currency_id: 'ARS',
+        unit_price: Number(precio),
+      }],
+      // 🔥 CLAVE: Referencia única para que no se cruce con otras tiendas
+      external_reference: orderId,
       notification_url: `${BASE_URL}/api/webhook`,
-
       back_urls: {
         success: `${BASE_URL}/success`,
         failure: `${BASE_URL}/failure`,
         pending: `${BASE_URL}/pending`,
       },
-
       auto_return: 'approved',
     };
 
@@ -55,25 +42,17 @@ export async function POST(req: Request) {
     });
 
     const data = await res.json();
+    if (!res.ok) return NextResponse.json({ error: 'Error MP' }, { status: 500 });
 
-    if (!res.ok) {
-      console.error('MP ERROR:', data);
-      return NextResponse.json({ error: 'Error creando preferencia' }, { status: 500 });
-    }
-
-    const link = data.init_point;
-
-    console.log('LINK DE PAGO:', link); // 🔥 PARA DEBUG
-
-    const qrBase64 = await QRCode.toDataURL(link);
+    const qrBase64 = await QRCode.toDataURL(data.init_point);
 
     return NextResponse.json({
       qr: qrBase64,
-      link,
+      link: data.init_point,
+      orderId: orderId // 👈 Devolvemos el ID al frontend
     });
 
   } catch (error) {
-    console.error('ERROR:', error);
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }

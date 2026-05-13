@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-const FOLDER_ID      = '1oMY4j8SkKqgDmE3LzGEp1K2SqcarXY_G'
+const FOLDER_ID      = '1oMY4j8SkKqgDmE3LzGEp1K2SqcarXY_G' 
 const SHEET_ID       = process.env.GOOGLE_SHEET_ID!
 const CLIENT_ID      = process.env.GOOGLE_CLIENT_ID!
 const CLIENT_SECRET  = process.env.GOOGLE_CLIENT_SECRET!
 const REFRESH_TOKEN  = process.env.GOOGLE_REFRESH_TOKEN!
 
-// ── Obtener access token desde refresh token ──────────────────────────
 async function getAccessToken(): Promise<string> {
-  
-  console.log('CLIENT_ID existe:', !!CLIENT_ID)
-  console.log('CLIENT_SECRET existe:', !!CLIENT_SECRET)  
-  console.log('REFRESH_TOKEN existe:', !!REFRESH_TOKEN)
-
-  
   const res = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -25,117 +18,78 @@ async function getAccessToken(): Promise<string> {
     }),
   })
   const data = await res.json()
-
- // LOG - ver respuesta completa de Google
-  console.log('Google OAuth response:', JSON.stringify(data))
-
-
-
-
-  if (!data.access_token) throw new Error('No se pudo obtener access token de Google')
+  if (!data.access_token) {
+    console.error('❌ Error de Google Auth:', data)
+    throw new Error('No se pudo obtener access token')
+  }
   return data.access_token
 }
 
-// ── Subir archivo a Google Drive ──────────────────────────────────────
-async function subirADrive(
-  token:    string,
-  archivo:  File,
-  nombre:   string,
-): Promise<string> {
-
-// LOG TEMPORAL - borralo después
-  console.log('TOKEN obtenido:', token ? 'SÍ' : 'NO')
-  console.log('Archivo:', archivo.name, archivo.size)
-  console.log('FOLDER_ID:', FOLDER_ID)
-
-
-  const metadata = JSON.stringify({
-    name:    nombre,
-    parents: [FOLDER_ID],
-  })
-
-  const form = new FormData()
-  form.append('metadata', new Blob([metadata], { type: 'application/json' }))
-  form.append('file',     archivo)
+async function agregarEnSheet(token: string, titulo: string, precio: string, linkDrive: string, fecha: string): Promise<void> {
+  const range = 'Pedidos!A:G' // 👈 Aumentamos a G para cubrir todas las columnas
+  
+  // 🔥 MAPEO CORRECTO SEGÚN TU CAPTURA:
+  // A: Vendedor | B: Fecha | C: Productos | D: Precio | E: Estado | F: Comprobante | G: Notas
+  const values = [[
+    'gla_142@hotmail.com', // Col A (Vendedor fijo para esta tienda)
+    fecha,                 // Col B
+    titulo,                // Col C
+    precio,                // Col D
+    'POR_VERIFICAR',       // Col E
+    linkDrive,             // Col F
+    'Pago vía Web Glamour' // Col G
+  ]]
 
   const res = await fetch(
-    'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',
-    {
-      method:  'POST',
-      headers: { Authorization: `Bearer ${token}` },
-      body:    form,
-    }
-  )
-  const data = await res.json()
-
-console.log('Drive response:', JSON.stringify(data)) // ← agregá esto
-
-
-
-  if (!data.id) throw new Error('Error al subir archivo a Drive')
-
-  // Hacer el archivo público para poder verlo con el link
-  await fetch(`https://www.googleapis.com/drive/v3/files/${data.id}/permissions`, {
-    method:  'POST',
-    headers: {
-      Authorization:  `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ role: 'reader', type: 'anyone' }),
-  })
-
-  return data.webViewLink
-
-
-  
-}
-
-// ── Agregar fila en Google Sheets ─────────────────────────────────────
-async function agregarEnSheet(
-  token:        string,
-  titulo:       string,
-  precio:       string,
-  linkDrive:    string,
-  fecha:        string,
-): Promise<void> {
-  const range = 'Pedidos!A:F'
-  const values = [[fecha, titulo, precio, 'COMPROBANTE_ENVIADO', linkDrive, '']]
-
-  await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW`,
     {
       method:  'POST',
-      headers: {
-        Authorization:  `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ values }),
     }
   )
+  if (!res.ok) {
+    const errorData = await res.json()
+    console.error('❌ Error al escribir en Sheet:', errorData)
+    throw new Error('Error al guardar en la planilla')
+  }
 }
 
-// ── Handler principal ─────────────────────────────────────────────────
+// ... (la función subirADrive se mantiene igual)
+
 export async function POST(req: NextRequest) {
   try {
-    const form      = await req.formData()
-    const archivo   = form.get('archivo')   as File   | null
-    const titulo    = form.get('titulo')    as string | null
-    const precio    = form.get('precio')    as string | null
+    const form = await req.formData()
+    const archivo = form.get('archivo') as File | null
+    const titulo = form.get('titulo') as string | null
+    const precio = form.get('precio') as string | null
 
-    if (!archivo || !titulo || !precio) {
-      return NextResponse.json({ error: 'Faltan datos' }, { status: 400 })
+    if (!archivo || !titulo || !precio) return NextResponse.json({ error: 'Faltan datos' }, { status: 400 })
+
+    const token = await getAccessToken()
+    
+    // Subir a Drive
+    const metadata = JSON.stringify({ name: `COMPROBANTE-${Date.now()}`, parents: [FOLDER_ID] })
+    const driveForm = new FormData()
+    driveForm.append('metadata', new Blob([metadata], { type: 'application/json' }))
+    driveForm.append('file', archivo)
+
+    const driveRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink', {
+      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: driveForm
+    })
+    const driveData = await driveRes.json()
+    
+    if (!driveData.id) {
+      console.error('❌ Error en Drive:', driveData)
+      return NextResponse.json({ error: 'Error subiendo a Drive' }, { status: 500 })
     }
 
-    const fecha  = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
-    const nombre = `${fecha.replace(/[/:, ]/g, '-')}_${titulo.slice(0, 30)}.${archivo.name.split('.').pop()}`
+    const fecha = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
+    await agregarEnSheet(token, titulo, precio, driveData.webViewLink, fecha)
 
-    const token    = await getAccessToken()
-    const linkDrive = await subirADrive(token, archivo, nombre)
-    await agregarEnSheet(token, titulo, precio, linkDrive, fecha)
-
-    return NextResponse.json({ ok: true, link: linkDrive })
+    return NextResponse.json({ ok: true })
   } catch (err: any) {
-    console.error('Error upload-comprobante:', err)
+    console.error('🔥 CRASH EN API:', err.message) // 👈 AHORA SÍ LO VERÁS EN VS CODE
     return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }
