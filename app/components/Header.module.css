@@ -1,5 +1,5 @@
 /* =========================
-   HEADER ORIGINAL (RESPECT)
+   HEADER PRINCIPAL
 ========================= */
 .header {
   --icon-size: 50px;
@@ -29,20 +29,91 @@
   }
 }
 
-.left, .center, .right { display: flex; align-items: center; gap: 10px; }
-.logo { height: var(--logo-size); object-fit: contain; }
-.cart { position: relative; display: flex; align-items: center; background: none; border: none; cursor: pointer; }
-
-.badge {
-  position: absolute; top: -6px; right: -6px;
-  background: #ffffff; color: rgb(255, 0, 0);
-  font-size: 15px; font-weight: bold;
-  padding: 2px 6px; border-radius: 999px;
-  min-width: var(--badge-size); height: var(--badge-size);
-  display: flex; align-items: center; justify-content: center;
+.left, .right { 
+  display: flex; 
+  align-items: center; 
+  gap: 10px; 
 }
 
-.menuBtn { background: none; border: none; cursor: pointer; display: flex; align-items: center; }
+/* 🎯 AJUSTE DE CENTRADO DEL LOGO 
+   Al tener 1 icono a la izquierda y 2 a la derecha, 
+   empujamos el centro un poco para que el logo se vea centrado real. */
+.center { 
+  display: flex; 
+  align-items: center; 
+  padding-left: 35px; 
+}
+
+@media (min-width: 768px) {
+  .center {
+    padding-left: 50px;
+  }
+}
+
+.logo { 
+  height: var(--logo-size); 
+  object-fit: contain; 
+}
+
+/* =========================
+   ICONOS Y BADGES
+========================= */
+.cart { 
+  position: relative; 
+  display: flex; 
+  align-items: center; 
+  background: none; 
+  border: none; 
+  cursor: pointer; 
+}
+
+.wishlistBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.wishlistIcon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .wishlistIcon { width: 40px; height: 40px; }
+  .wishlistBtn { margin-right: 15px; }
+}
+
+.badge {
+  position: absolute; 
+  top: -6px; 
+  right: -6px;
+  background: #ffffff; 
+  color: #ff0000;
+  font-size: 12px; 
+  font-weight: bold;
+  padding: 2px 6px; 
+  border-radius: 999px;
+  min-width: var(--badge-size); 
+  height: var(--badge-size);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  border: 1px solid #ff0000;
+}
+
+.menuBtn { 
+  background: none; 
+  border: none; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+}
 
 @media (max-width: 768px) {
   .hideMobile { display: none; }
@@ -54,7 +125,7 @@
 .sidebar {
   position: fixed;
   top: 0;
-  left: -320px; /* Un poco más ancha para el contenido */
+  left: -320px;
   width: 320px;
   height: 100vh;
   background: white;
@@ -63,13 +134,13 @@
   display: flex;
   flex-direction: column;
   box-shadow: 5px 0 15px rgba(0,0,0,0.2);
-  overflow-y: auto; /* Permite scroll si hay muchas categorías */
+  overflow-y: auto;
 }
 
 .sidebarOpen { left: 0; }
 
 .sidebarHeader {
-  padding: 20px;
+  padding: 25px 20px;
   background: #Ff0000;
   color: white;
   display: flex;
@@ -77,16 +148,43 @@
   align-items: center;
 }
 
-.brand { display: flex; flex-direction: column; }
-.sidebarTitle { font-weight: 800; letter-spacing: 2px; font-size: 20px; }
-.sidebarSubtitle { font-size: 10px; opacity: 0.8; text-transform: uppercase; }
+.brand { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 4px;
+}
 
-.sidebarHeader button { background: none; border: none; color: white; cursor: pointer; }
+/* 🖼️ LOGO DENTRO DEL SIDEBAR (logo-no.png) */
+.sidebarLogo {
+  height: 25px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.sidebarSubtitle { 
+  font-size: 13px; 
+  opacity: 0.9; 
+  text-transform: uppercase; 
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+.sidebarHeader button { 
+  background: none; 
+  border: none; 
+  color: white; 
+  cursor: pointer; 
+}
 
 /* =========================
-   ACORDEÓN Y NAVEGACIÓN
+   NAVEGACIÓN Y ACORDEONES
 ========================= */
-.sidebarNav { display: flex; flex-direction: column; padding: 15px 0; }
+.sidebarNav { 
+  display: flex; 
+  flex-direction: column; 
+  padding: 15px 0; 
+}
 
 .sidebarItem, .accordionTrigger {
   padding: 15px 25px;
@@ -99,7 +197,6 @@
   border-bottom: 1px solid #eee;
   transition: background 0.2s;
   background: transparent;
-  border-left: 0; border-right: 0; border-top: 0;
   width: 100%;
   text-align: left;
   cursor: pointer;
@@ -107,6 +204,9 @@
 
 .accordionTrigger {
   justify-content: space-between;
+  border-left: none;
+  border-right: none;
+  border-top: none;
 }
 
 .triggerLeft {
@@ -115,14 +215,16 @@
   gap: 15px;
 }
 
-.sidebarItem:active, .active { 
+.active { 
   background: #fff0f1; 
   color: #ff0000; 
 }
 
-.rotate { transform: rotate(180deg); transition: transform 0.3s; }
+.rotate { 
+  transform: rotate(180deg); 
+  transition: transform 0.3s; 
+}
 
-/* SUB-ITEMS */
 .accordionContent {
   background: #fdfdfd;
   display: flex;
@@ -130,7 +232,7 @@
 }
 
 .subItem {
-  padding: 12px 20px 12px 60px; /* Espacio para que el texto empiece después del icono principal */
+  padding: 12px 20px 12px 60px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -147,7 +249,7 @@
   color: #ff0000;
 }
 
-/* ICONOS HÍBRIDOS (PNG + LUCIDE) */
+/* ICONOS HÍBRIDOS */
 .iconWrapper {
   width: 24px;
   height: 24px;
@@ -184,7 +286,7 @@
   color: #ff0000; 
   text-decoration: none; 
   border: 1px solid #ff0000;
-  padding: 10px 20px;
+  padding: 12px 25px;
   border-radius: 50px;
   display: inline-block;
   transition: all 0.3s;
@@ -205,34 +307,3 @@
   z-index: 1500;
   backdrop-filter: blur(2px);
 }
-
-/* NUEVO BOTÓN WISHLIST */
-.wishlistBtn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  margin-right: 5px; /* Pequeño ajuste de separación */
-}
-
-.wishlistIcon {
-  width: 32px; /* Ajustado para que visualmente combine con ShoppingBag size 35 */
-  height: 32px;
-  object-fit: contain;
-}
-
-@media (min-width: 768px) {
-  .wishlistIcon {
-    width: 40px;
-    height: 40px;
-  }
-  .wishlistBtn {
-    margin-right: 15px;
-  }
-}
-
-/* El .badge ya lo tenés definido y se aplicará automáticamente 
-   al estar dentro de .wishlistBtn con position: relative */

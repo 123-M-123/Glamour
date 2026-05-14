@@ -34,12 +34,12 @@ export default function HeroSection({ banners }: { banners: any[] }) {
 
         <div className={styles.buttonContainer}>
           <Link href="/indumentaria" className={styles.primaryBtn}>
-            <Shirt size={20} />
+            <Shirt size={22} />
             Indumentaria
           </Link>
           
           <Link href="/accesorios" className={styles.secondaryBtn}>
-            <Sparkles size={20} />
+            <Sparkles size={22} />
             Accesorios
           </Link>
         </div>
@@ -52,10 +52,11 @@ export default function HeroSection({ banners }: { banners: any[] }) {
           </p>
         </div>
 
+        {/* CONTENEDOR CON GAP PARA SEPARAR BANNERS */}
         <div className={styles.footerBannersContainer}>
           {footerBanners && footerBanners.map((banner, index) => (
             <div key={index} className={styles.paymentsBanner}>
-              <img src={banner.imagen} alt={`Medios de Pago ${index + 1}`} />
+              <img src={banner.imagen} alt={`Banner Pago ${index + 1}`} />
             </div>
           ))}
         </div>

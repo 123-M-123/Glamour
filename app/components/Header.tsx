@@ -9,22 +9,20 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import styles from './Header.module.css'
 import { useCartStore } from '../store/useCartStore'
-import { useWishlistStore } from '../store/useWishlistStore' // Importamos Wishlist
+import { useWishlistStore } from '../store/useWishlistStore'
 import CartModal from './CartModal'
-import { C } from '@/styles/colores'
 
 export default function Header() {
   const { items } = useCartStore()
-  const { wishlist } = useWishlistStore() // Obtenemos favoritos
+  const { wishlist } = useWishlistStore()
   const [openCart, setOpenCart] = useState(false)
   const [openMenu, setOpenMenu] = useState(false)
   
-  // Estados para los acordeones
   const [showIndumentaria, setShowIndumentaria] = useState(false)
   const [showAccesorios, setShowAccesorios] = useState(false)
 
   const totalItems = items.reduce((acc, item) => acc + item.cantidad, 0)
-  const totalWishlist = wishlist.length // Contador de favoritos
+  const totalWishlist = wishlist.length
 
   const indumentariaCats = [
     'remeras', 'camisetas', 'jeans', 'noche', 'camperas', 
@@ -36,7 +34,6 @@ export default function Header() {
     'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'
   ]
 
-  // Helper para iconos (PNG > Lucide)
   const NavIcon = ({ slug, fallback: Fallback }: { slug: string, fallback: any }) => (
     <div className={styles.iconWrapper}>
       <img 
@@ -68,13 +65,11 @@ export default function Header() {
         </div>
 
         <div className={styles.right}>
-          {/* BOTÓN WISHLIST */}
           <Link href="/wishlist" className={styles.wishlistBtn}>
             <img src="/icons/corazon-blanco.png" alt="Favoritos" className={styles.wishlistIcon} />
             {totalWishlist > 0 && <span className={styles.badge}>{totalWishlist}</span>}
           </Link>
 
-          {/* BOTÓN CARRITO */}
           <button className={styles.cart} onClick={() => setOpenCart(true)}>
             <ShoppingBag color="white" size={35} />
             {totalItems > 0 && <span className={styles.badge}>{totalItems}</span>}
@@ -82,11 +77,12 @@ export default function Header() {
         </div>
       </header>
 
-      {/* SIDEBAR (Sin cambios en tu lógica) */}
+      {/* SIDEBAR AJUSTADO CON LOGO */}
       <div className={`${styles.sidebar} ${openMenu ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.brand}>
-            <span className={styles.sidebarTitle}>GLAMOUR</span>
+            {/* Reemplazo de texto por logo-no.png */}
+            <img src="/logo-no.png" className={styles.sidebarLogo} alt="Glamour" />
             <span className={styles.sidebarSubtitle}>Navegación</span>
           </div>
           <button onClick={() => setOpenMenu(false)}><X size={30} /></button>
