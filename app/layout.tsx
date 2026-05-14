@@ -11,12 +11,12 @@ import WhatsappGlobal from './components/WhatsappGlobal'
 
 export const metadata: Metadata = {
   title: "Glamour Urquiza | Indumentaria y Accesorios",
-  description: "Nombre Largo ej=> Glamour Urquiza (aca tiene que ir algo como de esta cantidad de texto que llame a la acción y genere ventas o visitas)   ",
+  description: "Resaltá tu esencia. Un espacio pensado para mujeres auténticas que buscan vestirse con estilo, comodidad y actitud  ",
   metadataBase: new URL("https://glamour-urquiza.vercel.app"),
 
   openGraph: {
     title: "Glamour Urquiza | Indumentaria y Accesorios",
-    description: "Nombre Largo ej=> Glamour Urquiza (aca tiene que ir algo como de esta cantidad de texto que llame a la acción y genere ventas o visitas)",
+    description: "Resaltá tu esencia. Un espacio pensado para mujeres auténticas que buscan vestirse con estilo, comodidad y actitud",
     url: "https://glamour-urquiza.vercel.app",
     siteName: "Glamour | Urquiza",
     images: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Glamour Urquiza | Indumentaria y Accesorios",
-    description: "Nombre Largo ej=> Glamour Urquiza (aca tiene que ir algo como de esta cantidad de texto que llame a la acción y genere ventas o visitas)",
+    description: "Resaltá tu esencia. Un espacio pensado para mujeres auténticas que buscan vestirse con estilo, comodidad y actitud",
     images: ["/og/image-2.jpg"],
   },
 
