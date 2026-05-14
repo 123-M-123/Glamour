@@ -1,0 +1,37 @@
+.float {
+  position: fixed;
+  bottom: 100px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  background-color: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+  z-index: 1000; /* Por debajo del modal pero arriba de todo */
+  transition: transform 0.3s ease;
+}
+
+.float:hover {
+  transform: scale(1.1);
+}
+
+.icon {
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+  /* Si el icono es rojo sobre fondo rojo, quizás quieras un filtro para que se vea blanco, 
+     o dejarlo como está si el icono tiene contraste */
+}
+
+@media (max-width: 768px) {
+  .float {
+    width: 50px;
+    height: 50px;
+    bottom: 100px;
+    right: 20px;
+  }
+  .icon { width: 120px; height: 120px; }
+}

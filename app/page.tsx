@@ -3,7 +3,7 @@ import { C } from '@/styles/colores'
 // import { CarritoProvider, useCarrito } from './context/CarritoContext'
 import Header from './components/Header'
 import HeroSection from '@/app/components/HeroSection'
-import Footer from './components/Footer'
+
 
 
 
@@ -13,7 +13,7 @@ function AppContent() {
       
 <HeroSection />
 
-       <Footer />
+      
 
       
     </div>

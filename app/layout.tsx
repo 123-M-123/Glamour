@@ -6,6 +6,8 @@ import { Analytics } from "@vercel/analytics/next"
 import ConditionalHeader from "./components/ConditionalHeader"
 import "./globals.css"
 import BackButton from "./components/BackButton"
+import Footer from './components/Footer'
+import WhatsappGlobal from './components/WhatsappGlobal'
 
 export const metadata: Metadata = {
   title: "Glamour Urquiza | Indumentaria y Accesorios",
@@ -61,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* Google tag (gtag.js) */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-N88KRR1LFX"
+          src="https://www.googletagmanager.com/gtag/js?id=G-R6EVQFS3YQ"
           strategy="afterInteractive"
         />
         <Script id="google-analytics">
@@ -69,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-N88KRR1LFX');
+            gtag('config', 'G-R6EVQFS3YQ');
           `}
         </Script>
       </head>
@@ -81,6 +83,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <BackButton />
 
         <Analytics />
+         <Footer />
+        <WhatsappGlobal />
       </body>
     </html>
   )
