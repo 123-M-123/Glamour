@@ -795,10 +795,10 @@ useEffect(() => {
                   display: 'inline-block', marginTop: '0.6rem',
                   background: '#25D366', color: '#fff',
                   padding: '0.4rem 1rem', borderRadius: 20,
-                  textDecoration: 'none', fontSize: '0.8rem', fontWeight: 700,
+                  textDecoration: 'none', fontSize: '0.8rem', fontWeight: 600,
                 }}
               >
-                Consultar por WhatsApp
+                Link de Payway por WhatsApp
               </a>
             </div>
           </div>

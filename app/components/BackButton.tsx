@@ -30,7 +30,7 @@ export default function BackButton() {
       <img 
         src="/icons/atras.png" 
         alt="Volver" 
-        style={{ width: '60px', height: 'auto' }} 
+        style={{ width: '70px', height: 'auto' }} 
       />
     </button>
   )

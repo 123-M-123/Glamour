@@ -2,16 +2,19 @@
   position: fixed;
   bottom: 100px;
   right: 25px;
-  width: 60px;
-  height: 60px;
-  background-color: none;
+  /* 👈 AYUDA: El contenedor debe medir lo mismo que el icono */
+  width: 80px; 
+  height: 80px;
+  background-color: transparent; /* 👈 Corregido (no se usa 'none') */
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
-  z-index: 1000; /* Por debajo del modal pero arriba de todo */
+  z-index: 1000;
   transition: transform 0.3s ease;
+  
+  /* 👈 AYUDA: La sombra ahora es más grande para acompañar al icono */
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3)); 
 }
 
 .float:hover {
@@ -19,19 +22,21 @@
 }
 
 .icon {
-  width: 75px;
-  height: 75px;
+  /* 👈 AYUDA: El icono ocupa el 100% de su contenedor .float */
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  /* Si el icono es rojo sobre fondo rojo, quizás quieras un filtro para que se vea blanco, 
-     o dejarlo como está si el icono tiene contraste */
 }
 
+/* RESPONSIVE MOBILE */
 @media (max-width: 768px) {
   .float {
-    width: 50px;
-    height: 50px;
-    bottom: 100px;
-    right: 20px;
+    /* 👈 AYUDA: Tamaño del botón en el celular (80px es GRANDE y queda bien) */
+    width: 70px; 
+    height: 70px;
+    bottom: 100px; /* Subimos un poco para que no tape el footer */
+    right: 15px;
   }
-  .icon { width: 120px; height: 120px; }
+  
+  /* Ya no necesitás darle tamaño al .icon acá porque hereda el 100% del padre */
 }

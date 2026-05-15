@@ -3,7 +3,7 @@ import styles from './WhatsappGlobal.module.css'
 
 export default function WhatsappGlobal() {
   const phone = "5491167914366"
-  const text = "Hola Glamour Urquiza! Vengo de la web y quería hacer una consulta."
+  const text = "Hola Glamour! "
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`
 
   return (

@@ -21,7 +21,7 @@ export default function Footer() {
             lineHeight: '1.4',
           }}
         >
-         Glamour | Urquiza
+         Glamour
         </p>
 
         <p
