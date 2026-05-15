@@ -21,14 +21,17 @@ export default function HeroSection({ banners }: { banners: any[] }) {
       )}
 
       <div className={styles.content}>
-        
+        <p className={styles.kicker}>Indumentaria Femenina</p>
 
         <h1 className={styles.title}>
           Resaltá tu esencia. <br />
           Vestite como querés sentirte.
         </h1>
 
-       
+        <p className={styles.subtitle}>
+          Calidad, estilo y actitud en cada prenda.
+        </p>
+
         <div className={styles.buttonContainer}>
           <Link href="/indumentaria" className={styles.primaryBtn}>
             <Shirt size={22} />

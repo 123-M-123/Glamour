@@ -8,7 +8,7 @@ export default function WhatsappGlobal() {
 
   return (
     <a href={url} target="_blank" rel="noopener noreferrer" className={styles.float}>
-      <img src="/icons/whats-rojo.png" alt="WhatsApp" className={styles.icon} />
+      <img src="/icons/whats.png" alt="WhatsApp" className={styles.icon} />
     </a>
   )
 }
