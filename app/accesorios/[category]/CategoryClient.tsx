@@ -122,12 +122,18 @@ export default function CategoryClient({ category, productos, banners }: any) {
                 </button>
 
                 {/* --- BOTÓN WISHLIST --- */}
-                <button className={styles.quickWish} onClick={(e) => handleQuickWish(e, item)}>
-                  <img 
-                    src={isFav ? "/icons/corazon-blanco.png" : "/icons/corazon-rojo.png"} 
-                    alt="Fav" 
-                  />
-                </button>
+              <button 
+  className={styles.quickWish} 
+  onClick={(e) => handleQuickWish(e, item)}
+  style={{ 
+    backgroundColor: isFav ? '#FF0000' : '#FFF8F8' // 👈 Magia: Cambia el fondo según el estado
+  }}
+>
+  <img 
+    src={isFav ? "/icons/corazon-blanco.png" : "/icons/corazon-rojo.png"} 
+    alt="Fav" 
+  />
+</button>
 
                 {/* --- BOTÓN COMPARTIR --- */}
                 <button className={styles.quickShare} onClick={(e) => handleQuickShare(e, item)}>

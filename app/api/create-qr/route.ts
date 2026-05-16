@@ -4,14 +4,13 @@ import QRCode from 'qrcode';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { titulo, precio } = body;
+    const { titulo, precio, vendedorEmail } = body; // 👈 Recibimos el email
 
     if (!titulo || !precio) return NextResponse.json({ error: 'Faltan datos' }, { status: 400 });
 
     const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN;
     const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
     
-    // 🆔 Generamos un ID de pedido único para esta sesión
     const orderId = `GLAM-${Date.now()}`;
 
     const preference = {
@@ -21,9 +20,12 @@ export async function POST(req: Request) {
         currency_id: 'ARS',
         unit_price: Number(precio),
       }],
-      // 🔥 CLAVE: Referencia única para que no se cruce con otras tiendas
-      external_reference: orderId,
+      external_reference: orderId, // 👈 Se mantiene el ID para el polling (No tocar!)
       notification_url: `${BASE_URL}/api/webhook`,
+      // 🔥 CLAVE SaaS: Metemos el vendedor en metadata para que el webhook lo encuentre
+      metadata: {
+        vendedor: vendedorEmail || "gla_142@hotmail.com"
+      },
       back_urls: {
         success: `${BASE_URL}/success`,
         failure: `${BASE_URL}/failure`,
@@ -49,7 +51,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       qr: qrBase64,
       link: data.init_point,
-      orderId: orderId // 👈 Devolvemos el ID al frontend
+      orderId: orderId 
     });
 
   } catch (error) {

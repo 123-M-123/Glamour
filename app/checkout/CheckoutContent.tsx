@@ -15,6 +15,9 @@ const K = {
   muted: '#9A9690'
 };
 
+// 📧 IDENTIFICADOR DEL VENDEDOR PARA EL WEBHOOK CENTRALIZADO
+const VENDEDOR_EMAIL = "gla_142@hotmail.com";
+
 const OPCIONES = [
   { id: 'alias', label: 'Transferencia', sub: '20% OFF directo', icon: '/ico-ui/alias.png', bg: '#FFF0F1' },
   { id: 'qr', label: 'QR Bancario', sub: 'MODO o bancos', icon: '/ico-ui/qr.png', bg: '#F0F8F2' },
@@ -49,7 +52,6 @@ export default function CheckoutContent() {
   const precioFinal = metodo === 'alias' ? total : metodo === 'qr' ? total * 1.10 : total * 1.25;
   const montoFormateado = new Intl.NumberFormat('es-AR').format(Math.round(precioFinal));
 
-  // Link de WhatsApp dinámico para Payway
   const waMsg = encodeURIComponent(`Hola! Quiero solicitar un link de pago Payway por mi compra en Glamour Urquiza. Total: $${montoFormateado}`);
   const whatsappPayway = `https://wa.me/5491167914366?text=${waMsg}`;
 
@@ -70,7 +72,6 @@ export default function CheckoutContent() {
       <div style={{ maxWidth: 560, margin: '0 auto' }}>
         
         <div style={{ background: 'white', borderRadius: 20, padding: '1.5rem', border: `2px solid ${K.border}`, marginBottom: '1.5rem', textAlign: 'center' }}>
-          {/* 1. TEXTO EN GRIS (K.muted) */}
           <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: K.muted, marginBottom: '5px' }}>Finalizar compra en Glamour</p>
           <p style={{ fontSize: '2.2rem', fontWeight: 950, margin: 0 }}>$ {montoFormateado}</p>
           {metodo === 'alias' && <p style={{ fontSize: '0.9rem', color: K.accent, fontWeight: 700, marginTop: '5px' }}>¡Ahorrás ${new Intl.NumberFormat('es-AR').format(ahorro)} pagando directo!</p>}
@@ -92,10 +93,24 @@ export default function CheckoutContent() {
         </div>
 
         <div style={{ background: 'white', padding: '1.8rem', borderRadius: 24, border: `2px solid ${K.border}` }}>
+          {/* 🏷️ PASAMOS EL VENDEDOR_EMAIL A LOS PANELES */}
           {metodo === 'alias' && <TransferPanel total={total} onExito={() => setCompletado(true)} />}
-          {metodo === 'qr' && <QrPanel precio={Math.round(precioFinal)} onPagoConfirmado={() => setCompletado(true)} />}
+          
+          {metodo === 'qr' && (
+            <QrPanel 
+              precio={Math.round(precioFinal)} 
+              vendedorEmail={VENDEDOR_EMAIL} 
+              onPagoConfirmado={() => setCompletado(true)} 
+            />
+          )}
+
           {(metodo === 'tarjeta' || metodo === 'mp') && (
-             <BrickPanel metodo={metodo} precio={precioFinal} onPagoAprobado={() => setCompletado(true)} />
+             <BrickPanel 
+               metodo={metodo} 
+               precio={precioFinal} 
+               vendedorEmail={VENDEDOR_EMAIL} 
+               onPagoAprobado={() => setCompletado(true)} 
+             />
           )}
 
           {metodo === 'otros' && (
@@ -114,8 +129,6 @@ export default function CheckoutContent() {
           )}
         </div>
 
-      
-       {/* 2. BOTÓN PAYWAY BOUTIQUE CON ASSETS PROPIOS */}
         <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
           <a 
             href={whatsappPayway} 
@@ -137,18 +150,14 @@ export default function CheckoutContent() {
             onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            {/* PNG Payway al inicio */}
             <img 
               src="/ico-ui/payway-2.png" 
               alt="Payway" 
               style={{ height: '36px', width: 'auto', objectFit: 'contain' }} 
             />
-
             <span>Solicitar Link de Pago Payway</span>
-
-            {/* PNG WhatsApp Rojo al final */}
             <img 
-              src="/icons/whats-rojo.png" 
+              src="/icons/whats.png" 
               alt="WhatsApp" 
               style={{ height: '30px', width: 'auto', objectFit: 'contain' }} 
             />
@@ -161,7 +170,6 @@ export default function CheckoutContent() {
           </button>
         </div>
 
-        {/* 3. FOOTER DE SEGURIDAD AGREGADO */}
         <p style={{ textAlign: 'center', fontSize: '0.72rem', color: K.muted, marginTop: '1.5rem' }}>
           🔒 Tus datos están protegidos · Pagos procesados de forma segura
         </p>

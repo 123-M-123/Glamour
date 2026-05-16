@@ -9,7 +9,8 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
     const metodo = body.metodo || 'tarjeta'
-    const vendedorEmail = "elianamarti90@gmail.com"; 
+    // 👈 Cambiamos el mail por el de Glamour
+    const vendedorEmail = body.vendedorEmail || "gla_142@hotmail.com"; 
 
     let items = []
     if (body.items && Array.isArray(body.items)) {
@@ -32,8 +33,12 @@ export async function POST(req: Request) {
     const result = await preference.create({
       body: {
         items,
+        // 🔥 CLAVE: Aquí viaja el dueño de la venta para el webhook central
         external_reference: vendedorEmail,
         notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`,
+        metadata: {
+          vendedor: vendedorEmail // Duplicamos en metadata por seguridad
+        }
       },
     })
 

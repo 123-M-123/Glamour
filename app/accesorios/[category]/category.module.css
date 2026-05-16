@@ -147,9 +147,20 @@
   z-index: 10;
   transition: transform 0.2s, background-color 0.2s;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* 🎨 COLORES DE FONDO POR DEFECTO */
+.quickBag, .quickShare {
   background: #FF0000; /* Fondo Rojo Glamour */
 }
 
+.quickWish {
+  /* 👈 FIX: Estado normal rosa clarito/nude para que el corazon rojo se vea */
+  background: #FFF8F8; 
+  border: 1px solid #ffcccc;
+}
+
+/* POSICIONAMIENTO */
 .quickBag { top: 10px; left: 10px; }
 .quickWish { top: 10px; right: 10px; }
 .quickShare { bottom: 10px; right: 10px; }

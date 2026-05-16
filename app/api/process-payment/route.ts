@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
-    const vendedorEmail = "elianamarti90@gmail.com";
+    // 👈 Mail de Glamour
+    const vendedorEmail = formData.vendedorEmail || "gla_142@hotmail.com";
 
     const { vendedorEmail: _, ...datosLimpios } = formData;
 
-    // Timeout explícito para evitar ETIMEDOUT
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 25000)
 
@@ -22,7 +22,8 @@ export async function POST(request: NextRequest) {
         },
         body: JSON.stringify({ 
           ...datosLimpios, 
-          external_reference: vendedorEmail,
+          external_reference: vendedorEmail, // 👈 Identificador del vendedor
+          metadata: { vendedor: vendedorEmail },
           differential_pricing_id: undefined 
         }),
         signal: controller.signal,
@@ -32,8 +33,6 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json()
-
-    console.log('Respuesta MP:', data.status, data.id)
 
     if (response.ok && data.status === 'approved') {
       try {
@@ -51,17 +50,9 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error procesando pago:', error.message)
-    
     if (error.name === 'AbortError') {
-      return NextResponse.json(
-        { error: 'Timeout conectando con MercadoPago. Intentá de nuevo.' },
-        { status: 504 }
-      )
+      return NextResponse.json({ error: 'Timeout conectando con MercadoPago.' }, { status: 504 })
     }
-    
-    return NextResponse.json(
-      { error: 'Error procesando el pago' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error procesando el pago' }, { status: 500 })
   }
 }

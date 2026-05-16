@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-export default function QrPanel({ precio, onPagoConfirmado }: { precio: number, onPagoConfirmado: () => void }) {
+// 👈 Prop vendedorEmail agregada a la interfaz
+export default function QrPanel({ precio, vendedorEmail, onPagoConfirmado }: { precio: number, vendedorEmail: string, onPagoConfirmado: () => void }) {
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [orderId, setOrderId] = useState<string | null>(null);
 
@@ -11,7 +12,8 @@ export default function QrPanel({ precio, onPagoConfirmado }: { precio: number, 
         const res = await fetch('/api/create-qr', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ titulo: 'Pedido Glamour', precio })
+          // 👈 Enviamos el vendedorEmail a la API para que lo guarde en el pedido
+          body: JSON.stringify({ titulo: 'Pedido Glamour', precio, vendedorEmail })
         });
         const data = await res.json();
         if (data.qr) {
@@ -21,7 +23,7 @@ export default function QrPanel({ precio, onPagoConfirmado }: { precio: number, 
       } catch (e) { console.error(e); }
     };
     generar();
-  }, [precio]);
+  }, [precio, vendedorEmail]); // 👈 Dependencia agregada
 
   useEffect(() => {
     if (!qrUrl || !orderId) return;
@@ -42,7 +44,7 @@ export default function QrPanel({ precio, onPagoConfirmado }: { precio: number, 
     <div style={{ 
       display: 'flex', 
       flexDirection: 'column', 
-      alignItems: 'center', // 👈 CENTRADO HORIZONTAL
+      alignItems: 'center',
       justifyContent: 'center', 
       textAlign: 'center',
       width: '100%' 

@@ -6,7 +6,8 @@ const CVU   = '0000003100000550350075';
 const ALIAS_CBU = 'villegasgladys';
 const CBU   = '0170339740000064116107';
 
-export default function TransferPanel({ total, onExito }: { total: number, onExito: () => void }) {
+// 👈 Agregamos el prop vendedorEmail
+export default function TransferPanel({ total, vendedorEmail, onExito }: { total: number, vendedorEmail: string, onExito: () => void }) {
   const [comprobante, setComprobante] = useState<File | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
@@ -18,6 +19,7 @@ export default function TransferPanel({ total, onExito }: { total: number, onExi
     fd.append('archivo', comprobante);
     fd.append('titulo', 'Pedido Glamour');
     fd.append('precio', String(total));
+    fd.append('vendedorEmail', vendedorEmail); // 👈 Enviamos el email al servidor
 
     try {
       const res = await fetch('/api/upload-comprobante', { method: 'POST', body: fd });

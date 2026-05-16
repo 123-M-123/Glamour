@@ -1,21 +1,20 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 
-const THEME_COLOR = '#FF0000'; // 🎨 Tu variable de color
+const THEME_COLOR = '#FF0000';
 
-export default function BrickPanel({ metodo, precio, onPagoAprobado }: any) {
+// 👈 Prop vendedorEmail agregada a la desestructuración
+export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAprobado }: any) {
   const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const brickController = useRef<any>(null);
 
   useEffect(() => {
-    // 1. Variable de control local para esta ejecución del efecto
     let isEffectActive = true; 
 
     const initMP = async () => {
       if (!containerRef.current) return;
       
-      // Limpieza preventiva total
       containerRef.current.innerHTML = "";
       setLoading(true);
 
@@ -23,11 +22,16 @@ export default function BrickPanel({ metodo, precio, onPagoAprobado }: any) {
         const res = await fetch('/api/create-preference', { 
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ title: 'Glamour - Pago Seguro', price: Math.round(precio), quantity: 1 }) 
+          // 👈 Enviamos vendedorEmail para guardarlo en la metadata de la preferencia
+          body: JSON.stringify({ 
+            title: 'Glamour - Pago Seguro', 
+            price: Math.round(precio), 
+            quantity: 1,
+            vendedorEmail 
+          }) 
         });
         const pref = await res.json();
 
-        // Si mientras pedíamos la preferencia el componente se desmontó, cancelamos todo
         if (!isEffectActive) return;
 
         if (!window.MercadoPago) {
@@ -42,16 +46,13 @@ export default function BrickPanel({ metodo, precio, onPagoAprobado }: any) {
         const mp = new window.MercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY, { locale: 'es-AR' });
         const bricksBuilder = mp.bricks();
 
-        // 2. Si ya hay una instancia moviéndose, la matamos antes de seguir
         if (brickController.current) {
           await brickController.current.unmount();
           brickController.current = null;
         }
 
-        // 3. Verificación final de limpieza de HTML
         if (containerRef.current) containerRef.current.innerHTML = "";
 
-        // 4. CREACIÓN
         brickController.current = await bricksBuilder.create('payment', 'brick-unique-id', {
           initialization: { amount: Math.round(precio), preferenceId: pref.id },
           customization: {
@@ -68,7 +69,12 @@ export default function BrickPanel({ metodo, precio, onPagoAprobado }: any) {
           callbacks: {
             onReady: () => { if (isEffectActive) setLoading(false); },
             onSubmit: async ({ formData }: any) => {
-              const r = await fetch('/api/process-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+              // 👈 Incluimos vendedorEmail en el envío del pago procesado
+              const r = await fetch('/api/process-payment', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ ...formData, vendedorEmail }) 
+              });
               const p = await r.json();
               if (p.status === 'approved') onPagoAprobado();
             },
@@ -80,27 +86,20 @@ export default function BrickPanel({ metodo, precio, onPagoAprobado }: any) {
 
     initMP();
 
-    // ── 🛡️ LIMPIEZA CRÍTICA ──
     return () => {
-      isEffectActive = false; // Bloquea cualquier callback asíncrono que esté en camino
+      isEffectActive = false;
       if (brickController.current) {
         const instance = brickController.current;
         brickController.current = null;
-        instance.unmount(); // Desmonta oficialmente de Mercado Pago
+        instance.unmount();
       }
       if (containerRef.current) containerRef.current.innerHTML = "";
     };
-  }, [metodo]); // Se reinicia SOLAMENTE si cambias de botón (Tarjeta <-> MP)
+  }, [metodo, vendedorEmail]); // 👈 Dependencia agregada
 
   return (
     <div style={{ minHeight: '400px', width: '100%' }}>
       {loading && <p style={{ textAlign: 'center', padding: '20px', color: '#999' }}>Cargando pasarela...</p>}
-      
-      {/* 
-          Usamos la prop KEY. Esto es un truco de Senior: 
-          Al cambiar el método, React destruye el DIV viejo y crea uno nuevo 
-          desde cero, lo que obliga a Mercado Pago a perder la referencia anterior.
-      */}
       <div 
         key={metodo} 
         id="brick-unique-id" 
