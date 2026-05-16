@@ -7,21 +7,20 @@
   animation: fadeIn 0.8s ease-out;
 }
 
-.hero { text-align: center; margin-bottom: 30px; }
-
 .title { 
   color: #FF0000; 
   font-size: 32px; 
   letter-spacing: 2px; 
   font-weight: 800;
   margin-bottom: 5px;
-  text-transform: capitalize; /* 👈 Solo iniciales */
+  text-transform: capitalize;
+  text-align: center;
 }
 
-.subtitle { color: #666; font-size: 14px; letter-spacing: 1px; }
+.subtitle { color: #666; font-size: 14px; letter-spacing: 1px; text-align: center; }
 
 .sectionTitle {
-  color: #ff4d6d; /* 👈 Rosa Glamour Intermedio */
+  color: #ff4d6d; 
   text-align: center;
   margin: 50px 0 20px;
   font-size: 22px;
@@ -31,7 +30,7 @@
 }
 
 /* =========================
-   CARRUSELES
+   CARRUSELES (VELOCIDAD FLUIDA)
 ========================= */
 .carouselContainer {
   width: 100%;
@@ -41,8 +40,20 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-.track { display: flex; width: max-content; animation: scrollX 35s linear infinite; }
-.trackReverse { animation: scrollX 40s linear infinite reverse; }
+.track { 
+  display: flex; 
+  width: max-content; 
+  animation-name: scrollX;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.trackReverse { 
+  animation-name: scrollX;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: reverse; 
+}
 
 .carouselCard {
   width: 180px;
@@ -63,9 +74,9 @@
   position: absolute;
   bottom: 0;
   width: 100%;
-  background: rgba(255, 77, 109, 0.9); /* 👈 Rosa intermedio con transparencia */
+  background: rgba(255, 77, 109, 0.9);
   color: white;
-  font-size: 13px; /* 👈 Más grande para legibilidad */
+  font-size: 13px;
   font-weight: 600;
   text-align: center;
   padding: 8px 4px;
@@ -74,7 +85,7 @@
 }
 
 /* =========================
-   GRID DE PRODUCTOS (CARDS TRASLÚCIDAS)
+   GRID DE PRODUCTOS
 ========================= */
 .grid {
   display: grid;
@@ -90,14 +101,13 @@
 
 .productCard {
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.85); /* 👈 TRASLÚCIDO */
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(5px);
   border-radius: 16px;
   overflow: hidden;
   border: none;
   transition: all 0.3s ease;
   animation: fadeInUp 0.6s ease backwards;
-  /* 👈 SOMBRA ROJA POTENTE */
   box-shadow: 0 10px 25px rgba(255, 0, 0, 0.25); 
 }
 
@@ -106,7 +116,7 @@
   box-shadow: 0 15px 35px rgba(255, 0, 0, 0.4);
 }
 
-.imageBox { width: 100%; aspect-ratio: 3/4; overflow: hidden; }
+.imageBox { width: 100%; aspect-ratio: 3/4; overflow: hidden; position: relative; }
 .imageBox img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
 .productCard:hover .imageBox img { transform: scale(1.1); }
 
@@ -114,14 +124,44 @@
 
 .productName { 
   display: block; 
-  font-size: 15px; /* 👈 Agrandado */
+  font-size: 15px; 
   font-weight: 700; 
-  color: #ff4d6d; /* 👈 ROSA GLAMOUR INTERMEDIO */
+  color: #ff4d6d; 
   margin-bottom: 5px; 
   text-transform: capitalize; 
 }
 
 .price { color: #FF0000; font-weight: 800; font-size: 18px; }
+
+/* 🔴 BOTONES FLOTANTES UNIFICADOS */
+.quickWish, .quickBag, .quickShare {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s, background-color 0.2s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  background: #FF0000; /* Fondo Rojo Glamour */
+}
+
+.quickBag { top: 10px; left: 10px; }
+.quickWish { top: 10px; right: 10px; }
+.quickShare { bottom: 10px; right: 10px; }
+
+.quickWish img { width: 22px; height: auto; }
+
+.quickWish:hover, .quickBag:hover, .quickShare:hover {
+  transform: scale(1.1);
+  background: #ff4d6d;
+}
+
+.quickWish:active, .quickBag:active, .quickShare:active { transform: scale(0.9); }
 
 /* =========================
    BANNERS & ANIMACIONES
@@ -134,47 +174,3 @@
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
 .track:hover { animation-play-state: paused; }
-
-/* BOTONES FLOTANTES EN LA GRID */
-.imageBox {
-  position: relative; /* Necesario para los absolutos */
-}
-
-.quickWish, .quickBag {
-  position: absolute;
-  top: 10px;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 10;
-  transition: transform 0.2s;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-.quickWish {
-  right: 10px; /* Corazón a la derecha */
-  background: white;
-}
-
-.quickWish img {
-  width: 22px;
-  height: auto;
-}
-
-.quickBag {
-  left: 10px; /* Bolsita a la izquierda */
-  background: #FF0000;
-}
-
-.quickWish:hover, .quickBag:hover {
-  transform: scale(1.1);
-}
-
-.quickWish:active, .quickBag:active {
-  transform: scale(0.9);
-}

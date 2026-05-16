@@ -162,7 +162,7 @@
 }
 
 .wishlistIcon {
-  width: 85px;
+  width: 45px;
   height: auto;
 }
 
@@ -192,7 +192,7 @@
 .consultar {
   background: #ff6b6b; /* Color complementario suave */
   color: white;
-  padding: 14px;
+  padding: 6px;
   border-radius: 50px;
   display: flex;
   align-items: center;
@@ -205,12 +205,49 @@
 
 /* Icono WhatsApp personalizado */
 .whatsIcon {
-  width: 25px;
-  height: 25px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
 }
 
 @keyframes popIn {
   from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+.shareBtn {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  background: #ff0000;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  color: white;
+  transition: transform 0.2s;
+}
+
+.shareBtn:hover { transform: scale(1.1); }
+
+.description {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  margin-bottom: 15px;
+  line-height: 1.4;
+  border-left: 3px solid #ffcccc;
+  padding-left: 10px;
+}
+
+.specs {
+  font-size: 13px;
+  background: rgba(255, 0, 0, 0.05);
+  padding: 10px;
+  border-radius: 10px;
 }

@@ -4,7 +4,7 @@ import ProductModal from '@/app/components/ProductModal'
 import styles from './category.module.css'
 import { useCartStore } from '@/app/store/useCartStore'
 import { useWishlistStore } from '@/app/store/useWishlistStore'
-import { ShoppingBag } from 'lucide-react'
+import { ShoppingBag, Share2 } from 'lucide-react'
 
 export default function CategoryClient({ category, productos, banners }: any) {
   const [selected, setSelected] = useState<any | null>(null)
@@ -13,6 +13,9 @@ export default function CategoryClient({ category, productos, banners }: any) {
   // Stores de Zustand
   const { addToCart } = useCartStore()
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore()
+
+  // 🏃‍♂️ CONFIGURACIÓN DE VELOCIDAD CONSTANTE (Segundos por ítem)
+  const VELOCIDAD_POR_ITEM = 5;
 
   const productosCategoria = useMemo(() => {
     return productos.filter((p: any) => 
@@ -32,13 +35,12 @@ export default function CategoryClient({ category, productos, banners }: any) {
 
   // Lógica de botones flotantes
   const handleQuickBag = (e: any, item: any) => {
-    e.stopPropagation(); // No abre el modal
+    e.stopPropagation();
     addToCart({ ...item, envio: 0 }, 0);
-    // Podrías poner un mini aviso acá si quisieras
   }
 
   const handleQuickWish = (e: any, item: any) => {
-    e.stopPropagation(); // No abre el modal
+    e.stopPropagation();
     if (isInWishlist(item.id)) {
       removeFromWishlist(item.id);
     } else {
@@ -48,6 +50,21 @@ export default function CategoryClient({ category, productos, banners }: any) {
         precio: item.precio,
         imagen: item.imagen
       });
+    }
+  }
+
+  const handleQuickShare = (e: any, item: any) => {
+    e.stopPropagation();
+    const shareData = {
+      title: item.nombre,
+      text: `¡Mirá este producto en Glamour Urquiza: ${item.nombre}!`,
+      url: `${window.location.origin}${window.location.pathname}?p=${item.id}`,
+    };
+    if (navigator.share) {
+      navigator.share(shareData);
+    } else {
+      navigator.clipboard.writeText(shareData.url);
+      alert("Enlace copiado al portapapeles");
     }
   }
 
@@ -64,13 +81,21 @@ export default function CategoryClient({ category, productos, banners }: any) {
   const itemsSuperior = [...productosCategoria, ...productosCategoria]
   const itemsOtros = [...productosOtros, ...productosOtros]
 
+  // Cálculo de duraciones dinámicas para velocidad constante
+  const duracionSup = productosCategoria.length * VELOCIDAD_POR_ITEM;
+  const duracionOtros = productosOtros.length * VELOCIDAD_POR_ITEM;
+
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>{category.replace(/-/g, ' ')}</h1>
 
+      {/* 🎡 CARRUSEL 1: Categoría Actual */}
       {itemsSuperior.length > 0 && (
         <div className={styles.carouselContainer}>
-          <div className={styles.track}>
+          <div 
+            className={styles.track} 
+            style={{ animationDuration: `${duracionSup}s` }}
+          >
             {itemsSuperior.map((item, i) => (
               <div key={`sup-${i}`} className={styles.carouselCard} onClick={() => setSelected(item)}>
                 <img src={item.imagen} alt={item.nombre} />
@@ -84,44 +109,50 @@ export default function CategoryClient({ category, productos, banners }: any) {
       {renderBanner(`hero-${category}`)}
 
       <div className={styles.grid}>
-        {productosCategoria.map((item: any) => (
-          <div key={item.id} className={styles.productCard} onClick={() => setSelected(item)}>
-            <div className={styles.imageBox}>
-              <img src={item.imagen} alt={item.nombre} />
-              
-              {/* --- BOTONES FLOTANTES --- */}
-              <button 
-                className={styles.quickWish} 
-                onClick={(e) => handleQuickWish(e, item)}
-              >
-                <img 
-                  src="/icons/corazon-rojo-deseotexto.png" 
-                  style={{ filter: isInWishlist(item.id) ? 'none' : 'grayscale(1) opacity(0.7)' }}
-                  alt="Fav" 
-                />
-              </button>
+        {productosCategoria.map((item: any) => {
+          const isFav = isInWishlist(item.id);
+          return (
+            <div key={item.id} className={styles.productCard} onClick={() => setSelected(item)}>
+              <div className={styles.imageBox}>
+                <img src={item.imagen} alt={item.nombre} />
+                
+                {/* --- BOTÓN BOLSA --- */}
+                <button className={styles.quickBag} onClick={(e) => handleQuickBag(e, item)}>
+                  <ShoppingBag size={18} color="white" />
+                </button>
 
-              <button 
-                className={styles.quickBag} 
-                onClick={(e) => handleQuickBag(e, item)}
-              >
-                <ShoppingBag size={18} color="white" />
-              </button>
+                {/* --- BOTÓN WISHLIST --- */}
+                <button className={styles.quickWish} onClick={(e) => handleQuickWish(e, item)}>
+                  <img 
+                    src={isFav ? "/icons/corazon-blanco.png" : "/icons/corazon-rojo.png"} 
+                    alt="Fav" 
+                  />
+                </button>
+
+                {/* --- BOTÓN COMPARTIR --- */}
+                <button className={styles.quickShare} onClick={(e) => handleQuickShare(e, item)}>
+                  <Share2 size={18} color="white" />
+                </button>
+              </div>
+              
+              <div className={styles.info}>
+                <span className={styles.productName}>{item.nombre.toLowerCase()}</span>
+                <span className={styles.price}>${new Intl.NumberFormat('es-AR').format(item.precioTransfer)}</span>
+              </div>
             </div>
-            
-            <div className={styles.info}>
-              <span className={styles.productName}>{item.nombre.toLowerCase()}</span>
-              <span className={styles.price}>${new Intl.NumberFormat('es-AR').format(item.precioTransfer)}</span>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <h2 className={styles.sectionTitle}>También te puede gustar</h2>
 
+      {/* 🎡 CARRUSEL 2: Otros Productos (Reverse) */}
       {itemsOtros.length > 0 && (
         <div className={styles.carouselContainer}>
-          <div className={`${styles.track} ${styles.trackReverse}`}>
+          <div 
+            className={`${styles.track} ${styles.trackReverse}`}
+            style={{ animationDuration: `${duracionOtros}s` }}
+          >
             {itemsOtros.map((item, i) => (
               <div key={`inf-${i}`} className={styles.carouselCard} onClick={() => setSelected(item)}>
                 <img src={item.imagen} alt={item.nombre} />

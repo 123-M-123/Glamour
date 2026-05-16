@@ -1,5 +1,25 @@
-// C:\Users\Marcos\proyectos ordenados 1y2\glamour-urquiza\lib\googleSheets.ts
+import { google } from 'googleapis';
 
+// 1. CONFIGURACIÓN DEL ROBOT (JSON)
+const auth = new google.auth.GoogleAuth({
+  credentials: {
+    client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
+
+const sheets = google.sheets({ version: 'v4', auth });
+
+// 2. IDENTIFICADORES DE PLANILLAS
+const MASTER_ID = process.env.MASTER_PAYMENTS_SHEET_ID; // 👈 TU planilla (Maestra)
+const CLIENT_ID = process.env.CLIENT_CONTENT_SHEET_ID; // 👈 Planilla de Glamour
+
+const SOCIOS_AUTORIZADOS = [
+  "gla_142@hotmail.com", 
+];
+
+// Helper para links de Drive
 function getDriveDirectLink(url: string) {
   if (!url || !url.includes("drive.google.com")) return url;
   const match = url.match(/\/d\/(.+?)(?:\/|$)|\/file\/d\/(.+?)\/|id=(.+?)(?:&|$)/);
@@ -8,70 +28,88 @@ function getDriveDirectLink(url: string) {
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 }
 
-const SOCIOS_AUTORIZADOS = [
-  "gla_142@hotmail.com", 
-];
-
+/**
+ * PRODUCTOS: Siguen en la planilla del CLIENTE
+ */
 export async function getProductsFromSheets() {
-  const apiKey = process.env.GOOGLE_API_KEY;
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  const range = 'Carga de productos!A2:J'; // 👈 AMPLIADO A COLUMNA J
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-
   try {
-    const res = await fetch(url, { next: { revalidate: 1 } }); 
-    const data = await res.json();
-    if (!data.values) return [];
+    const range = "'Carga Productos'!A2:J"; 
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: CLIENT_ID, // 👈 CLIENTE
+      range,
+    });
 
-    return data.values
+    const rows = response.data.values;
+    if (!rows) return [];
+
+    return rows
       .filter((row: any) => SOCIOS_AUTORIZADOS.includes(row[0]?.trim().toLowerCase()))
       .map((row: any) => {
         const precioTransfer = Number(row[3]) || 0;
         return {
           id: row[1]?.toString() || "",
           nombre: row[2]?.toString() || "",
-          // 💰 LÓGICA 20% OFF: El precio de lista es PrecioTransfer / 0.8
-          precio: Math.round(precioTransfer / 0.8), 
+          precio: Math.round(precioTransfer / 0.8),
           precioTransfer: precioTransfer,
           descripcion: row[4] || "",
           imagen: getDriveDirectLink(row[5] || ""),
-          categoria: row[6] || "",
+          categoria: row[6]?.toString().toLowerCase().trim() || "",
           stock: Number(row[7]) || 0,
-          talles: row[8] || "", // 👈 NUEVO: Columna I
-          colores: row[9] || "", // 👈 NUEVO: Columna J
+          talles: row[8] || "",
+          colores: row[9] || "",
         };
       });
-  } catch (error) { return []; }
+  } catch (error: any) {
+    console.error("Error en getProductsFromSheets:", error.message);
+    return [];
+  }
 }
 
-// ... (getBannersFromSheets se mantiene igual que antes)
-
+/**
+ * BANNERS: Vuelven a tu planilla MAESTRA
+ */
 export async function getBannersFromSheets() {
-  const apiKey = process.env.GOOGLE_API_KEY;
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  
-  // 🔥 FIX CRÍTICO: El nombre de la solapa en tu Excel es 'Baners Publicidad' (con una sola N)
-  const range = 'Baners Publicidad!A2:D'; 
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-
   try {
-    const res = await fetch(url, { next: { revalidate: 1 } });
-    const data = await res.json();
+    // 🔥 IMPORTANTE: Ahora usamos MASTER_ID
+    const range = "'Baners Publicidad'!A2:D"; 
     
-    if (!data.values) {
-      console.warn("No se encontraron datos en la solapa Baners Publicidad");
-      return [];
-    }
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: MASTER_ID, // 👈 CAMBIADO A MASTER_ID
+      range,
+    });
 
-    return data.values
+    const rows = response.data.values;
+    if (!rows) return [];
+
+    return rows
       .filter((row: any) => SOCIOS_AUTORIZADOS.includes(row[0]?.trim().toLowerCase()))
       .map((row: any) => ({
         imagen: getDriveDirectLink(row[1] || ""),
         ubicacion: row[2]?.toString().toLowerCase().trim() || "",
         linkDestino: row[3] || null
       }));
-  } catch (error) { 
-    console.error("Error cargando banners:", error);
-    return []; 
+  } catch (error: any) {
+    console.error("Error en getBannersFromSheets:", error.message);
+    return [];
+  }
+}
+
+/**
+ * ESCRITURA DE PAGOS: En tu planilla MAESTRA
+ */
+export async function savePaymentToMaster(paymentData: any[]) {
+  try {
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: MASTER_ID, // 👈 MASTER
+      range: 'Pagos!A:G',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [paymentData],
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error guardando pago en Maestra:", error.message);
+    throw error;
   }
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { X, Share2 } from 'lucide-react' // Importamos Share2 para compartir
 import styles from './ProductModal.module.css'
 import { useCartStore } from '../store/useCartStore'
 import { useWishlistStore } from '../store/useWishlistStore'
@@ -32,6 +32,26 @@ export default function ProductModal({ open, producto, onClose }: any) {
     }
   }
 
+  // 🔗 LÓGICA DE COMPARTIR (Catálogo & Redes)
+  const handleShare = async () => {
+    const shareData = {
+      title: producto.nombre,
+      text: `¡Mirá este producto en Glamour Urquiza: ${producto.nombre}!`,
+      // Genera el link que luego usará el Catálogo de Meta
+      url: `${window.location.origin}${window.location.pathname}?p=${producto.id}`,
+    }
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData)
+      } else {
+        await navigator.clipboard.writeText(shareData.url)
+        alert("Enlace copiado al portapapeles")
+      }
+    } catch (err) {
+      console.log('Error compartiendo:', err)
+    }
+  }
+
   const whatsappUrl = `https://wa.me/5491167914366?text=Hola! Quiero consultar por ${producto.nombre}. Talles: ${producto.talles}, Colores: ${producto.colores}.`
 
   return (
@@ -42,6 +62,11 @@ export default function ProductModal({ open, producto, onClose }: any) {
         <div className={styles.mainLayout}>
           <div className={styles.imageContainer}>
             <img src={producto.imagen} alt={producto.nombre} className={styles.image} />
+            
+            {/* BOTÓN COMPARTIR FLOTANTE EN LA IMAGEN */}
+            <button className={styles.shareBtn} onClick={handleShare} title="Compartir producto">
+              <Share2 size={20} />
+            </button>
           </div>
 
           <div className={styles.infoContainer}>
@@ -65,7 +90,7 @@ export default function ProductModal({ open, producto, onClose }: any) {
                 onClick={handleWishlist}
               >
                 <img 
-                  src="/icons/corazon-rojo-deseotexto.png" 
+                  src="/icons/corazon-rojo.png" 
                   className={styles.wishlistIcon} 
                   alt="Lista de Deseos"
                   style={{ filter: isFav ? 'none' : 'grayscale(1) opacity(0.5)' }} 
@@ -73,16 +98,21 @@ export default function ProductModal({ open, producto, onClose }: any) {
               </button>
             </div>
 
+            {/* 📝 CAMPOS DINÁMICOS: DESCRIPCIÓN, STOCK, TALLES Y COLORES */}
             <div className={styles.extraInfo}>
-              {producto.talles && <p><strong>Talles:</strong> {producto.talles}</p>}
-              {producto.colores && <p><strong>Colores:</strong> {producto.colores}</p>}
+              {producto.descripcion && <p className={styles.description}>{producto.descripcion}</p>}
+              
+              <div className={styles.specsGrid}>
+                {producto.talles && <p><strong>Talles:</strong> {producto.talles}</p>}
+                {producto.colores && <p><strong>Colores:</strong> {producto.colores}</p>}
+                <p><strong>Stock:</strong> {producto.stock > 0 ? `${producto.stock} unidades` : 'Consultar disponibilidad'}</p>
+              </div>
             </div>
 
             <div className={styles.actions}>
               <button className={styles.pagar} onClick={handleAdd}>AGREGAR A LA BOLSA</button>
               <a href={whatsappUrl} target="_blank" className={styles.consultar}>
-                {/* ICONO WHATS-ROJO.PNG INCRUSTADO */}
-                <img src="/icons/whats-rojo.png" alt="WhatsApp" className={styles.whatsIcon} />
+                <img src="/icons/whats.png" alt="WhatsApp" className={styles.whatsIcon} />
                 CONSULTAR STOCK
               </a>
             </div>
