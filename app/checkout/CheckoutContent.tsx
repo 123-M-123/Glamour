@@ -93,8 +93,14 @@ export default function CheckoutContent() {
         </div>
 
         <div style={{ background: 'white', padding: '1.8rem', borderRadius: 24, border: `2px solid ${K.border}` }}>
-          {/* 🏷️ PASAMOS EL VENDEDOR_EMAIL A LOS PANELES */}
-          {metodo === 'alias' && <TransferPanel total={total} onExito={() => setCompletado(true)} />}
+          {/* 🏷️ TODOS LOS PANELES AHORA RECIBEN EL VENDEDOR_EMAIL */}
+          {metodo === 'alias' && (
+            <TransferPanel 
+              total={total} 
+              vendedorEmail={VENDEDOR_EMAIL} 
+              onExito={() => setCompletado(true)} 
+            />
+          )}
           
           {metodo === 'qr' && (
             <QrPanel 
@@ -157,7 +163,7 @@ export default function CheckoutContent() {
             />
             <span>Solicitar Link de Pago Payway</span>
             <img 
-              src="/icons/whats.png" 
+              src="/icons/whats-rojo.png" 
               alt="WhatsApp" 
               style={{ height: '30px', width: 'auto', objectFit: 'contain' }} 
             />

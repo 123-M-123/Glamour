@@ -21,10 +21,10 @@ export const metadata: Metadata = {
     siteName: "Glamour | Urquiza",
     images: [
       {
-        url: "/og/image-2.jpg",
+        url: "/og/image-3.jpg",
         width: 1200,
         height: 630,
-        type: "image-2/jpg",
+        type: "image-3/jpg",
         alt: "Glamour Urquiza | Indumentaria y Accesorios",
       },
     ],
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Glamour Urquiza | Indumentaria y Accesorios",
     description: "Resaltá tu esencia. Un espacio pensado para mujeres auténticas que buscan vestirse con estilo, comodidad y actitud",
-    images: ["/og/image-2.jpg"],
+    images: ["/og/image-3.jpg"],
   },
 
   icons: {
