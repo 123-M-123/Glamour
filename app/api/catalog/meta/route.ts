@@ -1,15 +1,11 @@
-export const dynamic = 'force-dynamic'; // 👈 AGREGÁ ESTO ARRIBA DE TODO
-
+export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
-// ... resto del código que te pasé antes
-
-
-
 import { getProductsFromSheets } from '@/lib/googleSheets';
 
-// Función para limpiar caracteres que rompen el XML
-const escapeXml = (unsafe: string) => {
-  return unsafe.replace(/[<>&"']/g, (c) => {
+// Función para limpiar caracteres que rompen el XML (incluyendo los links de Drive)
+const escapeXml = (unsafe: any) => {
+  if (!unsafe) return "";
+  return unsafe.toString().replace(/[<>&"']/g, (c: string) => {
     switch (c) {
       case '<': return '&lt;';
       case '>': return '&gt;';
@@ -34,26 +30,26 @@ export async function GET() {
     <description>Catálogo de Indumentaria Femenina Glamour Urquiza</description>`;
 
     productos.forEach((p: any) => {
-      // Determinamos en qué categoría principal está para el link
-      // Si p.categoria es 'remeras', el link debe ir a /indumentaria/remeras
-      // Asumimos que si no es accesorio, es indumentaria.
       const catPrincipal = ['cinturones', 'carteras', 'gorras', 'billeteras', 'sobres-de-fiesta', 'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'].includes(p.categoria.toLowerCase()) 
         ? 'accesorios' 
         : 'indumentaria';
+
+      // 🛑 CLAVE: Limpiamos CADA campo, especialmente p.imagen y el link generado
+      const productLink = escapeXml(`${baseUrl}/${catPrincipal}/${p.categoria}?p=${p.id}`);
+      const imageLink = escapeXml(p.imagen);
 
       xml += `
     <item>
       <g:id>${escapeXml(p.id)}</g:id>
       <g:title>${escapeXml(p.nombre)}</g:title>
       <g:description>${escapeXml(p.descripcion || 'Indumentaria femenina de alta calidad')}</g:description>
-      <g:link>${baseUrl}/${catPrincipal}/${p.categoria}?p=${p.id}</g:link>
-      <g:image_link>${p.imagen}</g:image_link>
+      <g:link>${productLink}</g:link>
+      <g:image_link>${imageLink}</g:image_link>
       <g:brand>Glamour Urquiza</g:brand>
       <g:condition>new</g:condition>
       <g:availability>${p.stock > 0 ? 'in stock' : 'out of stock'}</g:availability>
       <g:price>${p.precioTransfer} ARS</g:price>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing</g:google_product_category>
-      <g:shipping_weight>0.5 kg</g:shipping_weight>
     </item>`;
     });
 
@@ -64,7 +60,7 @@ export async function GET() {
     return new NextResponse(xml, {
       headers: {
         'Content-Type': 'application/xml',
-        'Cache-Control': 'no-store, max-age=0', // Para que Meta siempre vea lo último
+        'Cache-Control': 'no-store, max-age=0',
       },
     });
   } catch (error) {
