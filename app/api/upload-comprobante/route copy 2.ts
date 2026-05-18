@@ -62,7 +62,7 @@ async function subirADrive(archivo: File): Promise<string> {
   
   const fileMetadata = {
     name: `COMPROBANTE-${Date.now()}-${archivo.name}`,
-    parents: [FOLDER_ID], // Obligamos a que se cree en tu carpeta con cuota
+    parents: [FOLDER_ID],
   };
 
   const media = {
@@ -70,27 +70,22 @@ async function subirADrive(archivo: File): Promise<string> {
     body: require('stream').Readable.from(buffer),
   };
 
-  try {
-    // 🛡️ FIX CUOTA: Usamos supportsAllDrives para que use tu espacio de almacenamiento
-    const res = await drive.files.create({
-      requestBody: fileMetadata,
-      media: media,
-      fields: 'id, webViewLink',
-      supportsAllDrives: true, 
-    });
+  // 🔥 FIX CUOTA: Subir el archivo
+  const res = await drive.files.create({
+    requestBody: fileMetadata,
+    media: media,
+    fields: 'id, webViewLink',
+  });
 
-    if (!res.data.id) throw new Error('Error al crear archivo en Drive');
+  if (!res.data.id) throw new Error('Error al crear archivo en Drive');
 
-    await drive.permissions.create({
-      fileId: res.data.id,
-      requestBody: { role: 'reader', type: 'anyone' },
-    });
+  // 🔥 IMPORTANTE: Transferir el "ownership" o dar permisos es clave
+  await drive.permissions.create({
+    fileId: res.data.id,
+    requestBody: { role: 'reader', type: 'anyone' },
+  });
 
-    return res.data.webViewLink || '';
-  } catch (err: any) {
-    console.error('❌ Error crítico en Drive:', err.message);
-    throw new Error(`Error de Almacenamiento: ${err.message}`);
-  }
+  return res.data.webViewLink || '';
 }
 
 export async function POST(req: NextRequest) {
@@ -117,6 +112,7 @@ export async function POST(req: NextRequest) {
       clienteNombre, clienteWhatsapp, puntoEntrega || 'No especificado'
     );
 
+    // 📩 NOTIFICACIÓN POR NODEMAILER
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       try {
         const transporter = nodemailer.createTransport({
@@ -124,16 +120,17 @@ export async function POST(req: NextRequest) {
           auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
         });
 
-        const msgWa = encodeURIComponent(`Hola ${clienteNombre}! 👋 Recibimos tu comprobante. Pedido: ${titulo}.`);
+        const msgWa = encodeURIComponent(`¡Hola ${clienteNombre}! 👋 Recibimos tu comprobante. Pedido: ${titulo}.`);
         const linkWa = `https://wa.me/${clienteWhatsapp.replace(/\D/g, '')}?text=${msgWa}`;
 
         await transporter.sendMail({
           from: `"Tienda de Tiendas" <${process.env.EMAIL_USER}>`,
-          to: 'tiendadtiendas@gmail.com', // 👈 TE LLEGA A VOS PARA PRUEBAS
+          to: 'tiendadtiendas@gmail.com', // 👈 CAMBIADO PARA QUE TE LLEGUE A VOS PRIMERO
           subject: `🛍️ ¡Nueva Venta! - ${clienteNombre}`,
-          html: `<div style="font-family: sans-serif; border: 2px solid #FFC9CB; padding: 20px; border-radius: 15px; max-width: 500px;">
-                  <h2 style="color: #FF0000; text-align: center;">¡Tuviste una venta!</h2>
+          html: `<div style="font-family: sans-serif; border: 2px solid #FFC9CB; padding: 20px; border-radius: 15px;">
+                  <h2 style="color: #FF0000;">¡Tuviste una venta!</h2>
                   <p><strong>Cliente:</strong> ${clienteNombre}</p>
+                  <p><strong>WhatsApp:</strong> ${clienteWhatsapp}</p>
                   <p><strong>Total:</strong> $${precio}</p>
                   <p><a href="${linkDrive}">Ver Comprobante</a></p>
                   <br>

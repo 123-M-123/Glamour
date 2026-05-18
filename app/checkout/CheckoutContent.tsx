@@ -15,7 +15,7 @@ const K = {
   muted: '#9A9690'
 };
 
-const VENDEDOR_EMAIL = "tiendadtiendas@gmail.com"; // 👈 PARA TUS PRUEBAS
+const VENDEDOR_EMAIL = "tiendadtiendas@gmail.com"; 
 
 const OPCIONES = [
   { id: 'alias', label: 'Transferencia', sub: '20% OFF directo', icon: '/ico-ui/alias.png', bg: '#FFF0F1' },
@@ -98,7 +98,7 @@ export default function CheckoutContent() {
           )}
           
           {metodo === 'qr' && tieneDatos && (
-            <QrPanel precio={Math.round(precioFinal)} vendedorEmail={VENDEDOR_EMAIL} onPagoConfirmado={() => setCompletado(true)} />
+             <QrPanel precio={Math.round(precioFinal)} vendedorEmail={VENDEDOR_EMAIL} onPagoConfirmado={() => setCompletado(true)} />
           )}
 
           {(metodo === 'tarjeta' || metodo === 'mp') && tieneDatos && (
@@ -120,8 +120,8 @@ export default function CheckoutContent() {
             </div>
           )}
 
-          {metodo !== 'alias' && metodo !== 'otros' && !tieneDatos && (
-            <div style={{ textAlign: 'center', padding: '2rem' }}>
+          {(metodo === 'qr' || metodo === 'tarjeta' || metodo === 'mp') && !tieneDatos && (
+            <div style={{ textAlign: 'center', padding: '1rem' }}>
               <button onClick={() => setShowModal(true)} style={{ background: K.accent, color: 'white', padding: '1rem 2rem', borderRadius: 50, border: 'none', fontWeight: 800, cursor: 'pointer' }}>
                 CONFIGURAR DATOS DE ENVÍO →
               </button>
@@ -129,7 +129,6 @@ export default function CheckoutContent() {
           )}
         </div>
 
-        {/* 🔴 RESTAURADO BOTÓN PAYWAY */}
         <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
           <a href={whatsappPayway} target="_blank" style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', background: '#FF0000', color: 'white', padding: '0.8rem 2rem', borderRadius: 50, textDecoration: 'none', fontWeight: 800, fontSize: '1rem', boxShadow: '0 10px 25px rgba(255,0,0,0.2)' }}>
             <img src="/ico-ui/payway-2.png" alt="Payway" style={{ height: '36px' }} />
@@ -143,27 +142,22 @@ export default function CheckoutContent() {
             <ArrowLeft size={16} /> Volver a la tienda
           </button>
         </div>
-
-        <p style={{ textAlign: 'center', fontSize: '0.72rem', color: K.muted, marginTop: '1.5rem' }}>
-          🔒 Tus datos están protegidos · Pagos procesados de forma segura
-        </p>
-
       </div>
 
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, padding: '20px' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '2.5rem', border: `2px solid ${K.accent}`, position: 'relative' }}>
             <button onClick={() => setShowModal(false)} style={{ position: 'absolute', top: 20, right: 20, border: 'none', background: 'none', cursor: 'pointer' }}><X /></button>
-            <h3 style={{ fontWeight: 950, textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.3rem' }}>DATOS DE ENVÍO</h3>
+            <h3 style={{ fontWeight: 950, textAlign: 'center', marginBottom: '1.5rem' }}>DATOS DE ENVÍO</h3>
             <input type="text" placeholder="Nombre Completo" id="mn" defaultValue={customerData.nombre} style={{ width: '100%', padding: '0.9rem', borderRadius: '12px', border: `1.5px solid ${K.border}`, marginBottom: '0.8rem' }} />
             <input type="tel" placeholder="WhatsApp" id="mw" defaultValue={customerData.whatsapp} style={{ width: '100%', padding: '0.9rem', borderRadius: '12px', border: `1.5px solid ${K.border}`, marginBottom: '0.8rem' }} />
-            <input type="text" placeholder="Dirección / Punto de Entrega" id="md" defaultValue={customerData.entrega} style={{ width: '100%', padding: '0.9rem', borderRadius: '12px', border: `1.5px solid ${K.border}`, marginBottom: '1.5rem' }} />
+            <input type="text" placeholder="Punto de Entrega" id="md" defaultValue={customerData.entrega} style={{ width: '100%', padding: '0.9rem', borderRadius: '12px', border: `1.5px solid ${K.border}`, marginBottom: '1.5rem' }} />
             <button onClick={() => {
               const n = (document.getElementById('mn') as HTMLInputElement).value;
               const w = (document.getElementById('mw') as HTMLInputElement).value;
               const d = (document.getElementById('md') as HTMLInputElement).value;
               if(n && w && d) { setCustomerData({ nombre: n, whatsapp: w, entrega: d }); setShowModal(false); }
-            }} style={{ width: '100%', padding: '1.1rem', borderRadius: 50, background: K.accent, color: 'white', fontWeight: 900, border: 'none', cursor: 'pointer' }}>CONTINUAR Y PAGAR</button>
+            }} style={{ width: '100%', padding: '1.1rem', borderRadius: 50, background: K.accent, color: 'white', fontWeight: 900, border: 'none', cursor: 'pointer' }}>CONTINUAR AL PAGO</button>
           </div>
         </div>
       )}
