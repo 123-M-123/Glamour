@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import { useCartStore } from '../store/useCartStore';
-import { MessageCircle, CheckCircle2, Home, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, X } from 'lucide-react';
 import TransferPanel from './components/TransferPanel';
 import QrPanel from './components/QrPanel';
 import BrickPanel from './components/BrickPanel';
@@ -12,10 +12,10 @@ const K = {
   border: '#FFC9CB',
   accent: '#FF0000',
   text: '#1C1B19',
-  muted: '#9A9690'
+  muted: '#9A9690',
+  card: '#FFFFFF'
 };
 
-// 📧 IDENTIFICADOR DEL VENDEDOR PARA EL WEBHOOK CENTRALIZADO
 const VENDEDOR_EMAIL = "gla_142@hotmail.com";
 
 const OPCIONES = [
@@ -25,6 +25,38 @@ const OPCIONES = [
   { id: 'mp', label: 'Cuenta MP', sub: 'Saldo o tarjetas MP', icon: '/ico-ui/mp.png', bg: '#EEF8FF' },
   { id: 'otros', label: 'Otros métodos', sub: 'Payway y globales', icon: '/ico-ui/otros.png', bg: '#F6F6F6' },
 ] as const;
+
+// --- COMPONENTE MODAL DE DATOS ---
+function DataModal({ isOpen, onClose, onConfirm }: { isOpen: boolean, onClose: () => void, onConfirm: (data: any) => void }) {
+  const [nombre, setNombre] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [entrega, setEntrega] = useState('');
+
+  if (!isOpen) return null;
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+      <div style={{ background: 'white', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '2rem', position: 'relative', border: `2px solid ${K.accent}`, boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} color={K.muted} /></button>
+        
+        <h3 style={{ fontWeight: 900, fontSize: '1.2rem', marginBottom: '0.5rem', color: K.text, textAlign: 'center' }}>¡CASI LISTO!</h3>
+        <p style={{ fontSize: '0.85rem', color: K.muted, textAlign: 'center', marginBottom: '1.5rem' }}>Necesitamos tus datos para coordinar la entrega de tu pedido.</p>
+
+        <input type="text" placeholder="Nombre Completo" value={nombre} onChange={(e) => setNombre(e.target.value)} style={{ width: '100%', padding: '0.9rem', borderRadius: '12px', border: `1.5px solid ${K.border}`, marginBottom: '0.8rem', outline: 'none' }} />
+        <input type="tel" placeholder="WhatsApp (ej: 1123456789)" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} style={{ width: '100%', padding: '0.9rem', borderRadius: '12px', border: `1.5px solid ${K.border}`, marginBottom: '0.8rem', outline: 'none' }} />
+        <input type="text" placeholder="Punto de Entrega / Dirección" value={entrega} onChange={(e) => setEntrega(e.target.value)} style={{ width: '100%', padding: '0.9rem', borderRadius: '12px', border: `1.5px solid ${K.border}`, marginBottom: '1.5rem', outline: 'none' }} />
+
+        <button 
+          onClick={() => { if(nombre && whatsapp && entrega) onConfirm({ nombre, whatsapp, entrega }); }}
+          disabled={!nombre || !whatsapp || !entrega}
+          style={{ width: '100%', padding: '1rem', borderRadius: '50px', background: (!nombre || !whatsapp || !entrega) ? '#ccc' : K.accent, color: 'white', fontWeight: 800, border: 'none', cursor: 'pointer' }}
+        >
+          CONFIRMAR Y PAGAR →
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function OpcionBtn({ op, activo, onClick }: { op: typeof OPCIONES[number], activo: boolean, onClick: () => void }) {
   return (
@@ -43,9 +75,13 @@ function OpcionBtn({ op, activo, onClick }: { op: typeof OPCIONES[number], activ
 export default function CheckoutContent() {
   const [metodo, setMetodo] = useState<any>('alias');
   const [completado, setCompletado] = useState(false);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [callbackPendiente, setCallbackPendiente] = useState<any>(null);
   
-  const cart = useCartStore((state) => state.items);
-  const total = cart.reduce((acc: number, item: any) => acc + item.producto.precioTransfer * item.cantidad + item.envio, 0);
+  const items = useCartStore((state) => state.items);
+  const setCustomerData = useCartStore((state) => state.setCustomerData);
+  
+  const total = items.reduce((acc: number, item: any) => acc + item.producto.precioTransfer * item.cantidad + item.envio, 0);
 
   const precioLista = Math.round(total / 0.8);
   const ahorro = precioLista - total;
@@ -54,6 +90,18 @@ export default function CheckoutContent() {
 
   const waMsg = encodeURIComponent(`Hola! Quiero solicitar un link de pago Payway por mi compra en Glamour Urquiza. Total: $${montoFormateado}`);
   const whatsappPayway = `https://wa.me/5491167914366?text=${waMsg}`;
+
+  // Función que llamarán los Bricks antes de procesar el pago
+  const interceptarPago = (confirmarPagoOriginal: () => void) => {
+    setCallbackPendiente(() => confirmarPagoOriginal);
+    setModalAbierto(true);
+  };
+
+  const handleConfirmarDatos = (data: any) => {
+    setCustomerData(data); // Guardamos en Zustand
+    setModalAbierto(false);
+    if (callbackPendiente) callbackPendiente(); // Ejecutamos el pago que quedó pausado
+  };
 
   if (completado) {
     return (
@@ -93,21 +141,12 @@ export default function CheckoutContent() {
         </div>
 
         <div style={{ background: 'white', padding: '1.8rem', borderRadius: 24, border: `2px solid ${K.border}` }}>
-          {/* 🏷️ TODOS LOS PANELES AHORA RECIBEN EL VENDEDOR_EMAIL */}
           {metodo === 'alias' && (
-            <TransferPanel 
-              total={total} 
-              vendedorEmail={VENDEDOR_EMAIL} 
-              onExito={() => setCompletado(true)} 
-            />
+            <TransferPanel total={total} vendedorEmail={VENDEDOR_EMAIL} onExito={() => setCompletado(true)} />
           )}
           
           {metodo === 'qr' && (
-            <QrPanel 
-              precio={Math.round(precioFinal)} 
-              vendedorEmail={VENDEDOR_EMAIL} 
-              onPagoConfirmado={() => setCompletado(true)} 
-            />
+            <QrPanel precio={Math.round(precioFinal)} vendedorEmail={VENDEDOR_EMAIL} onPagoConfirmado={() => setCompletado(true)} />
           )}
 
           {(metodo === 'tarjeta' || metodo === 'mp') && (
@@ -116,6 +155,7 @@ export default function CheckoutContent() {
                precio={precioFinal} 
                vendedorEmail={VENDEDOR_EMAIL} 
                onPagoAprobado={() => setCompletado(true)} 
+               onBeforeSubmit={interceptarPago} // 👈 Pasamos la intercepción
              />
           )}
 
@@ -135,38 +175,12 @@ export default function CheckoutContent() {
           )}
         </div>
 
+        {/* ... Resto del footer (Payway, Volver, etc) igual ... */}
         <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
-          <a 
-            href={whatsappPayway} 
-            target="_blank" 
-            style={{ 
-              display: 'inline-flex', 
-              alignItems: 'center', 
-              gap: '15px', 
-              background: '#FF0000', 
-              color: 'white', 
-              padding: '0.8rem 2rem', 
-              borderRadius: 50, 
-              textDecoration: 'none', 
-              fontWeight: 800,
-              fontSize: '1rem',
-              boxShadow: '0 10px 25px rgba(255,0,0,0.2)',
-              transition: 'transform 0.2s'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            <img 
-              src="/ico-ui/payway-2.png" 
-              alt="Payway" 
-              style={{ height: '36px', width: 'auto', objectFit: 'contain' }} 
-            />
+          <a href={whatsappPayway} target="_blank" style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', background: '#FF0000', color: 'white', padding: '0.8rem 2rem', borderRadius: 50, textDecoration: 'none', fontWeight: 800, fontSize: '1rem', boxShadow: '0 10px 25px rgba(255,0,0,0.2)' }}>
+            <img src="/ico-ui/payway-2.png" alt="Payway" style={{ height: '36px' }} />
             <span>Solicitar Link de Pago Payway</span>
-            <img 
-              src="/icons/whats-rojo.png" 
-              alt="WhatsApp" 
-              style={{ height: '30px', width: 'auto', objectFit: 'contain' }} 
-            />
+            <img src="/icons/whats-rojo.png" alt="WhatsApp" style={{ height: '30px' }} />
           </a>
         </div>
 
@@ -175,12 +189,14 @@ export default function CheckoutContent() {
             <ArrowLeft size={16} /> Volver a la tienda
           </button>
         </div>
-
-        <p style={{ textAlign: 'center', fontSize: '0.72rem', color: K.muted, marginTop: '1.5rem' }}>
-          🔒 Tus datos están protegidos · Pagos procesados de forma segura
-        </p>
-
       </div>
+
+      {/* 🚀 MODAL DE DATOS INTERCEPTOR */}
+      <DataModal 
+        isOpen={modalAbierto} 
+        onClose={() => setModalAbierto(false)} 
+        onConfirm={handleConfirmarDatos} 
+      />
     </div>
   );
 }

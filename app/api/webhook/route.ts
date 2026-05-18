@@ -1,98 +1,94 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { google } from 'googleapis';
 
-const SHEET_ID      = process.env.GOOGLE_SHEET_ID || ''
-const CLIENT_ID     = process.env.GOOGLE_CLIENT_ID || ''
-const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || ''
-const REFRESH_TOKEN = process.env.GOOGLE_REFRESH_TOKEN || ''
-const ACCESS_TOKEN  = process.env.MP_ACCESS_TOKEN || ''
+const SHEET_ID = process.env.GOOGLE_SHEET_ID!;
+const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN!;
 
-async function getAccessToken(): Promise<string> {
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id:     CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      refresh_token: REFRESH_TOKEN,
-      grant_type:    'refresh_token',
-    }),
-  })
-  const data = await res.json()
-  if (!data.access_token) throw new Error('No se pudo obtener access token')
-  return data.access_token
-}
+// Auth Service Account
+const auth = new google.auth.JWT({
+  email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+  key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+});
 
-async function agregarEnSheet(token: string, fila: any[]) {
-  const range = 'webhoock MP!A:G' 
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW`
-  
-  await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization:  `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ values: [fila] }),
-  })
+async function agregarEnSheet(fila: any[]) {
+  const sheets = google.sheets({ version: 'v4', auth });
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: SHEET_ID,
+    range: 'Pedidos!A:J', // 👈 Pestaña Pedidos, Columnas A-J
+    valueInputOption: 'RAW',
+    requestBody: { values: [fila] },
+  });
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
+    if (body.type !== 'payment') return NextResponse.json({ status: 'ignored' });
 
-    // Solo procesamos avisos de pago
-    if (body.type !== 'payment') {
-      return NextResponse.json({ status: 'ignored' }, { status: 200 })
-    }
+    const paymentId = body.data?.id;
+    if (!paymentId) return NextResponse.json({ status: 'error' });
 
-    const paymentId = body.data?.id
-    if (!paymentId) {
-      return NextResponse.json({ status: 'no payment id' }, { status: 200 })
-    }
+    // 1. Consultar a Mercado Pago
+    const mpRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      headers: { Authorization: `Bearer ${MP_ACCESS_TOKEN}` }
+    });
+    const pago = await mpRes.json();
 
-    // Consultar detalle a Mercado Pago
-    const mpRes = await fetch(
-      `https://api.mercadopago.com/v1/payments/${paymentId}`,
-      { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } }
-    )
+    if (pago.status !== 'approved') return NextResponse.json({ status: 'not_approved' });
+
+    // 2. Extraer Metadata (Nuestros 3 campos mágicos)
+    const { cliente_nombre, cliente_whatsapp, punto_entrega, vendedor_email } = pago.metadata;
     
-    if (!mpRes.ok) {
-        console.error("Error al consultar MP:", await mpRes.text())
-        return NextResponse.json({ status: 'error mp' }, { status: 200 })
-    }
+    const fecha = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+    const vendedorFijo = vendedor_email || pago.external_reference || "gla_142@hotmail.com";
 
-    const pago = await mpRes.json()
-
-    // Solo registrar si está aprobado
-    if (pago.status !== 'approved') {
-      return NextResponse.json({ status: 'not approved' }, { status: 200 })
-    }
-
-    const fecha = new Date().toLocaleString('es-AR', {
-      timeZone: 'America/Argentina/Buenos_Aires'
-    })
-
-    // Capturamos el mail del vendedor (external_reference)
-    const emailVendedor = pago.external_reference || 'elianamarti90@gmail.com'
-
-    // Armamos la fila respetando tus nuevas columnas
+    // 3. Mapeo a 10 Columnas (A-J)
     const fila = [
-      emailVendedor,                       // Col A: Vendedor
-      fecha,                               // Col B: Fecha
-      pago.description || 'Compra Online', // Col C: Producto
-      pago.transaction_amount || 0,        // Col D: Precio
-      'PAGADO',                            // Col E: Estado
-      pago.payer?.email || '',             // Col F: Comprador
-    ]
+      vendedorFijo,                       // A: Vendedor
+      fecha,                              // B: Fecha
+      pago.description || 'Compra Online',// C: Productos
+      pago.transaction_amount,            // D: Precio
+      'PAGADO (MP)',                      // E: Estado
+      paymentId,                          // F: Comprobante (ID Transacción)
+      `Tarjeta: ${pago.payment_method_id}`,// G: Notas
+      cliente_nombre || 'S/D',            // H: Nombre
+      cliente_whatsapp || 'S/D',          // I: WhatsApp
+      punto_entrega || 'S/D'              // J: Entrega
+    ];
 
-    const token = await getAccessToken()
-    await agregarEnSheet(token, fila)
+    await agregarEnSheet(fila);
 
-    console.log('✅ Venta registrada en Excel para El Campito:', emailVendedor)
-    return NextResponse.json({ status: 'ok' }, { status: 200 })
+    // 4. Notificación por Email (Resend)
+    if (process.env.RESEND_API_KEY && cliente_whatsapp) {
+      const msgWa = encodeURIComponent(`¡Hola ${cliente_nombre}! Gracias por tu compra. Recibimos el pago #${paymentId}. Estamos preparando tu envío a: ${punto_entrega}.`);
+      const linkWa = `https://wa.me/${cliente_whatsapp.replace(/\D/g, '')}?text=${msgWa}`;
 
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
+        body: JSON.stringify({
+          from: 'Tienda de Tiendas <onboarding@resend.dev>',
+          to: [vendedorFijo],
+          subject: `💰 ¡Cobro Recibido! - ${cliente_nombre}`,
+          html: `
+            <div style="font-family: sans-serif; border: 2px solid #25D366; padding: 20px; border-radius: 15px; max-width: 500px;">
+              <h2 style="color: #25D366;">¡Pago Confirmado!</h2>
+              <p><strong>Cliente:</strong> ${cliente_nombre}</p>
+              <p><strong>Monto:</strong> $${pago.transaction_amount}</p>
+              <p><strong>Entrega:</strong> ${punto_entrega}</p>
+              <br>
+              <a href="${linkWa}" style="background: #25D366; color: white; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; display: block; text-align: center;">
+                CONTACTAR POR WHATSAPP
+              </a>
+            </div>`
+        }),
+      }).catch(e => console.error("Error Resend Webhook:", e));
+    }
+
+    return NextResponse.json({ status: 'ok' });
   } catch (error) {
-    console.error('Error en webhook El Campito:', error)
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 })
+    console.error('Error Webhook:', error);
+    return NextResponse.json({ error: 'Internal Error' }, { status: 500 });
   }
 }

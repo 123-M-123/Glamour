@@ -17,21 +17,33 @@ type CartItem = {
   envio: number
 }
 
+// 📝 Definición del tipo de datos del cliente
+type CustomerData = {
+  nombre: string
+  whatsapp: string
+  entrega: string
+}
+
 type CartState = {
   items: CartItem[]
   total: number
+  customerData: CustomerData // ✅ Declarado
   addToCart: (producto: Producto, envio: number) => void
   removeFromCart: (id: string, envio: number) => void
   updateEnvio: (id: string, oldEnvio: number, newEnvio: number) => void
+  setCustomerData: (data: CustomerData) => void // ✅ Declarado
   clearCart: () => void
 }
 
 export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
+      // --- ESTADO INICIAL ---
       items: [],
       total: 0,
+      customerData: { nombre: '', whatsapp: '', entrega: '' }, // ✅ Inicializado
 
+      // --- ACCIONES ---
       addToCart: (producto, envio) =>
         set((state) => {
           const existing = state.items.find(
@@ -123,10 +135,14 @@ export const useCartStore = create<CartState>()(
           }
         }),
 
+      // ✅ Implementación de la función para guardar datos del cliente
+      setCustomerData: (data) => set({ customerData: data }),
+
       clearCart: () =>
         set({
           items: [],
           total: 0,
+          customerData: { nombre: '', whatsapp: '', entrega: '' }, // ✅ También reseteamos esto
         }),
     }),
     {

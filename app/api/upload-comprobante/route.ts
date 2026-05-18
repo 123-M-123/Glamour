@@ -1,95 +1,165 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { google } from 'googleapis';
+import { CLIENTE_ACTUAL } from '@/lib/clientes';
 
-const FOLDER_ID      = '1oMY4j8SkKqgDmE3LzGEp1K2SqcarXY_G' 
-const SHEET_ID       = process.env.GOOGLE_SHEET_ID!
-const CLIENT_ID      = process.env.GOOGLE_CLIENT_ID!
-const CLIENT_SECRET  = process.env.GOOGLE_CLIENT_SECRET!
-const REFRESH_TOKEN  = process.env.GOOGLE_REFRESH_TOKEN!
+/**
+ * CONFIGURACIÓN DE IDs
+ */
+const FOLDER_ID = '1oMY4j8SkKqgDmE3LzGEp1K2SqcarXY_G';
+const SHEET_ID  = process.env.GOOGLE_SHEET_ID!;
 
-async function getAccessToken(): Promise<string> {
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id:     CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      refresh_token: REFRESH_TOKEN,
-      grant_type:    'refresh_token',
-    }),
-  })
-  const data = await res.json()
-  if (!data.access_token) {
-    console.error('❌ Error de Google Auth:', data)
-    throw new Error('No se pudo obtener access token')
-  }
-  return data.access_token
+const SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+const SERVICE_ACCOUNT_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+/**
+ * 🔐 AUTENTICACIÓN POR SERVICE ACCOUNT
+ */
+async function getGoogleAuthClient() {
+  const auth = new google.auth.JWT({
+    email: SERVICE_ACCOUNT_EMAIL,
+    key: SERVICE_ACCOUNT_PRIVATE_KEY,
+    scopes: [
+      'https://www.googleapis.com/auth/spreadsheets',
+      'https://www.googleapis.com/auth/drive.file'
+    ],
+  });
+  return auth;
 }
 
-async function agregarEnSheet(token: string, titulo: string, precio: string, linkDrive: string, fecha: string): Promise<void> {
-  const range = 'Pedidos!A:G' // 👈 Aumentamos a G para cubrir todas las columnas
+/**
+ * 📝 ESCRITURA EN PLANILLA MAESTRA (A-J)
+ */
+async function agregarEnSheet(
+  titulo: string, 
+  precio: string, 
+  linkDrive: string, 
+  fecha: string, 
+  vendedorEmail: string,
+  clienteNombre: string,
+  clienteWhatsapp: string,
+  puntoEntrega: string
+): Promise<void> {
+  const auth = await getGoogleAuthClient();
+  const sheets = google.sheets({ version: 'v4', auth });
   
-  // 🔥 MAPEO CORRECTO SEGÚN TU CAPTURA:
-  // A: Vendedor | B: Fecha | C: Productos | D: Precio | E: Estado | F: Comprobante | G: Notas
+  const range = 'Pedidos!A:J'; 
   const values = [[
-    'gla_142@hotmail.com', // Col A (Vendedor fijo para esta tienda)
-    fecha,                 // Col B
-    titulo,                // Col C
-    precio,                // Col D
-    'POR_VERIFICAR',       // Col E
-    linkDrive,             // Col F
-    'Pago vía Web Glamour' // Col G
-  ]]
+    vendedorEmail,        // A: Vendedor
+    fecha,                // B: Fecha
+    titulo,               // C: Productos
+    precio,               // D: Precio
+    'POR_VERIFICAR',      // E: Estado
+    linkDrive,            // F: Comprobante
+    'Venta Online Web',   // G: Notas
+    clienteNombre,        // H: Nombre Cliente
+    clienteWhatsapp,      // I: WhatsApp
+    puntoEntrega          // J: Punto Entrega
+  ]];
 
-  const res = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=RAW`,
-    {
-      method:  'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values }),
-    }
-  )
-  if (!res.ok) {
-    const errorData = await res.json()
-    console.error('❌ Error al escribir en Sheet:', errorData)
-    throw new Error('Error al guardar en la planilla')
-  }
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: SHEET_ID,
+    range,
+    valueInputOption: 'RAW',
+    requestBody: { values },
+  });
 }
 
-// ... (la función subirADrive se mantiene igual)
+/**
+ * 📂 SUBIDA A GOOGLE DRIVE
+ */
+async function subirADrive(archivo: File): Promise<string> {
+  const auth = await getGoogleAuthClient();
+  const drive = google.drive({ version: 'v3', auth });
+  const buffer = Buffer.from(await archivo.arrayBuffer());
+  
+  const fileMetadata = {
+    name: `COMPROBANTE-${Date.now()}-${archivo.name}`,
+    parents: [FOLDER_ID],
+  };
 
+  const media = {
+    mimeType: archivo.type,
+    body: require('stream').Readable.from(buffer),
+  };
+
+  const res = await drive.files.create({
+    requestBody: fileMetadata,
+    media: media,
+    fields: 'id, webViewLink',
+  });
+
+  if (!res.data.id) throw new Error('Error al crear archivo en Drive');
+
+  await drive.permissions.create({
+    fileId: res.data.id,
+    requestBody: { role: 'reader', type: 'anyone' },
+  });
+
+  return res.data.webViewLink || '';
+}
+
+/**
+ * 🚀 POST HANDLER
+ */
 export async function POST(req: NextRequest) {
   try {
-    const form = await req.formData()
-    const archivo = form.get('archivo') as File | null
-    const titulo = form.get('titulo') as string | null
-    const precio = form.get('precio') as string | null
-
-    if (!archivo || !titulo || !precio) return NextResponse.json({ error: 'Faltan datos' }, { status: 400 })
-
-    const token = await getAccessToken()
+    const form = await req.formData();
     
-    // Subir a Drive
-    const metadata = JSON.stringify({ name: `COMPROBANTE-${Date.now()}`, parents: [FOLDER_ID] })
-    const driveForm = new FormData()
-    driveForm.append('metadata', new Blob([metadata], { type: 'application/json' }))
-    driveForm.append('file', archivo)
+    const archivo = form.get('archivo') as File | null;
+    const titulo = form.get('titulo') as string | null;
+    const precio = form.get('precio') as string | null;
+    const vendedorEmail = form.get('vendedorEmail') as string | null;
+    const clienteNombre = form.get('clienteNombre') as string | null;
+    const clienteWhatsapp = form.get('clienteWhatsapp') as string | null;
+    const puntoEntrega = form.get('puntoEntrega') as string | null;
 
-    const driveRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink', {
-      method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: driveForm
-    })
-    const driveData = await driveRes.json()
-    
-    if (!driveData.id) {
-      console.error('❌ Error en Drive:', driveData)
-      return NextResponse.json({ error: 'Error subiendo a Drive' }, { status: 500 })
+    if (!archivo || !titulo || !precio || !vendedorEmail || !clienteNombre || !clienteWhatsapp) {
+      return NextResponse.json({ error: 'Faltan datos obligatorios' }, { status: 400 });
     }
 
-    const fecha = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })
-    await agregarEnSheet(token, titulo, precio, driveData.webViewLink, fecha)
+    // 1. Procesos de Google
+    const linkDrive = await subirADrive(archivo);
+    const fecha = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-    return NextResponse.json({ ok: true })
+    await agregarEnSheet(
+      titulo, precio, linkDrive, fecha, vendedorEmail,
+      clienteNombre, clienteWhatsapp, puntoEntrega || 'No especificado'
+    );
+
+    // 2. Notificación Resend (Opcional si tenés la KEY)
+    if (process.env.RESEND_API_KEY) {
+      try {
+        const msgWa = encodeURIComponent(`Hola ${clienteNombre}! Recibimos tu comprobante en ${CLIENTE_ACTUAL.nombre}. Pedido: ${titulo}. Entrega en: ${puntoEntrega}.`);
+        const linkWa = `https://wa.me/${clienteWhatsapp.replace(/\D/g, '')}?text=${msgWa}`;
+
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
+          body: JSON.stringify({
+            from: 'Tienda de Tiendas <onboarding@resend.dev>',
+            to: [vendedorEmail],
+            subject: `🛍️ Venta Glamour - ${clienteNombre}`,
+            html: `
+              <div style="font-family: sans-serif; border: 2px solid #FFC9CB; padding: 20px; border-radius: 15px; max-width: 500px;">
+                <h2 style="color: #FF0000;">¡Nueva Venta!</h2>
+                <p><strong>Cliente:</strong> ${clienteNombre}</p>
+                <p><strong>WhatsApp:</strong> ${clienteWhatsapp}</p>
+                <p><strong>Pedido:</strong> ${titulo}</p>
+                <p><a href="${linkDrive}">Ver Comprobante</a></p>
+                <br>
+                <a href="${linkWa}" style="background: #25D366; color: white; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; display: block; text-align: center;">
+                  CONTACTAR POR WHATSAPP
+                </a>
+              </div>`
+          }),
+        });
+      } catch (e) { console.error("Error envío mail:", e); }
+    }
+
+    return NextResponse.json({ ok: true });
+
   } catch (err: any) {
-    console.error('🔥 CRASH EN API:', err.message) // 👈 AHORA SÍ LO VERÁS EN VS CODE
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    console.error('🔥 CRASH API:', err.message);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
