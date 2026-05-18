@@ -5,7 +5,6 @@ import nodemailer from 'nodemailer';
 
 const FOLDER_ID = '1oMY4j8SkKqgDmE3LzGEp1K2SqcarXY_G';
 const SHEET_ID  = process.env.GOOGLE_SHEET_ID!;
-
 const SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
 const SERVICE_ACCOUNT_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
@@ -13,46 +12,16 @@ async function getGoogleAuthClient() {
   return new google.auth.JWT({
     email: SERVICE_ACCOUNT_EMAIL,
     key: SERVICE_ACCOUNT_PRIVATE_KEY,
-    scopes: [
-      'https://www.googleapis.com/auth/spreadsheets',
-      'https://www.googleapis.com/auth/drive.file'
-    ],
+    scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive.file'],
   });
 }
 
-async function agregarEnSheet(
-  titulo: string, 
-  precio: string, 
-  linkDrive: string, 
-  fecha: string, 
-  vendedorEmail: string,
-  clienteNombre: string,
-  clienteWhatsapp: string,
-  puntoEntrega: string
-): Promise<void> {
+async function agregarEnSheet(titulo: string, precio: string, linkDrive: string, fecha: string, vendedorEmail: string, clienteNombre: string, clienteWhatsapp: string, puntoEntrega: string) {
   const auth = await getGoogleAuthClient();
   const sheets = google.sheets({ version: 'v4', auth });
-  
   const range = 'Pedidos!A:J'; 
-  const values = [[
-    vendedorEmail,        // A: Vendedor
-    fecha,                // B: Fecha
-    titulo,               // C: Productos
-    precio,               // D: Precio
-    'POR_VERIFICAR',      // E: Estado
-    linkDrive,            // F: Comprobante
-    'Venta Online Web',   // G: Notas
-    clienteNombre,        // H: Nombre Cliente
-    clienteWhatsapp,      // I: WhatsApp
-    puntoEntrega          // J: Punto Entrega
-  ]];
-
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: SHEET_ID,
-    range,
-    valueInputOption: 'RAW',
-    requestBody: { values },
-  });
+  const values = [[vendedorEmail, fecha, titulo, precio, 'POR_VERIFICAR', linkDrive, 'Venta Online Web', clienteNombre, clienteWhatsapp, puntoEntrega]];
+  await sheets.spreadsheets.values.append({ spreadsheetId: SHEET_ID, range, valueInputOption: 'RAW', requestBody: { values } });
 }
 
 async function subirADrive(archivo: File): Promise<string> {
@@ -60,43 +29,41 @@ async function subirADrive(archivo: File): Promise<string> {
   const drive = google.drive({ version: 'v3', auth });
   const buffer = Buffer.from(await archivo.arrayBuffer());
   
-  const fileMetadata = {
-    name: `COMPROBANTE-${Date.now()}-${archivo.name}`,
-    parents: [FOLDER_ID], // Obligamos a que se cree en tu carpeta con cuota
-  };
-
-  const media = {
-    mimeType: archivo.type,
-    body: require('stream').Readable.from(buffer),
-  };
-
   try {
-    // 🛡️ FIX CUOTA: Usamos supportsAllDrives para que use tu espacio de almacenamiento
+    // 🛡️ SOLUCIÓN AL ERROR DE CUOTA:
+    // Subimos el archivo asegurando que el 'parent' es tu carpeta (que sí tiene espacio)
     const res = await drive.files.create({
-      requestBody: fileMetadata,
-      media: media,
+      requestBody: {
+        name: `COMPROBANTE-${Date.now()}-${archivo.name}`,
+        parents: [FOLDER_ID],
+      },
+      media: {
+        mimeType: archivo.type,
+        body: require('stream').Readable.from(buffer),
+      },
       fields: 'id, webViewLink',
-      supportsAllDrives: true, 
+      supportsAllDrives: true, // Importante para Service Accounts
     });
 
-    if (!res.data.id) throw new Error('Error al crear archivo en Drive');
+    if (!res.data.id) throw new Error('No se pudo crear el archivo');
 
+    // Damos permisos de lectura global
     await drive.permissions.create({
       fileId: res.data.id,
       requestBody: { role: 'reader', type: 'anyone' },
+      supportsAllDrives: true,
     });
 
     return res.data.webViewLink || '';
-  } catch (err: any) {
-    console.error('❌ Error crítico en Drive:', err.message);
-    throw new Error(`Error de Almacenamiento: ${err.message}`);
+  } catch (error: any) {
+    console.error('❌ Error de Drive:', error.message);
+    throw new Error(`Error de Almacenamiento: ${error.message}`);
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const form = await req.formData();
-    
     const archivo = form.get('archivo') as File | null;
     const titulo = form.get('titulo') as string | null;
     const precio = form.get('precio') as string | null;
@@ -106,16 +73,13 @@ export async function POST(req: NextRequest) {
     const puntoEntrega = form.get('puntoEntrega') as string | null;
 
     if (!archivo || !titulo || !precio || !vendedorEmail || !clienteNombre || !clienteWhatsapp) {
-      return NextResponse.json({ error: 'Faltan datos obligatorios' }, { status: 400 });
+      return NextResponse.json({ error: 'Faltan datos' }, { status: 400 });
     }
 
     const linkDrive = await subirADrive(archivo);
     const fecha = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-    await agregarEnSheet(
-      titulo, precio, linkDrive, fecha, vendedorEmail,
-      clienteNombre, clienteWhatsapp, puntoEntrega || 'No especificado'
-    );
+    await agregarEnSheet(titulo, precio, linkDrive, fecha, vendedorEmail, clienteNombre, clienteWhatsapp, puntoEntrega);
 
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       try {
@@ -123,29 +87,22 @@ export async function POST(req: NextRequest) {
           service: 'gmail',
           auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
         });
-
-        const msgWa = encodeURIComponent(`Hola ${clienteNombre}! 👋 Recibimos tu comprobante. Pedido: ${titulo}.`);
+        const msgWa = encodeURIComponent(`Hola ${clienteNombre}! Recibimos tu comprobante.`);
         const linkWa = `https://wa.me/${clienteWhatsapp.replace(/\D/g, '')}?text=${msgWa}`;
-
         await transporter.sendMail({
           from: `"Tienda de Tiendas" <${process.env.EMAIL_USER}>`,
-          to: 'tiendadtiendas@gmail.com', // 👈 TE LLEGA A VOS PARA PRUEBAS
-          subject: `🛍️ ¡Nueva Venta! - ${clienteNombre}`,
-          html: `<div style="font-family: sans-serif; border: 2px solid #FFC9CB; padding: 20px; border-radius: 15px; max-width: 500px;">
-                  <h2 style="color: #FF0000; text-align: center;">¡Tuviste una venta!</h2>
-                  <p><strong>Cliente:</strong> ${clienteNombre}</p>
-                  <p><strong>Total:</strong> $${precio}</p>
-                  <p><a href="${linkDrive}">Ver Comprobante</a></p>
-                  <br>
-                  <a href="${linkWa}" style="background: #25D366; color: white; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; display: block; text-align: center;">CONTACTAR POR WHATSAPP</a>
+          to: 'tiendadtiendas@gmail.com',
+          subject: `🛍️ Venta Glamour - ${clienteNombre}`,
+          html: `<div style="font-family:sans-serif;border:2px solid #FFC9CB;padding:20px;border-radius:15px;">
+                  <h2>¡Nueva Venta!</h2><p><strong>Cliente:</strong> ${clienteNombre}</p>
+                  <p><a href="${linkDrive}">Ver Comprobante</a></p><br>
+                  <a href="${linkWa}" style="background:#25D366;color:white;padding:15px;border-radius:50px;text-decoration:none;display:block;text-align:center;">CONTACTAR WHATSAPP</a>
                 </div>`
         });
-      } catch (e) { console.error("Error mail:", e); }
+      } catch (e) { console.error(e); }
     }
-
     return NextResponse.json({ ok: true });
   } catch (err: any) {
-    console.error('🔥 CRASH API:', err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

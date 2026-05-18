@@ -31,22 +31,35 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
         }
 
         const mp = new window.MercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY, { locale: 'es-AR' });
+        
+        // 🛡️ CONFIGURACIÓN ESTRICTA DE MÉTODOS
+        const configuracionMetodos = {
+          creditCard: metodo === 'tarjeta' ? 'all' : undefined,
+          debitCard: metodo === 'tarjeta' ? 'all' : undefined,
+          ticket: metodo === 'tarjeta' ? 'all' : undefined, // Rapipago/Pagofacil
+          mercadoPago: metodo === 'mp' ? 'all' : undefined, // Saldo y Cuotas MP
+        };
+
         brickController.current = await mp.bricks().create('payment', 'brick-unique-id', {
           initialization: { amount: Math.round(precio), preferenceId: pref.id },
           customization: {
             visual: { style: { theme: 'default', customVariables: { colorPrimary: '#FF0000', borderRadius: '15px' } } },
-            paymentMethods: {
-              creditCard: 'all', debitCard: 'all', ticket: 'all', mercadoPago: 'all',
-            },
+            paymentMethods: configuracionMetodos,
           },
           callbacks: {
-            onReady: () => setLoading(false),
+            onReady: () => { if (isEffectActive) setLoading(false); },
             onSubmit: async ({ formData }: any) => {
               const { customerData } = useCartStore.getState();
               const r = await fetch('/api/process-payment', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ ...formData, vendedorEmail, clienteNombre: customerData.nombre, clienteWhatsapp: customerData.whatsapp, puntoEntrega: customerData.entrega }) 
+                body: JSON.stringify({ 
+                  ...formData, 
+                  vendedorEmail, 
+                  clienteNombre: customerData.nombre, 
+                  clienteWhatsapp: customerData.whatsapp, 
+                  puntoEntrega: customerData.entrega 
+                }) 
               });
               const p = await r.json();
               if (p.status === 'approved') onPagoAprobado();
@@ -58,12 +71,12 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
     };
     initMP();
     return () => { isEffectActive = false; if (brickController.current) brickController.current.unmount(); };
-  }, [metodo]);
+  }, [metodo, precio, vendedorEmail, onPagoAprobado]);
 
   return (
-    <div style={{ minHeight: '400px' }}>
-      {loading && <p style={{ textAlign: 'center', color: '#999' }}>Cargando pasarela...</p>}
-      <div id="brick-unique-id" ref={containerRef} />
+    <div style={{ minHeight: '400px', width: '100%' }}>
+      {loading && <p style={{ textAlign: 'center', padding: '20px', color: '#999' }}>Cargando pasarela segura...</p>}
+      <div id="brick-unique-id" ref={containerRef} style={{ width: '100%' }} />
     </div>
   );
 }
