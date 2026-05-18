@@ -3,20 +3,14 @@ import { google } from 'googleapis';
 import { CLIENTE_ACTUAL } from '@/lib/clientes';
 import nodemailer from 'nodemailer';
 
-/**
- * CONFIGURACIÓN DE IDs
- */
 const FOLDER_ID = '1oMY4j8SkKqgDmE3LzGEp1K2SqcarXY_G';
 const SHEET_ID  = process.env.GOOGLE_SHEET_ID!;
 
 const SERVICE_ACCOUNT_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
 const SERVICE_ACCOUNT_PRIVATE_KEY = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
 
-/**
- * 🔐 AUTENTICACIÓN POR SERVICE ACCOUNT
- */
 async function getGoogleAuthClient() {
-  const auth = new google.auth.JWT({
+  return new google.auth.JWT({
     email: SERVICE_ACCOUNT_EMAIL,
     key: SERVICE_ACCOUNT_PRIVATE_KEY,
     scopes: [
@@ -24,12 +18,8 @@ async function getGoogleAuthClient() {
       'https://www.googleapis.com/auth/drive.file'
     ],
   });
-  return auth;
 }
 
-/**
- * 📝 ESCRITURA EN PLANILLA MAESTRA (A-J)
- */
 async function agregarEnSheet(
   titulo: string, 
   precio: string, 
@@ -65,9 +55,6 @@ async function agregarEnSheet(
   });
 }
 
-/**
- * 📂 SUBIDA A GOOGLE DRIVE
- */
 async function subirADrive(archivo: File): Promise<string> {
   const auth = await getGoogleAuthClient();
   const drive = google.drive({ version: 'v3', auth });
@@ -83,30 +70,24 @@ async function subirADrive(archivo: File): Promise<string> {
     body: require('stream').Readable.from(buffer),
   };
 
-  try {
-    const res = await drive.files.create({
-      requestBody: fileMetadata,
-      media: media,
-      fields: 'id, webViewLink',
-    });
+  // 🔥 FIX CUOTA: Subir el archivo
+  const res = await drive.files.create({
+    requestBody: fileMetadata,
+    media: media,
+    fields: 'id, webViewLink',
+  });
 
-    if (!res.data.id) throw new Error('Error al crear archivo en Drive');
+  if (!res.data.id) throw new Error('Error al crear archivo en Drive');
 
-    await drive.permissions.create({
-      fileId: res.data.id,
-      requestBody: { role: 'reader', type: 'anyone' },
-    });
+  // 🔥 IMPORTANTE: Transferir el "ownership" o dar permisos es clave
+  await drive.permissions.create({
+    fileId: res.data.id,
+    requestBody: { role: 'reader', type: 'anyone' },
+  });
 
-    return res.data.webViewLink || '';
-  } catch (err: any) {
-    console.error('❌ Error interno en Drive:', err.message);
-    throw new Error(`Drive Error: ${err.message}`);
-  }
+  return res.data.webViewLink || '';
 }
 
-/**
- * 🚀 POST HANDLER
- */
 export async function POST(req: NextRequest) {
   try {
     const form = await req.formData();
@@ -123,7 +104,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Faltan datos obligatorios' }, { status: 400 });
     }
 
-    // 1. Procesos de Google
     const linkDrive = await subirADrive(archivo);
     const fecha = new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
@@ -132,46 +112,35 @@ export async function POST(req: NextRequest) {
       clienteNombre, clienteWhatsapp, puntoEntrega || 'No especificado'
     );
 
-    // 2. Notificación vía Nodemailer (Gmail tiendadtiendas@gmail.com)
+    // 📩 NOTIFICACIÓN POR NODEMAILER
     if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       try {
         const transporter = nodemailer.createTransport({
           service: 'gmail',
-          auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-          },
+          auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
         });
 
-        const msgWa = encodeURIComponent(`Hola ${clienteNombre}! 👋 Recibimos tu comprobante en Glamour Urquiza por la compra de: ${titulo}. Estamos procesando tu pedido.`);
+        const msgWa = encodeURIComponent(`¡Hola ${clienteNombre}! 👋 Recibimos tu comprobante. Pedido: ${titulo}.`);
         const linkWa = `https://wa.me/${clienteWhatsapp.replace(/\D/g, '')}?text=${msgWa}`;
 
         await transporter.sendMail({
           from: `"Tienda de Tiendas" <${process.env.EMAIL_USER}>`,
-          to: vendedorEmail,
+          to: 'tiendadtiendas@gmail.com', // 👈 CAMBIADO PARA QUE TE LLEGUE A VOS PRIMERO
           subject: `🛍️ ¡Nueva Venta! - ${clienteNombre}`,
-          html: `
-            <div style="font-family: sans-serif; border: 2px solid #FFC9CB; padding: 20px; border-radius: 15px; max-width: 500px;">
-              <h2 style="color: #FF0000; text-align: center;">¡Tuviste una venta!</h2>
-              <p><strong>Cliente:</strong> ${clienteNombre}</p>
-              <p><strong>WhatsApp:</strong> ${clienteWhatsapp}</p>
-              <p><strong>Pedido:</strong> ${titulo}</p>
-              <p><strong>Total:</strong> $${precio}</p>
-              <p><strong>Entrega en:</strong> ${puntoEntrega}</p>
-              <p><a href="${linkDrive}">Ver Comprobante</a></p>
-              <br>
-              <a href="${linkWa}" style="display: block; background: #25D366; color: white; text-align: center; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 16px;">
-                CONTACTAR POR WHATSAPP
-              </a>
-            </div>`
+          html: `<div style="font-family: sans-serif; border: 2px solid #FFC9CB; padding: 20px; border-radius: 15px;">
+                  <h2 style="color: #FF0000;">¡Tuviste una venta!</h2>
+                  <p><strong>Cliente:</strong> ${clienteNombre}</p>
+                  <p><strong>WhatsApp:</strong> ${clienteWhatsapp}</p>
+                  <p><strong>Total:</strong> $${precio}</p>
+                  <p><a href="${linkDrive}">Ver Comprobante</a></p>
+                  <br>
+                  <a href="${linkWa}" style="background: #25D366; color: white; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; display: block; text-align: center;">CONTACTAR POR WHATSAPP</a>
+                </div>`
         });
-      } catch (e) {
-        console.error("❌ Error Nodemailer:", e);
-      }
+      } catch (e) { console.error("Error mail:", e); }
     }
 
     return NextResponse.json({ ok: true });
-
   } catch (err: any) {
     console.error('🔥 CRASH API:', err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
