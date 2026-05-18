@@ -128,7 +128,7 @@ export default function CheckoutContent() {
           <a href={`https://wa.me/5491167914366?text=Link Payway $${montoFormateado}`} target="_blank" style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', background: '#FF0000', color: 'white', padding: '0.8rem 2rem', borderRadius: 50, textDecoration: 'none', fontWeight: 800, fontSize: '1rem', boxShadow: '0 10px 25px rgba(255,0,0,0.2)' }}>
             <img src="/ico-ui/payway-2.png" alt="Payway" style={{ height: '36px' }} />
             <span>Solicitar Link Payway</span>
-            <img src="/icons/whats-rojo.png" alt="WhatsApp" style={{ height: '30px' }} />
+            <img src="/icons/whats.png" alt="WhatsApp" style={{ height: '40px' }} />
           </a>
         </div>
 

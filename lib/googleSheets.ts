@@ -40,7 +40,7 @@ function getDriveDirectLink(url: string) {
  */
 export async function getProductsFromSheets() {
   try {
-    const range = "'Carga Productos'!A2:J"; 
+    const range = "'Carga de productos'!A2:J"; 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: CLIENT_ID, 
       range,
