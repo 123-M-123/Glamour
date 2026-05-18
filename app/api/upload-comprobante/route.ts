@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import { CLIENTE_ACTUAL } from '@/lib/clientes';
+import nodemailer from 'nodemailer';
 
 /**
  * CONFIGURACIÓN DE IDs
@@ -82,20 +83,25 @@ async function subirADrive(archivo: File): Promise<string> {
     body: require('stream').Readable.from(buffer),
   };
 
-  const res = await drive.files.create({
-    requestBody: fileMetadata,
-    media: media,
-    fields: 'id, webViewLink',
-  });
+  try {
+    const res = await drive.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: 'id, webViewLink',
+    });
 
-  if (!res.data.id) throw new Error('Error al crear archivo en Drive');
+    if (!res.data.id) throw new Error('Error al crear archivo en Drive');
 
-  await drive.permissions.create({
-    fileId: res.data.id,
-    requestBody: { role: 'reader', type: 'anyone' },
-  });
+    await drive.permissions.create({
+      fileId: res.data.id,
+      requestBody: { role: 'reader', type: 'anyone' },
+    });
 
-  return res.data.webViewLink || '';
+    return res.data.webViewLink || '';
+  } catch (err: any) {
+    console.error('❌ Error interno en Drive:', err.message);
+    throw new Error(`Drive Error: ${err.message}`);
+  }
 }
 
 /**
@@ -126,34 +132,42 @@ export async function POST(req: NextRequest) {
       clienteNombre, clienteWhatsapp, puntoEntrega || 'No especificado'
     );
 
-    // 2. Notificación Resend (Opcional si tenés la KEY)
-    if (process.env.RESEND_API_KEY) {
+    // 2. Notificación vía Nodemailer (Gmail tiendadtiendas@gmail.com)
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
       try {
-        const msgWa = encodeURIComponent(`Hola ${clienteNombre}! Recibimos tu comprobante en ${CLIENTE_ACTUAL.nombre}. Pedido: ${titulo}. Entrega en: ${puntoEntrega}.`);
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        });
+
+        const msgWa = encodeURIComponent(`Hola ${clienteNombre}! 👋 Recibimos tu comprobante en Glamour Urquiza por la compra de: ${titulo}. Estamos procesando tu pedido.`);
         const linkWa = `https://wa.me/${clienteWhatsapp.replace(/\D/g, '')}?text=${msgWa}`;
 
-        await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${process.env.RESEND_API_KEY}` },
-          body: JSON.stringify({
-            from: 'Tienda de Tiendas <onboarding@resend.dev>',
-            to: [vendedorEmail],
-            subject: `🛍️ Venta Glamour - ${clienteNombre}`,
-            html: `
-              <div style="font-family: sans-serif; border: 2px solid #FFC9CB; padding: 20px; border-radius: 15px; max-width: 500px;">
-                <h2 style="color: #FF0000;">¡Nueva Venta!</h2>
-                <p><strong>Cliente:</strong> ${clienteNombre}</p>
-                <p><strong>WhatsApp:</strong> ${clienteWhatsapp}</p>
-                <p><strong>Pedido:</strong> ${titulo}</p>
-                <p><a href="${linkDrive}">Ver Comprobante</a></p>
-                <br>
-                <a href="${linkWa}" style="background: #25D366; color: white; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; display: block; text-align: center;">
-                  CONTACTAR POR WHATSAPP
-                </a>
-              </div>`
-          }),
+        await transporter.sendMail({
+          from: `"Tienda de Tiendas" <${process.env.EMAIL_USER}>`,
+          to: vendedorEmail,
+          subject: `🛍️ ¡Nueva Venta! - ${clienteNombre}`,
+          html: `
+            <div style="font-family: sans-serif; border: 2px solid #FFC9CB; padding: 20px; border-radius: 15px; max-width: 500px;">
+              <h2 style="color: #FF0000; text-align: center;">¡Tuviste una venta!</h2>
+              <p><strong>Cliente:</strong> ${clienteNombre}</p>
+              <p><strong>WhatsApp:</strong> ${clienteWhatsapp}</p>
+              <p><strong>Pedido:</strong> ${titulo}</p>
+              <p><strong>Total:</strong> $${precio}</p>
+              <p><strong>Entrega en:</strong> ${puntoEntrega}</p>
+              <p><a href="${linkDrive}">Ver Comprobante</a></p>
+              <br>
+              <a href="${linkWa}" style="display: block; background: #25D366; color: white; text-align: center; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                CONTACTAR POR WHATSAPP
+              </a>
+            </div>`
         });
-      } catch (e) { console.error("Error envío mail:", e); }
+      } catch (e) {
+        console.error("❌ Error Nodemailer:", e);
+      }
     }
 
     return NextResponse.json({ ok: true });
