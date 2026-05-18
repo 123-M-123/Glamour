@@ -9,8 +9,12 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
     const metodo = body.metodo || 'tarjeta'
-    // 👈 Cambiamos el mail por el de Glamour
     const vendedorEmail = body.vendedorEmail || "gla_142@hotmail.com"; 
+
+    // 🛡️ Capturamos los datos del cliente que vienen del Modal
+    const clienteNombre = body.clienteNombre || "Cliente Online";
+    const clienteWhatsapp = body.clienteWhatsapp || "";
+    const puntoEntrega = body.puntoEntrega || "No especificado";
 
     let items = []
     if (body.items && Array.isArray(body.items)) {
@@ -22,8 +26,8 @@ export async function POST(req: Request) {
       }))
     } else {
       items = [{
-        title: body.title || 'Compra',
-        unit_price: (metodo === 'transferencia' || metodo === 'alias') ? Math.round(Number(body.price) * 0.9) : Number(body.price),
+        title: body.title || 'Compra Glamour',
+        unit_price: Number(body.price),
         quantity: Number(body.quantity || 1),
         currency_id: 'ARS',
       }]
@@ -33,17 +37,22 @@ export async function POST(req: Request) {
     const result = await preference.create({
       body: {
         items,
-        // 🔥 CLAVE: Aquí viaja el dueño de la venta para el webhook central
         external_reference: vendedorEmail,
+        // notification_url debe ser HTTPS siempre
         notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`,
+        // 📦 Esta metadata es la que lee el Webhook después
         metadata: {
-          vendedor: vendedorEmail // Duplicamos en metadata por seguridad
+          vendedor_email: vendedorEmail,
+          cliente_nombre: clienteNombre,
+          cliente_whatsapp: clienteWhatsapp,
+          punto_entrega: puntoEntrega
         }
       },
     })
 
     return NextResponse.json({ id: result.id })
   } catch (error: any) {
-    return NextResponse.json({ error: 'Error' }, { status: 500 })
+    console.error("🔥 Error al crear preferencia MP:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

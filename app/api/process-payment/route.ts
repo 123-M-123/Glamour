@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({ 
           ...formData, 
           external_reference: vendedorEmail || "gla_142@hotmail.com",
-          // 📦 METADATA: Aquí guardamos los datos para el Webhook
+          // 📦 METADATA: Nombres de campos consistentes para el Webhook
           metadata: { 
             vendedor_email: vendedorEmail,
             cliente_nombre: clienteNombre,
@@ -38,13 +38,13 @@ export async function POST(request: NextRequest) {
 
       const data = await response.json();
 
-      // Si el pago se aprueba, disparamos el webhook manualmente para asegurar registro
       if (response.ok && data.status === 'approved') {
+        // Notificación manual al webhook para asegurar registro inmediato
         fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ type: 'payment', data: { id: data.id } })
-        }).catch(e => console.error("Error trigger webhook:", e));
+        }).catch(e => console.error("Error trigger webhook manual:", e));
       }
 
       return NextResponse.json(data);
@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
       clearTimeout(timeout);
     }
   } catch (error: any) {
+    console.error('❌ Error en process-payment:', error.message);
     return NextResponse.json({ error: 'Error procesando el pago' }, { status: 500 });
   }
 }

@@ -14,11 +14,23 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
       containerRef.current.innerHTML = "";
       setLoading(true);
 
+      // 🚀 Recuperamos los datos del cliente del Store de Zustand
+      const { customerData } = useCartStore.getState();
+
       try {
         const res = await fetch('/api/create-preference', { 
           method: 'POST', 
           headers: { 'Content-Type': 'application/json' }, 
-          body: JSON.stringify({ title: 'Pedido Glamour', price: Math.round(precio), quantity: 1, vendedorEmail }) 
+          body: JSON.stringify({ 
+            title: 'Pedido Glamour', 
+            price: Math.round(precio), 
+            quantity: 1, 
+            vendedorEmail,
+            // Enviamos los datos para que nazcan con la preferencia
+            clienteNombre: customerData.nombre,
+            clienteWhatsapp: customerData.whatsapp,
+            puntoEntrega: customerData.entrega
+          }) 
         });
         const pref = await res.json();
         if (!isEffectActive) return;
@@ -32,24 +44,21 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
 
         const mp = new window.MercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY, { locale: 'es-AR' });
         
-        // 🛡️ CONFIGURACIÓN ESTRICTA DE MÉTODOS
-        const configuracionMetodos = {
-          creditCard: metodo === 'tarjeta' ? 'all' : undefined,
-          debitCard: metodo === 'tarjeta' ? 'all' : undefined,
-          ticket: metodo === 'tarjeta' ? 'all' : undefined, // Rapipago/Pagofacil
-          mercadoPago: metodo === 'mp' ? 'all' : undefined, // Saldo y Cuotas MP
-        };
-
         brickController.current = await mp.bricks().create('payment', 'brick-unique-id', {
           initialization: { amount: Math.round(precio), preferenceId: pref.id },
           customization: {
             visual: { style: { theme: 'default', customVariables: { colorPrimary: '#FF0000', borderRadius: '15px' } } },
-            paymentMethods: configuracionMetodos,
+            paymentMethods: {
+              creditCard: metodo === 'tarjeta' ? 'all' : undefined,
+              debitCard: metodo === 'tarjeta' ? 'all' : undefined,
+              ticket: metodo === 'tarjeta' ? 'all' : undefined,
+              mercadoPago: metodo === 'mp' ? 'all' : undefined,
+            },
           },
           callbacks: {
             onReady: () => { if (isEffectActive) setLoading(false); },
             onSubmit: async ({ formData }: any) => {
-              const { customerData } = useCartStore.getState();
+              // Al procesar el pago final, también mandamos la metadata
               const r = await fetch('/api/process-payment', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
