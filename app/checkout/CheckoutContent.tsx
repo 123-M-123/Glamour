@@ -8,7 +8,7 @@ import QrPanel from './components/QrPanel';
 import BrickPanel from './components/BrickPanel';
 
 const K = { bg: '#FFF8F8', border: '#FFC9CB', accent: '#FF0000', text: '#1C1B19', muted: '#9A9690' };
-const VENDEDOR_EMAIL = "tiendadtiendas@gmail.com";
+const VENDEDOR_EMAIL = "tiendadtiendas@gmail.com"; 
 
 const OPCIONES = [
   { id: 'alias', label: 'Transferencia', sub: '20% OFF directo', icon: '/ico-ui/alias.png' },
@@ -28,6 +28,8 @@ export default function CheckoutContent() {
   const setCustomerData = useCartStore((state) => state.setCustomerData);
 
   const total = cart.reduce((acc: number, item: any) => acc + item.producto.precioTransfer * item.cantidad + item.envio, 0);
+  const precioLista = Math.round(total / 0.8);
+  const ahorro = precioLista - total;
   const precioFinal = metodo === 'alias' ? total : metodo === 'qr' ? total * 1.10 : total * 1.25;
   const montoFormateado = new Intl.NumberFormat('es-AR').format(Math.round(precioFinal));
   const tieneDatos = customerData.nombre && customerData.whatsapp && customerData.entrega;
@@ -45,7 +47,9 @@ export default function CheckoutContent() {
     <div style={{ minHeight: '100vh', background: K.bg, padding: '2rem 1rem' }}>
       <div style={{ maxWidth: 560, margin: '0 auto' }}>
         <div style={{ background: 'white', borderRadius: 20, padding: '1.5rem', border: `2px solid ${K.border}`, marginBottom: '1.5rem', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: K.muted, marginBottom: '5px' }}>Finalizar compra en Glamour</p>
           <p style={{ fontSize: '2.2rem', fontWeight: 950, margin: 0 }}>$ {montoFormateado}</p>
+          {metodo === 'alias' && <p style={{ fontSize: '0.9rem', color: K.accent, fontWeight: 700, marginTop: '5px' }}>¡Ahorrás ${new Intl.NumberFormat('es-AR').format(ahorro)} pagando directo!</p>}
         </div>
 
         <div style={{ display: 'flex', gap: '0.7rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
@@ -62,7 +66,7 @@ export default function CheckoutContent() {
           {(metodo === 'tarjeta' || metodo === 'mp') && tieneDatos && <BrickPanel metodo={metodo} precio={precioFinal} vendedorEmail={VENDEDOR_EMAIL} onPagoAprobado={() => setCompletado(true)} />}
           {metodo === 'otros' && (
             <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {[{ n: 'Payway', i: 'payway' }, { n: 'Apple Pay', i: 'a-pay' }, { n: 'Google Pay', i: 'g-pay' }, { n: 'PayPal', i: 'paypal' }].map(p => (
+              {[{ n: 'Payway', i: 'payway' }, { n: 'Apple Pay', i: 'a-pay' }, { n: 'Google Pay', i: 'g-pay' }, { n: 'PayPal', i: 'paypal' }, { n: 'Cripto', i: 'cripto' }, { n: 'Stripe', i: 'stripe' }].map(p => (
                 <div key={p.n} style={{ flex: '1 1 120px', padding: '1.2rem 0.5rem', borderRadius: 16, border: `1.5px solid ${K.border}`, textAlign: 'center' }}>
                   <img src={`/ico-ui/${p.i}.png`} style={{ width: 35, marginBottom: '0.6rem' }} /><div style={{ fontSize: '0.8rem', fontWeight: 700 }}>{p.n}</div><div style={{ fontSize: '0.6rem', color: '#999' }}>Próximamente</div>
                 </div>
@@ -70,13 +74,14 @@ export default function CheckoutContent() {
             </div>
           )}
           {(metodo !== 'alias' && metodo !== 'otros' && !tieneDatos) && (
-            <div style={{textAlign:'center'}}><button onClick={()=>setShowModal(true)} style={{background:K.accent, color:'white', padding:'1rem 2rem', borderRadius:50, border:'none', fontWeight:800}}>CARGAR DATOS DE ENVÍO</button></div>
+            <div style={{textAlign:'center'}}><button onClick={()=>setShowModal(true)} style={{background:K.accent, color:'white', padding:'1rem 2rem', borderRadius:50, border:'none', fontWeight:800}}>CONFIGURAR DATOS DE ENVÍO →</button></div>
           )}
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
           <a href={`https://wa.me/5491167914366?text=Link Payway $${montoFormateado}`} target="_blank" style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', background: '#FF0000', color: 'white', padding: '0.8rem 2rem', borderRadius: 50, textDecoration: 'none', fontWeight: 800 }}>
             <img src="/ico-ui/payway-2.png" style={{ height: '36px' }} /><span>Solicitar Link Payway</span>
+            <img src="/icons/whats-rojo.png" style={{ height: '30px' }} />
           </a>
         </div>
       </div>

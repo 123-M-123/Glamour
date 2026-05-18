@@ -30,8 +30,6 @@ async function subirADrive(archivo: File): Promise<string> {
   const buffer = Buffer.from(await archivo.arrayBuffer());
   
   try {
-    // 🛡️ SOLUCIÓN AL ERROR DE CUOTA:
-    // Subimos el archivo asegurando que el 'parent' es tu carpeta (que sí tiene espacio)
     const res = await drive.files.create({
       requestBody: {
         name: `COMPROBANTE-${Date.now()}-${archivo.name}`,
@@ -42,12 +40,11 @@ async function subirADrive(archivo: File): Promise<string> {
         body: require('stream').Readable.from(buffer),
       },
       fields: 'id, webViewLink',
-      supportsAllDrives: true, // Importante para Service Accounts
+      supportsAllDrives: true, 
     });
 
-    if (!res.data.id) throw new Error('No se pudo crear el archivo');
+    if (!res.data.id) throw new Error('Error al crear el archivo');
 
-    // Damos permisos de lectura global
     await drive.permissions.create({
       fileId: res.data.id,
       requestBody: { role: 'reader', type: 'anyone' },
@@ -64,16 +61,18 @@ async function subirADrive(archivo: File): Promise<string> {
 export async function POST(req: NextRequest) {
   try {
     const form = await req.formData();
+    
+    // 🛡️ CASTING EXPLÍCITO A STRING PARA EVITAR ERROR TS(2345)
     const archivo = form.get('archivo') as File | null;
-    const titulo = form.get('titulo') as string | null;
-    const precio = form.get('precio') as string | null;
-    const vendedorEmail = form.get('vendedorEmail') as string | null;
-    const clienteNombre = form.get('clienteNombre') as string | null;
-    const clienteWhatsapp = form.get('clienteWhatsapp') as string | null;
-    const puntoEntrega = form.get('puntoEntrega') as string | null;
+    const titulo = (form.get('titulo') as string) || "";
+    const precio = (form.get('precio') as string) || "";
+    const vendedorEmail = (form.get('vendedorEmail') as string) || "tiendadtiendas@gmail.com";
+    const clienteNombre = (form.get('clienteNombre') as string) || "";
+    const clienteWhatsapp = (form.get('clienteWhatsapp') as string) || "";
+    const puntoEntrega = (form.get('puntoEntrega') as string) || "No especificado";
 
-    if (!archivo || !titulo || !precio || !vendedorEmail || !clienteNombre || !clienteWhatsapp) {
-      return NextResponse.json({ error: 'Faltan datos' }, { status: 400 });
+    if (!archivo || !titulo || !precio || !clienteNombre || !clienteWhatsapp) {
+      return NextResponse.json({ error: 'Faltan datos obligatorios' }, { status: 400 });
     }
 
     const linkDrive = await subirADrive(archivo);
@@ -87,22 +86,30 @@ export async function POST(req: NextRequest) {
           service: 'gmail',
           auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
         });
-        const msgWa = encodeURIComponent(`Hola ${clienteNombre}! Recibimos tu comprobante.`);
+
+        // Ahora clienteNombre y titulo son garantizados como string
+        const msgWa = encodeURIComponent(`¡Hola ${clienteNombre}! 👋 Recibimos tu comprobante por la compra de: ${titulo}.`);
         const linkWa = `https://wa.me/${clienteWhatsapp.replace(/\D/g, '')}?text=${msgWa}`;
+
         await transporter.sendMail({
           from: `"Tienda de Tiendas" <${process.env.EMAIL_USER}>`,
-          to: 'tiendadtiendas@gmail.com',
-          subject: `🛍️ Venta Glamour - ${clienteNombre}`,
-          html: `<div style="font-family:sans-serif;border:2px solid #FFC9CB;padding:20px;border-radius:15px;">
-                  <h2>¡Nueva Venta!</h2><p><strong>Cliente:</strong> ${clienteNombre}</p>
-                  <p><a href="${linkDrive}">Ver Comprobante</a></p><br>
-                  <a href="${linkWa}" style="background:#25D366;color:white;padding:15px;border-radius:50px;text-decoration:none;display:block;text-align:center;">CONTACTAR WHATSAPP</a>
+          to: 'tiendadtiendas@gmail.com', // 👈 PRUEBA
+          subject: `🛍️ ¡Nueva Venta! - ${clienteNombre}`,
+          html: `<div style="font-family: sans-serif; border: 2px solid #FFC9CB; padding: 20px; border-radius: 15px;">
+                  <h2 style="color: #FF0000; text-align: center;">¡Tuviste una venta!</h2>
+                  <p><strong>Cliente:</strong> ${clienteNombre}</p>
+                  <p><strong>Total:</strong> $${precio}</p>
+                  <p><a href="${linkDrive}">Ver Comprobante</a></p>
+                  <br>
+                  <a href="${linkWa}" style="background: #25D366; color: white; padding: 15px; border-radius: 50px; text-decoration: none; font-weight: bold; display: block; text-align: center;">CONTACTAR POR WHATSAPP</a>
                 </div>`
         });
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Error mail:", e); }
     }
+
     return NextResponse.json({ ok: true });
   } catch (err: any) {
+    console.error('🔥 CRASH API:', err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
