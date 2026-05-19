@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { X, ShoppingBag, ArrowLeft, Share2, Eraser } from 'lucide-react' // 👈 Cambiado Trash2 por X
+import { Trash2, ShoppingBag, ArrowLeft, Share2, Eraser } from 'lucide-react'
 import { useWishlistStore } from '../store/useWishlistStore'
 import { useCartStore } from '../store/useCartStore'
 import styles from './wishlist.module.css'
@@ -14,7 +14,8 @@ export default function WishlistPage() {
     const ids = wishlist.map(item => item.id).join(',')
     const base = window.location.origin
     const shareUrl = `${base}/catalogo-premium?p=${ids}`
-    const text = encodeURIComponent(`🛍️TIENDA ON LINE 🛍️ \n${shareUrl}`)
+    // 🛡️ Mensaje minimalista sin flores ni textos largos
+    const text = encodeURIComponent(`🛍️TIENDA ON LINE\n${shareUrl}`)
     window.open(`https://wa.me/?text=${text}`, '_blank')
   }
 
@@ -35,20 +36,21 @@ export default function WishlistPage() {
   return (
     <div className={styles.container}>
       <header className={styles.wishHeader}>
-        <img src="/icons/corazon-rojo-deseotexto.png" alt="Wishlist" className={styles.mainHeartIcon} />
+        <img src="/icons/corazon-rojo-deseotexto.png" alt="Wishlist" className={styles.headerHeart} />
         
+        {/* GRILLA DE BOTONES UNIFICADOS */}
         <div className={styles.actionGrid}>
           <div className={`${styles.wishBtn} ${styles.btnRed}`}>
-            {wishlist.length} FAVORITOS
+            {wishlist.length} ELEGIDOS
           </div>
           <button className={`${styles.wishBtn} ${styles.btnGreen}`} onClick={handleCompartir}>
-            <Share2 size={20} /> COMPARTIR
+            <Share2 size={16} /> COMPARTIR
           </button>
           <Link href="/" className={`${styles.wishBtn} ${styles.btnWhite}`}>
             MIRAR MÁS
           </Link>
-          <button className={`${styles.wishBtn} ${styles.btnGrey}`} onClick={() => { if(confirm('¿Vaciar lista completa?')) clearWishlist() }}>
-            <Eraser size={20} /> VACIAR
+          <button className={`${styles.wishBtn} ${styles.btnGrey}`} onClick={() => { if(confirm('¿Vaciar lista?')) clearWishlist() }}>
+            <Eraser size={16} /> VACIAR
           </button>
         </div>
       </header>
@@ -56,29 +58,15 @@ export default function WishlistPage() {
       <div className={styles.grid}>
         {wishlist.map((item) => (
           <div key={item.id} className={styles.card}>
-            {/* ❌ Botón Eliminar en esquina superior derecha */}
-            <button 
-              className={styles.removeBtn}
-              onClick={(e) => {
-                e.stopPropagation();
-                removeFromWishlist(item.id);
-              }}
-            >
-              <X size={20} strokeWidth={3} />
-            </button>
-
             <div className={styles.imageWrapper}>
               <img src={item.imagen} alt={item.nombre} className={styles.image} />
+              <button className={styles.removeBtn} onClick={() => removeFromWishlist(item.id)}><Trash2 size={16} /></button>
             </div>
-
             <div className={styles.info}>
               <h3 className={styles.name}>{item.nombre}</h3>
               <p className={styles.price}>$ {new Intl.NumberFormat('es-AR').format(item.precio)}</p>
-              <button 
-                className={styles.addCartBtn}
-                onClick={() => addToCart({...item, precioTransfer: item.precio * 0.8}, 0)}
-              >
-                <ShoppingBag size={14} /> LO QUIERO
+              <button className={styles.addCartBtn} onClick={() => addToCart({...item, precioTransfer: item.precio * 0.8}, 0)}>
+                <ShoppingBag size={12} /> LO QUIERO
               </button>
             </div>
           </div>

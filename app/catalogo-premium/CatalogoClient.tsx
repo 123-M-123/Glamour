@@ -18,32 +18,65 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
   const totalItems = items.reduce((acc, item) => acc + item.cantidad, 0)
 
   return (
-    <div style={{ background: '#FF0000', minHeight: '100vh', paddingBottom: '160px' }}>
+    <div style={{ background: '#FF0000', minHeight: '100vh', paddingBottom: '180px' }}>
       <div className={styles.container} style={{ paddingTop: '40px', background: 'transparent' }}>
         
         <header style={{ textAlign: 'center', marginBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img src="/icons/logo-no.png" alt="Logo" style={{ height: '85px', marginBottom: '20px' }} />
-          <h1 style={{ fontWeight: 950, color: 'white', fontSize: '1.8rem', margin: 0, letterSpacing: '1px' }}>CATÁLOGO PERSONALIZADO</h1>
-          <div style={{ background: 'white', color: '#FF0000', padding: '8px 25px', borderRadius: '50px', fontSize: '0.85rem', fontWeight: 900, marginTop: '20px' }}>
+          {/* 🖼️ LOGO CORREGIDO: No se deforma y tamaño optimizado */}
+          <img 
+            src="/icons/logo-no.png" 
+            alt="Logo" 
+            style={{ 
+                height: '75px', 
+                width: 'auto', 
+                objectFit: 'contain', 
+                marginBottom: '20px' 
+            }} 
+          />
+          <h1 style={{ fontWeight: 950, color: 'white', fontSize: '1.6rem', margin: 0, letterSpacing: '1px' }}>CATÁLOGO PERSONALIZADO</h1>
+          <div style={{ background: 'white', color: '#FF0000', padding: '6px 20px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 900, marginTop: '15px' }}>
             SELECCIÓN EXCLUSIVA PARA VOS
           </div>
         </header>
 
+        {/* 🧱 GRILLA CON TAMAÑOS UNIFORMES */}
         <div className={styles.grid}>
           {productos.map((item) => (
-            <div key={item.id} className={styles.card} onClick={() => setSelected(item)} 
-                 style={{ 
-                   cursor: 'pointer', background: 'white', border: 'none', 
-                   boxShadow: '0 15px 40px rgba(255,255,255,0.3)' 
-                 }}>
-              <div className={styles.imageWrapper}>
-                <img src={item.imagen} alt={item.nombre} className={styles.image} />
+            <div 
+              key={item.id} 
+              className={styles.card} 
+              onClick={() => setSelected(item)} 
+              style={{ 
+                cursor: 'pointer', 
+                background: 'white', 
+                border: '2px solid #FFC9CB', // 🌸 Bordes Rosa
+                boxShadow: '0 12px 30px rgba(0,0,0,0.3)', // 🌚 Sombras Negras
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%' // Asegura que todas midan lo mismo
+              }}
+            >
+              <div style={{ 
+                position: 'relative', 
+                width: '100%', 
+                height: '220px', // Altura fija de imagen para orden visual
+                overflow: 'hidden',
+                background: '#f9f9f9'
+              }}>
+                <img 
+                  src={item.imagen} 
+                  alt={item.nombre} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                />
               </div>
-              <div className={styles.info} style={{ background: 'white', padding: '10px' }}>
-                <h3 className={styles.name} style={{ color: '#000', fontSize: '12px' }}>{item.nombre.toLowerCase()}</h3>
-                <p className={styles.price} style={{ color: '#FF0000', fontSize: '16px' }}>$ {new Intl.NumberFormat('es-AR').format(item.precioTransfer)}</p>
-                <button className={styles.addCartBtn} style={{ background: '#FF0000', color: 'white', border: 'none', width: '100%', height: '35px' }}>
-                  <ShoppingBag size={14} /> VER DETALLES
+
+              <div className={styles.info} style={{ background: 'white', padding: '12px 8px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                    <h3 className={styles.name} style={{ color: '#000', fontSize: '11px', marginBottom: '4px' }}>{item.nombre.toLowerCase()}</h3>
+                    <p className={styles.price} style={{ color: '#FF0000', fontSize: '15px', fontWeight: 900, margin: 0 }}>$ {new Intl.NumberFormat('es-AR').format(item.precioTransfer)}</p>
+                </div>
+                <button className={styles.addCartBtn} style={{ background: '#FF0000', color: 'white', border: 'none', width: '100%', height: '32px', fontSize: '9px', marginTop: '10px' }}>
+                  <ShoppingBag size={12} /> VER DETALLES
                 </button>
               </div>
             </div>
@@ -52,26 +85,40 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
 
         <footer style={{ marginTop: '60px', textAlign: 'center' }}>
           <Link href="/" style={{ 
-            background: 'white', color: '#FF0000', padding: '15px 35px', borderRadius: '50px', 
+            background: 'white', color: '#FF0000', padding: '12px 25px', borderRadius: '50px', 
             fontWeight: 900, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', 
-            gap: '10px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' 
+            gap: '10px', fontSize: '0.85rem', boxShadow: '0 10px 20px rgba(0,0,0,0.15)' 
           }}>
-            <ArrowLeft size={20} /> IR A LA TIENDA COMPLETA
+            <ArrowLeft size={18} /> IR A LA TIENDA COMPLETA
           </Link>
         </footer>
       </div>
 
-      {/* 🛒 BOTÓN FINALIZAR COMPRA (Subido para no tapar footer ni botones flotantes) */}
+      {/* 🛒 BOTÓN FINALIZAR COMPRA REDIMENSIONADO Y ELEVADO */}
       {totalItems > 0 && (
         <Link href="/checkout" style={{ textDecoration: 'none' }}>
           <div style={{
-            position: 'fixed', bottom: '120px', left: '50%', transform: 'translateX(-50%)',
-            background: 'white', color: '#FF0000', padding: '20px 40px', borderRadius: '50px',
-            display: 'flex', alignItems: 'center', gap: '15px', boxShadow: '0 20px 60px rgba(0,0,0,0.6)',
-            zIndex: 5000, fontWeight: 950, width: '85%', maxWidth: '380px', justifyContent: 'center',
-            border: '4px solid #FF0000', fontSize: '1.2rem'
+            position: 'fixed', 
+            bottom: '140px', // 👈 MARCOS: Cambiá este valor (ej: 160px) para subirlo más
+            left: '50%', 
+            transform: 'translateX(-50%)',
+            background: 'white', 
+            color: '#FF0000', 
+            padding: '14px 30px', // 📉 20% más chico
+            borderRadius: '50px',
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '10px', 
+            boxShadow: '0 15px 45px rgba(0,0,0,0.5)',
+            zIndex: 5000, 
+            fontWeight: 950, 
+            width: '80%', // Un poco más angosto
+            maxWidth: '320px', 
+            justifyContent: 'center',
+            border: '3px solid #FF0000', 
+            fontSize: '1rem' // Letra un poco más chica
           }}>
-            <ShoppingBag size={28} />
+            <ShoppingBag size={22} />
             FINALIZAR COMPRA ({totalItems})
           </div>
         </Link>

@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
                 background: 'white', 
                 borderRadius: '20px', 
                 width: '340px', 
-                height: '210px', 
+                height: '280px', /*// 👈experimento era 210--*/
                 overflow: 'hidden',
                 position: 'relative'
               }}>
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
           <div style={{ marginTop: 'auto', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
             <img src={`${origin}/icons/whats.png`} style={{ width: '90px', height: '90px' }} />
             <div style={{ color: 'white', fontSize: '70px', fontWeight: 800, letterSpacing: '1px', display: 'flex' }}>
-                CATÁLOGO EXCLUSIVO
+                CONSULTA POR WHATSAPP
             </div>
           </div>
         </div>
