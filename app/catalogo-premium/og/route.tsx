@@ -4,18 +4,9 @@ import { NextRequest } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-/**
- * 🖼️ OPTIMIZACIÓN DE PESO (SENIOR UX)
- * Pedimos a Drive una miniatura de 400px en lugar de 1000px.
- * Esto reduce el PNG final de 1.5MB a ~450KB, garantizando que WhatsApp lo muestre.
- */
-function getSmallThumbnail(url: string) {
-  if (!url) return '';
-  return url.replace('sz=w1000', 'sz=w400');
-}
-
 export async function GET(req: NextRequest) {
-  const domain = 'https://glamour-urquiza.vercel.app'
+  // 🛡️ Obtenemos el dominio actual de la rama de forma dinámica
+  const { origin } = req.nextUrl;
   
   try {
     const { searchParams } = new URL(req.url)
@@ -23,28 +14,20 @@ export async function GET(req: NextRequest) {
     
     if (!pParam) {
       return new ImageResponse(
-        (
-          <div style={{ background: '#FF0000', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 40 }}>
-              CATÁLOGO GLAMOUR URQUIZA
-          </div>
-        ),
-        { width: 1200, height: 630 }
+        <div style={{ background: '#FF0000', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 40 }}>
+            GLAMOUR - SELECCIONÁ PRODUCTOS
+        </div>
       )
     }
 
     const ids = pParam.split(',').map(id => id.trim())
     const allProducts = await getProductsFromSheets()
     
-    if (!allProducts || allProducts.length === 0) throw new Error('No se pudo conectar con el Excel');
+    if (!allProducts || allProducts.length === 0) throw new Error('Error al leer Excel');
 
-    // Filtramos los productos elegidos y aplicamos la miniatura liviana
     const items = allProducts
       .filter(p => ids.includes(p.id.toString()))
-      .slice(0, 6)
-      .map(p => ({
-        ...p,
-        imagenLiviana: getSmallThumbnail(p.imagen)
-      }));
+      .slice(0, 6);
 
     return new ImageResponse(
       (
@@ -57,15 +40,18 @@ export async function GET(req: NextRequest) {
           padding: '40px',
           alignItems: 'center',
         }}>
-          {/* Header con Logo Blanco (logo-no.png) */}
+          {/* 🛡️ LOGO CON FALLBACK: Si no carga la imagen, no explota el 500 */}
           <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginBottom: '30px' }}>
             <img 
-              src={`${domain}/icons/logo-no.png`} 
-              style={{ height: '80px' }} 
+              src={`${origin}/icons/logo-no.png`} 
+              alt="Logo"
+              style={{ height: '80px' }}
+              // @ts-ignore
+              onError="this.style.display='none'" 
             />
           </div>
 
-          {/* Grid de 6 productos (3 columnas x 2 filas) */}
+          {/* Grid de 6 productos */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', width: '1120px' }}>
             {items.map((item) => (
               <div key={item.id} style={{ 
@@ -78,10 +64,9 @@ export async function GET(req: NextRequest) {
                 position: 'relative'
               }}>
                 <img 
-                  src={item.imagenLiviana} 
+                  src={item.imagen.replace('sz=w1000', 'sz=w400')} 
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                 />
-                {/* Etiqueta de Precio */}
                 <div style={{ 
                   position: 'absolute', bottom: '10px', right: '10px', 
                   background: '#FF0000', color: 'white', 
@@ -95,29 +80,23 @@ export async function GET(req: NextRequest) {
             ))}
           </div>
 
-          {/* Footer con Icono WhatsApp (whats.png) */}
           <div style={{ marginTop: 'auto', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
-            <img src={`${domain}/icons/whats.png`} style={{ width: '28px', height: '28px' }} />
-            <div style={{ color: 'white', fontSize: '22px', fontWeight: 700, opacity: 0.9, display: 'flex' }}>
-                CATÁLOGO EXCLUSIVO • GLAMOUR-URQUIZA.VERCEL.APP
+            <img src={`${origin}/icons/whats.png`} style={{ width: '25px', height: '25px' }} />
+            <div style={{ color: 'white', fontSize: '20px', fontWeight: 700, opacity: 0.8, display: 'flex' }}>
+                CATÁLOGO EXCLUSIVO • {origin.replace('https://', '')}
             </div>
           </div>
         </div>
       ),
-      { 
-        width: 1200, 
-        height: 630 
-      }
+      { width: 1200, height: 630 }
     )
   } catch (e: any) {
+    // Si falla algo, devolvemos una imagen de error elegante en lugar de un 500
     return new ImageResponse(
-      (
-        <div style={{ background: '#FF0000', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 24, flexDirection: 'column', padding: 50 }}>
-          <div style={{ display: 'flex', fontWeight: 'bold', fontSize: 40, marginBottom: 20 }}>GLAMOUR URQUIZA</div>
-          <div style={{ display: 'flex' }}>Error al generar vista previa: {String(e.message)}</div>
-        </div>
-      ),
-      { width: 1200, height: 630 }
+      <div style={{ background: '#FF0000', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 30, flexDirection: 'column', padding: 50 }}>
+        <div style={{ display: 'flex', fontWeight: 'bold' }}>GLAMOUR URQUIZA</div>
+        <div style={{ display: 'flex', fontSize: 20, marginTop: 20 }}>Catálogo Temporal: {String(e.message)}</div>
+      </div>
     )
   }
 }
