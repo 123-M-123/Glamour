@@ -189,3 +189,30 @@
   border-radius: 50px;
   box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
 }
+
+.shareGlobalBtn {
+  margin-top: 15px;
+  background: #25D366;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 50px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);
+  transition: transform 0.2s;
+}
+
+.shareGlobalBtn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .shareGlobalBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}

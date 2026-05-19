@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Trash2, ShoppingBag, ArrowLeft } from 'lucide-react'
+import { Trash2, ShoppingBag, ArrowLeft, Share2 } from 'lucide-react'
 import { useWishlistStore } from '../store/useWishlistStore'
 import { useCartStore } from '../store/useCartStore'
 import styles from './wishlist.module.css'
@@ -12,6 +12,14 @@ export default function WishlistPage() {
 
   const formatPrice = (n: number) => 
     new Intl.NumberFormat('es-AR').format(Math.round(n))
+
+  const handleCompartir = () => {
+    const ids = wishlist.map(item => item.id).join(',')
+    const base = window.location.origin
+    const shareUrl = `${base}/seleccion?p=${ids}`
+    const text = encodeURIComponent(`¡Hola! Mirá esta selección de productos que elegí en Glamour Urquiza 🌸:\n\n${shareUrl}`)
+    window.open(`https://wa.me/?text=${text}`, '_blank')
+  }
 
   if (wishlist.length === 0) {
     return (
@@ -32,6 +40,11 @@ export default function WishlistPage() {
       <header className={styles.header}>
         <img src="/icons/corazon-rojo-deseotexto.png" alt="Lista de Deseos" className={styles.mainHeartIcon} />
         <p className={styles.countBadge}>{wishlist.length} productos en favoritos</p>
+        
+        {/* 🚀 BOTÓN COMPARTIR SELECCIÓN */}
+        <button className={styles.shareGlobalBtn} onClick={handleCompartir}>
+          <Share2 size={20} /> COMPARTIR MI SELECCIÓN
+        </button>
       </header>
 
       <div className={styles.grid}>
@@ -47,7 +60,6 @@ export default function WishlistPage() {
               </button>
             </div>
 
-            {/* Este bloque .info es el que ahora se stickea abajo con el margin-top: auto */}
             <div className={styles.info}>
               <h3 className={styles.name}>{item.nombre}</h3>
               <p className={styles.price}>$ {formatPrice(item.precio)}</p>
