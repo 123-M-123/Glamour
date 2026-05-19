@@ -1,37 +1,21 @@
 import { ImageResponse } from 'next/og'
 import { getProductsFromSheets } from '@/lib/googleSheets'
+import { NextRequest } from 'next/server'
 
 export const dynamic = 'force-dynamic'
-export const alt = 'Catálogo Glamour'
-export const size = { width: 1200, height: 630 }
-export const contentType = 'image/png'
 
-export default async function Image({ searchParams }: { searchParams: { p?: string } }) {
+export async function GET(req: NextRequest) {
   const domain = 'https://glamour-urquiza.vercel.app'
   
   try {
-    const allProducts = await getProductsFromSheets()
-    
-    // Si no hay productos, algo falló con la API de Google
-    if (!allProducts || allProducts.length === 0) {
-      throw new Error('No se pudieron cargar productos del Excel');
-    }
-
-    const pParam = searchParams.p || ''
+    const { searchParams } = new URL(req.url)
+    const pParam = searchParams.get('p') || ''
     const ids = pParam.split(',').map(id => id.trim())
-    
-    // Buscamos los productos asegurando que el ID coincida
-    const items = allProducts.filter(p => ids.includes(p.id.toString())).slice(0, 6)
 
-    // Si los IDs no existen en el Excel, mostramos un aviso
-    if (items.length === 0) {
-      return new ImageResponse(
-        <div style={{ background: '#FF0000', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 40, flexDirection: 'column' }}>
-          <div style={{ display: 'flex' }}>GLAMOUR URQUIZA</div>
-          <div style={{ display: 'flex', fontSize: 20, marginTop: 10 }}>Seleccioná productos válidos</div>
-        </div>
-      )
-    }
+    const allProducts = await getProductsFromSheets()
+    if (!allProducts || allProducts.length === 0) throw new Error('No sheets data');
+
+    const items = allProducts.filter(p => ids.includes(p.id.toString())).slice(0, 6)
 
     return new ImageResponse(
       (
@@ -44,11 +28,11 @@ export default async function Image({ searchParams }: { searchParams: { p?: stri
           padding: '40px',
           alignItems: 'center',
         }}>
-          {/* Header con Logo Absoluto */}
+          {/* Header con Logo Blanco */}
           <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginBottom: '30px' }}>
             <img 
               src={`${domain}/icons/logo-no.png`} 
-              style={{ height: '80px' }} 
+              style={{ height: '85px' }} 
             />
           </div>
 
@@ -81,24 +65,25 @@ export default async function Image({ searchParams }: { searchParams: { p?: stri
             ))}
           </div>
 
-          {/* Footer */}
+          {/* Footer con Icono WhatsApp */}
           <div style={{ marginTop: 'auto', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
             <img src={`${domain}/icons/whats.png`} style={{ width: '25px', height: '25px' }} />
             <div style={{ color: 'white', fontSize: '20px', fontWeight: 700, opacity: 0.8, display: 'flex' }}>
-                CATÁLOGO EXCLUSIVO • {domain.replace('https://', '')}
+                CATÁLOGO EXCLUSIVO • GLAMOUR-URQUIZA.VERCEL.APP
             </div>
           </div>
         </div>
       ),
-      { ...size }
+      { width: 1200, height: 630 }
     )
   } catch (e: any) {
     return new ImageResponse(
-      <div style={{ background: '#FF0000', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 30, flexDirection: 'column', padding: 40 }}>
-        <div style={{ display: 'flex' }}>GLAMOUR URQUIZA - ERROR TÉCNICO</div>
-        <div style={{ display: 'flex', fontSize: 16, marginTop: 20 }}>{e.message}</div>
-        <div style={{ display: 'flex', fontSize: 14, opacity: 0.7 }}>Verificá las Variables de Entorno en Vercel (Ramas Preview)</div>
-      </div>
+      (
+        <div style={{ background: '#FF0000', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 30 }}>
+          GLAMOUR URQUIZA - SELECCIÓN ESPECIAL
+        </div>
+      ),
+      { width: 1200, height: 630 }
     )
   }
 }

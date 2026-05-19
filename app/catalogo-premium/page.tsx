@@ -5,17 +5,17 @@ import CatalogoClient from './CatalogoClient'
 type Props = { searchParams: { p?: string } }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  // 🛡️ IMPORTANTE: Usar la URL de la rama actual para el debug
   const domain = 'https://glamour-urquiza.vercel.app'
   const pParam = searchParams.p || ''
-  const imageUrl = `${domain}/catalogo-premium/opengraph-image?p=${pParam}`
+  // 🛡️ Apuntamos al nuevo motor de ruta /og
+  const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}`
   
   return {
     title: `Catálogo Glamour Urquiza`,
-    description: `Selección exclusiva de productos.`,
+    description: `Selección exclusiva de productos preparados para vos.`,
     openGraph: {
       title: 'CATÁLOGO PERSONALIZADO 🛍️',
-      description: `Mirá las piezas que elegí para vos en Glamour.`,
+      description: `Mirá las piezas que elegí para vos en Glamour Urquiza.`,
       url: `${domain}/catalogo-premium?p=${pParam}`,
       siteName: 'Glamour Urquiza',
       images: [
