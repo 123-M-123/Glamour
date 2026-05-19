@@ -28,7 +28,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
         {
           url: imageUrl, // 👈experimento -- Link dinámico corregido
           width: 1200,
-          height: 800,// 👈experimento --
+          height: 1000,// 👈experimento --
         },
       ],
       type: 'website',

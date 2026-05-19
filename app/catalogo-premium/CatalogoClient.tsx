@@ -99,7 +99,7 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
         <Link href="/checkout" style={{ textDecoration: 'none' }}>
           <div style={{
             position: 'fixed', 
-            bottom: '140px', // 👈 MARCOS: Cambiá este valor (ej: 160px) para subirlo más
+            bottom: '170px', // 👈 MARCOS: Cambiá este valor (ej: 160px) para subirlo más
             left: '50%', 
             transform: 'translateX(-50%)',
             background: 'white', 

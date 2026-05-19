@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
                   position: 'absolute', bottom: '10px', right: '10px', 
                   background: '#FF0000', color: 'white', 
                   padding: '5px 15px', borderRadius: '20px', 
-                  fontSize: '24px', fontWeight: 'bold',
+                  fontSize: '54px', fontWeight: 'bold', //era 24 PRECIO 👈experimento --
                   display: 'flex'
                 }}>
                   ${new Intl.NumberFormat('es-AR').format(item.precioTransfer)}
@@ -84,12 +84,12 @@ export async function GET(req: NextRequest) {
           <div style={{ marginTop: 'auto', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
             <img src={`${origin}/icons/whats.png`} style={{ width: '90px', height: '90px' }} />
             <div style={{ color: 'white', fontSize: '70px', fontWeight: 800, letterSpacing: '1px', display: 'flex' }}>
-                CONSULTA POR WHATSAPP
+                CONSULTA POR WHATSAPP 
             </div>
           </div>
         </div>
       ),
-      { width: 1200, height: 800 }// 👈experimento --
+      { width: 1200, height: 1000 }// 👈experimento --
     )
   } catch (e: any) {
     // Si falla algo, devolvemos una imagen de error elegante en lugar de un 500
