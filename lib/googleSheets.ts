@@ -1,4 +1,5 @@
 import { google } from 'googleapis';
+import { slugify } from './utils';
 
 /**
  * 🔐 CONFIGURACIÓN DEL ROBOT (SERVICE ACCOUNT)
@@ -17,10 +18,16 @@ const sheets = google.sheets({ version: 'v4', auth });
 const MASTER_ID = process.env.MASTER_PAYMENTS_SHEET_ID; 
 const CLIENT_ID = process.env.CLIENT_CONTENT_SHEET_ID; 
 
-// Whitelisting: Esto debería venir de lib/clientes.ts en el futuro
+// Whitelisting
 const SOCIOS_AUTORIZADOS = [
   "gla_142@hotmail.com",
-  "elcampito@gmail.com", // Aseguramos que El Campito esté autorizado
+  "elcampito@gmail.com",
+];
+
+// 🛡️ DICCIONARIO DE PROTECCIÓN: Para que no tengas que poner "*" a lo que ya existe
+const ACCESORIOS_EXISTENTES = [
+  'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres-de-fiesta', 
+  'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'
 ];
 
 /**
@@ -31,12 +38,11 @@ function getDriveDirectLink(url: string) {
   const match = url.match(/\/d\/(.+?)(?:\/|$)|\/file\/d\/(.+?)\/|id=(.+?)(?:&|$)/);
   const fileId = match ? (match[1] || match[2] || match[3]) : null;
   if (!fileId) return url;
-  // Usamos el endpoint de thumbnail con sz=w1000 para calidad retina
   return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 }
 
 /**
- * 📦 PRODUCTOS: Lectura con mapeo estricto A-J
+ * 📦 PRODUCTOS: Lectura con mapeo estricto e identificación Híbrida
  */
 export async function getProductsFromSheets() {
   try {
@@ -53,8 +59,14 @@ export async function getProductsFromSheets() {
       .filter((row: any) => row[0] && SOCIOS_AUTORIZADOS.includes(row[0].trim().toLowerCase()))
       .map((row: any) => {
         const precioTransfer = Number(row[3]) || 0;
-        // Lógica de precio: En Glamour es /0.8 (20% off). 
-        // Si en el futuro cambia por tienda, lo parametrizamos.
+        const catRaw = row[6]?.toString().trim() || "sin categoría";
+        const catSlug = slugify(catRaw.replace('*', ''));
+
+        // 🛡️ LÓGICA HÍBRIDA:
+        // Es accesorio si: empieza con "*" O ya está en nuestra lista histórica
+        const esAccesorio = catRaw.startsWith('*') || ACCESORIOS_EXISTENTES.includes(catSlug);
+        const categoriaLimpia = catRaw.replace('*', '').trim();
+
         return {
           id: row[1]?.toString() || "",
           nombre: row[2]?.toString() || "",
@@ -62,10 +74,12 @@ export async function getProductsFromSheets() {
           precioTransfer: precioTransfer,
           descripcion: row[4] || "",
           imagen: getDriveDirectLink(row[5] || ""),
-          categoria: row[6]?.toString().toLowerCase().trim() || "sin categoría", // Columna G
-          stock: Number(row[7]) || 0,        // Columna H
-          talles: row[8] || "",             // Columna I
-          colores: row[9] || "",            // Columna J
+          categoria: categoriaLimpia,
+          categoriaSlug: catSlug,
+          tipo: esAccesorio ? 'accesorios' : 'indumentaria',
+          stock: Number(row[7]) || 0,
+          talles: row[8] || "",
+          colores: row[9] || "",
         };
       });
   } catch (error: any) {
@@ -75,13 +89,23 @@ export async function getProductsFromSheets() {
 }
 
 /**
- * 📂 CATEGORÍAS DINÁMICAS: Extrae categorías únicas de la planilla
+ * 📂 CATEGORÍAS DINÁMICAS
  */
 export async function getCategoriesFromSheets() {
   const products = await getProductsFromSheets();
-  const categories = products.map(p => p.categoria);
-  // Retornamos solo valores únicos y capitalizados para la UI
-  return [...new Set(categories)].filter(Boolean);
+  const uniqueMap = new Map();
+  
+  products.forEach(p => {
+    if (!uniqueMap.has(p.categoriaSlug)) {
+      uniqueMap.set(p.categoriaSlug, {
+        label: p.categoria,
+        slug: p.categoriaSlug,
+        tipo: p.tipo
+      });
+    }
+  });
+  
+  return Array.from(uniqueMap.values());
 }
 
 /**
@@ -112,7 +136,7 @@ export async function getBannersFromSheets() {
 }
 
 /**
- * 💰 REGISTRO DE PAGOS: En Planilla Maestra (Pestaña Pagos)
+ * 💰 REGISTRO DE PAGOS: En Planilla Maestra
  */
 export async function savePaymentToMaster(paymentData: any[]) {
   try {

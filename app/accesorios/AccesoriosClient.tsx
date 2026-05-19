@@ -4,35 +4,41 @@ import Link from 'next/link'
 import { Sparkles } from 'lucide-react' 
 import styles from './accesorios.module.css'
 
-const CATS_ACCESORIOS = [
-  'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres-de-fiesta', 
-  'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'
-]
-
 export default function AccesoriosClient({ productos, banners }: { productos: any[], banners: any[] }) {
   const [mounted, setMounted] = useState(false)
-  useEffect(() => { setMounted(true) }, [])
+  
+  useEffect(() => { 
+    setMounted(true) 
+  }, [])
   
   if (!mounted) return null
 
-  const categoriasFiltradas = Array.from(
-    new Set(productos.map((p) => p.categoria.toLowerCase().trim()))
-  ).filter(cat => CATS_ACCESORIOS.includes(cat))
+  // 🪄 MAGIA DINÁMICA: 
+  // Filtramos productos que el motor identificó como 'accesorios' (los que tenían *)
+  // Usamos un Map para garantizar categorías únicas por su slug normalizado.
+  const catMap = new Map();
+  productos.forEach(p => {
+    if (p.tipo === 'accesorios' && !catMap.has(p.categoriaSlug)) {
+      catMap.set(p.categoriaSlug, p.categoria);
+    }
+  });
 
-  // IGUALACIÓN DE LÓGICA: Motor de renderizado de banners
+  const categoriasFinales = Array.from(catMap.entries());
+
+  // Motor de renderizado de banners
   const renderBanner = (ubicacion: string) => {
     const banner = banners.find(b => b.ubicacion === ubicacion.toLowerCase());
     if (!banner) return null;
     return (
       <div className={styles.bannerContainer}>
-        <img src={banner.imagen} alt="Publicidad" className={styles.bannerImg} />
+        <img src={banner.imagen} alt="Publicidad Glamour" className={styles.bannerImg} />
       </div>
     );
   }
 
   return (
     <main className={styles.container}>
-      {/* BANNER SUPERIOR DINÁMICO (Planilla Maestra) */}
+      {/* BANNER SUPERIOR DINÁMICO */}
       {renderBanner("hero-accesorios")}
 
       <header className={styles.header}>
@@ -41,11 +47,11 @@ export default function AccesoriosClient({ productos, banners }: { productos: an
       </header>
 
       <div className={styles.grid}>
-        {categoriasFiltradas.map((cat) => (
-          <Link key={cat} href={`/accesorios/${cat.replace(/\s+/g, '-')}`} className={styles.card}>
+        {categoriasFinales.map(([slug, label]) => (
+          <Link key={slug} href={`/accesorios/${slug}`} className={styles.card}>
             <div className={styles.iconBox}>
               <img 
-                src={`/icons/${cat}.png`} 
+                src={`/icons/${slug}.png`} 
                 alt="" 
                 className={styles.customIcon}
                 onError={(e) => {
@@ -56,14 +62,14 @@ export default function AccesoriosClient({ productos, banners }: { productos: an
               <Sparkles className={styles.fallbackIcon} size={35} />
             </div>
             <div className={styles.cardInfo}>
-              <span className={styles.catName}>{cat.toUpperCase()}</span>
+              <span className={styles.catName}>{label.toUpperCase()}</span>
               <span className={styles.explore}>VER TODO</span>
             </div>
           </Link>
         ))}
       </div>
 
-      {/* BANNER INFERIOR DINÁMICO (Planilla Maestra) */}
+      {/* BANNER INFERIOR DINÁMICO */}
       {renderBanner("footer-accesorios")}
     </main>
   )
