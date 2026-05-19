@@ -1,21 +1,26 @@
 import { getProductsFromSheets } from '@/lib/googleSheets'
 import { Metadata } from 'next'
+import { headers } from 'next/headers'
 import CatalogoClient from './CatalogoClient'
 
 type Props = { searchParams: { p?: string } }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  // 🛡️ Usamos la URL de producción para que WhatsApp no se confunda
-  const domain = 'https://glamour-urquiza.vercel.app'
-  const pParam = searchParams.p || ''
-  const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}`
+  // 🛡️ MAGIA SENIOR: Detectamos el host real de la rama donde estamos parados
+  const headersList = headers();
+  const host = headersList.get('host') || 'glamour-urquiza.vercel.app';
+  const protocol = host.includes('localhost') ? 'http' : 'https';
+  const domain = `${protocol}://${host}`;
+  
+  const pParam = searchParams.p || '';
+  const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}`;
   
   return {
     title: `Catálogo Glamour Urquiza`,
-    description: `Selección exclusiva preparada especialmente para vos.`,
+    description: `Selección exclusiva de productos preparados para vos.`,
     openGraph: {
       title: 'CATÁLOGO PERSONALIZADO 🛍️',
-      description: `Mirá los productos que elegí para vos en Glamour Urquiza.`,
+      description: `Mirá las piezas que elegí para vos en Glamour Urquiza.`,
       url: `${domain}/catalogo-premium?p=${pParam}`,
       siteName: 'Glamour Urquiza',
       images: [
