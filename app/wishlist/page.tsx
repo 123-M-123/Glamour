@@ -16,8 +16,10 @@ export default function WishlistPage() {
   const handleCompartir = () => {
     const ids = wishlist.map(item => item.id).join(',')
     const base = window.location.origin
-    const shareUrl = `${base}/seleccion?p=${ids}`
-    const text = encodeURIComponent(`¡Hola! Mirá esta selección de productos que elegí en Glamour Urquiza 🌸:\n\n${shareUrl}`)
+    const shareUrl = `${base}/catalogo-premium?p=${ids}`
+    
+    // Texto profesional para WhatsApp
+    const text = encodeURIComponent(`🛍️ CATÁLOGO EXCLUSIVO GLAMOUR\n\nMirá la selección especial que preparé para vos aquí:\n${shareUrl}`)
     window.open(`https://wa.me/?text=${text}`, '_blank')
   }
 
@@ -41,7 +43,6 @@ export default function WishlistPage() {
         <img src="/icons/corazon-rojo-deseotexto.png" alt="Lista de Deseos" className={styles.mainHeartIcon} />
         <p className={styles.countBadge}>{wishlist.length} productos en favoritos</p>
         
-        {/* 🚀 BOTÓN COMPARTIR SELECCIÓN */}
         <button className={styles.shareGlobalBtn} onClick={handleCompartir}>
           <Share2 size={20} /> COMPARTIR MI SELECCIÓN
         </button>
@@ -59,19 +60,12 @@ export default function WishlistPage() {
                 <Trash2 size={16} />
               </button>
             </div>
-
             <div className={styles.info}>
               <h3 className={styles.name}>{item.nombre}</h3>
               <p className={styles.price}>$ {formatPrice(item.precio)}</p>
-              
               <button 
                 className={styles.addCartBtn}
-                onClick={() => {
-                  addToCart({
-                    ...item,
-                    precioTransfer: item.precio * 0.8
-                  }, 0)
-                }}
+                onClick={() => addToCart({...item, precioTransfer: item.precio * 0.8}, 0)}
               >
                 <ShoppingBag size={14} /> LO QUIERO
               </button>
@@ -81,9 +75,7 @@ export default function WishlistPage() {
       </div>
 
       <footer className={styles.footer}>
-        <Link href="/" className={styles.continueLink}>
-           SEGUIR MIRANDO PRODUCTOS
-        </Link>
+        <Link href="/" className={styles.continueLink}>SEGUIR MIRANDO PRODUCTOS</Link>
       </footer>
     </div>
   )
