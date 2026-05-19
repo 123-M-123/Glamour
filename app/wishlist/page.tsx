@@ -16,10 +16,9 @@ export default function WishlistPage() {
   const handleCompartir = () => {
     const ids = wishlist.map(item => item.id).join(',')
     const base = window.location.origin
+    // 🛡️ Sin flores, link directo al catálogo premium
     const shareUrl = `${base}/catalogo-premium?p=${ids}`
-    
-    // Texto profesional para WhatsApp
-    const text = encodeURIComponent(`🛍️ CATÁLOGO EXCLUSIVO GLAMOUR\n\nMirá la selección especial que preparé para vos aquí:\n${shareUrl}`)
+    const text = encodeURIComponent(`CATÁLOGO EXCLUSIVO GLAMOUR\n\nMirá la selección especial que preparé para vos aquí:\n${shareUrl}`)
     window.open(`https://wa.me/?text=${text}`, '_blank')
   }
 
@@ -42,7 +41,6 @@ export default function WishlistPage() {
       <header className={styles.header}>
         <img src="/icons/corazon-rojo-deseotexto.png" alt="Lista de Deseos" className={styles.mainHeartIcon} />
         <p className={styles.countBadge}>{wishlist.length} productos en favoritos</p>
-        
         <button className={styles.shareGlobalBtn} onClick={handleCompartir}>
           <Share2 size={20} /> COMPARTIR MI SELECCIÓN
         </button>
@@ -53,22 +51,12 @@ export default function WishlistPage() {
           <div key={item.id} className={styles.card}>
             <div className={styles.imageWrapper}>
               <img src={item.imagen} alt={item.nombre} className={styles.image} />
-              <button 
-                className={styles.removeBtn}
-                onClick={() => removeFromWishlist(item.id)}
-              >
-                <Trash2 size={16} />
-              </button>
+              <button className={styles.removeBtn} onClick={() => removeFromWishlist(item.id)}><Trash2 size={16} /></button>
             </div>
             <div className={styles.info}>
               <h3 className={styles.name}>{item.nombre}</h3>
               <p className={styles.price}>$ {formatPrice(item.precio)}</p>
-              <button 
-                className={styles.addCartBtn}
-                onClick={() => addToCart({...item, precioTransfer: item.precio * 0.8}, 0)}
-              >
-                <ShoppingBag size={14} /> LO QUIERO
-              </button>
+              <button className={styles.addCartBtn} onClick={() => addToCart({...item, precioTransfer: item.precio * 0.8}, 0)}><ShoppingBag size={14} /> LO QUIERO</button>
             </div>
           </div>
         ))}
