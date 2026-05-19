@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { getProductsFromSheets } from '@/lib/googleSheets'
 
-export const runtime = 'edge'
+
 export const alt = 'Catálogo Glamour'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
@@ -57,7 +57,7 @@ export default async function Image({ searchParams }: { searchParams: { p?: stri
           <span style={{ color: 'white', fontSize: '18px', fontWeight: 600 }}>SELECCIÓN VIP PREPARADA PARA VOS</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <img src="https://glamour-urquiza.vercel.app/icons/whats.png" style={{ width: '25px' }} />
-            <span style={{ color: 'white', fontSize: '18px', fontWeight: 800 }}>WWW.GLAMOUR-URQUIZA.COM.AR</span>
+            <span style={{ color: 'white', fontSize: '18px', fontWeight: 800 }}>https://glamour-urquiza.vercel.app</span>
           </div>
         </div>
       </div>
