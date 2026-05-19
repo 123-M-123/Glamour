@@ -1,24 +1,21 @@
 'use client'
 
 import Link from 'next/link'
-import { Trash2, ShoppingBag, ArrowLeft, Share2 } from 'lucide-react'
+import { Trash2, ShoppingBag, ArrowLeft, Share2, Eraser } from 'lucide-react'
 import { useWishlistStore } from '../store/useWishlistStore'
 import { useCartStore } from '../store/useCartStore'
 import styles from './wishlist.module.css'
 
 export default function WishlistPage() {
-  const { wishlist, removeFromWishlist } = useWishlistStore()
+  const { wishlist, removeFromWishlist, clearWishlist } = useWishlistStore()
   const { addToCart } = useCartStore()
-
-  const formatPrice = (n: number) => 
-    new Intl.NumberFormat('es-AR').format(Math.round(n))
 
   const handleCompartir = () => {
     const ids = wishlist.map(item => item.id).join(',')
     const base = window.location.origin
-    // 🛡️ Sin flores, link directo al catálogo premium
     const shareUrl = `${base}/catalogo-premium?p=${ids}`
-    const text = encodeURIComponent(`CATÁLOGO EXCLUSIVO GLAMOUR\n\nMirá la selección especial que preparé para vos aquí:\n${shareUrl}`)
+    // 🛡️ Mensaje minimalista sin flores ni textos largos
+    const text = encodeURIComponent(`🛍️ CATÁLOGO SELECCIONADO\n${shareUrl}`)
     window.open(`https://wa.me/?text=${text}`, '_blank')
   }
 
@@ -26,10 +23,10 @@ export default function WishlistPage() {
     return (
       <div className={styles.emptyContainer}>
         <div className={styles.emptyCard}>
-          <img src="/icons/corazon-rojo-deseotexto.png" alt="Lista de Deseos" className={styles.mainHeartIcon} />
-          <p className={styles.emptyText}>Tu lista está vacía. ¡Agregá lo que te enamore!</p>
-          <Link href="/" className={styles.backBtn}>
-            <ArrowLeft size={20} /> VOLVER A LA TIENDA
+          <img src="/icons/corazon-rojo-deseotexto.png" alt="Favoritos" className={styles.mainHeartIcon} />
+          <p className={styles.emptyText}>Tu lista está vacía.</p>
+          <Link href="/" className={styles.wishBtn} style={{background:'white', color:'#ff0000', border:'2px solid #ff0000', textDecoration:'none', width:'100%'}}>
+            VOLVER A LA TIENDA
           </Link>
         </div>
       </div>
@@ -38,12 +35,24 @@ export default function WishlistPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <img src="/icons/corazon-rojo-deseotexto.png" alt="Lista de Deseos" className={styles.mainHeartIcon} />
-        <p className={styles.countBadge}>{wishlist.length} productos en favoritos</p>
-        <button className={styles.shareGlobalBtn} onClick={handleCompartir}>
-          <Share2 size={20} /> COMPARTIR MI SELECCIÓN
-        </button>
+      <header className={styles.wishHeader}>
+        <img src="/icons/corazon-rojo-deseotexto.png" alt="Wishlist" className={styles.headerHeart} />
+        
+        {/* GRILLA DE BOTONES UNIFICADOS */}
+        <div className={styles.actionGrid}>
+          <div className={`${styles.wishBtn} ${styles.btnRed}`}>
+            {wishlist.length} ELEGIDOS
+          </div>
+          <button className={`${styles.wishBtn} ${styles.btnGreen}`} onClick={handleCompartir}>
+            <Share2 size={16} /> COMPARTIR
+          </button>
+          <Link href="/" className={`${styles.wishBtn} ${styles.btnWhite}`}>
+            MIRAR MÁS
+          </Link>
+          <button className={`${styles.wishBtn} ${styles.btnGrey}`} onClick={() => { if(confirm('¿Vaciar lista?')) clearWishlist() }}>
+            <Eraser size={16} /> VACIAR
+          </button>
+        </div>
       </header>
 
       <div className={styles.grid}>
@@ -55,16 +64,14 @@ export default function WishlistPage() {
             </div>
             <div className={styles.info}>
               <h3 className={styles.name}>{item.nombre}</h3>
-              <p className={styles.price}>$ {formatPrice(item.precio)}</p>
-              <button className={styles.addCartBtn} onClick={() => addToCart({...item, precioTransfer: item.precio * 0.8}, 0)}><ShoppingBag size={14} /> LO QUIERO</button>
+              <p className={styles.price}>$ {new Intl.NumberFormat('es-AR').format(item.precio)}</p>
+              <button className={styles.addCartBtn} onClick={() => addToCart({...item, precioTransfer: item.precio * 0.8}, 0)}>
+                <ShoppingBag size={12} /> LO QUIERO
+              </button>
             </div>
           </div>
         ))}
       </div>
-
-      <footer className={styles.footer}>
-        <Link href="/" className={styles.continueLink}>SEGUIR MIRANDO PRODUCTOS</Link>
-      </footer>
     </div>
   )
 }

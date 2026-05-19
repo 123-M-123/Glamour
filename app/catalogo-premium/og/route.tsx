@@ -80,10 +80,11 @@ export async function GET(req: NextRequest) {
             ))}
           </div>
 
+            {/* Footer ultra limpio */}
           <div style={{ marginTop: 'auto', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
-            <img src={`${origin}/icons/whats.png`} style={{ width: '25px', height: '25px' }} />
-            <div style={{ color: 'white', fontSize: '20px', fontWeight: 700, opacity: 0.8, display: 'flex' }}>
-                CATÁLOGO EXCLUSIVO • {origin.replace('https://', '')}
+            <img src={`${origin}/icons/whats.png`} style={{ width: '32px', height: '32px' }} />
+            <div style={{ color: 'white', fontSize: '24px', fontWeight: 800, letterSpacing: '1px', display: 'flex' }}>
+                CATÁLOGO EXCLUSIVO
             </div>
           </div>
         </div>
