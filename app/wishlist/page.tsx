@@ -15,7 +15,7 @@ export default function WishlistPage() {
     const base = window.location.origin
     const shareUrl = `${base}/catalogo-premium?p=${ids}`
     // 🛡️ Mensaje minimalista sin flores ni textos largos
-    const text = encodeURIComponent(`🛍️ CATÁLOGO SELECCIONADO\n${shareUrl}`)
+    const text = encodeURIComponent(`🛍️ OFERTAS\n${shareUrl}`)
     window.open(`https://wa.me/?text=${text}`, '_blank')
   }
 

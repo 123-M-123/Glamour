@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
           </div>
         </div>
       ),
-      { width: 1200, height: 630 }
+      { width: 1200, height: 800 }// 👈experimento --
     )
   } catch (e: any) {
     // Si falla algo, devolvemos una imagen de error elegante en lugar de un 500

@@ -21,14 +21,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     description: `Selección exclusiva de productos.`,
     openGraph: {
       title: 'CATÁLOGO PERSONALIZADO 🛍️',
-      description: `Mirá las piezas que elegí para vos en Glamour Urquiza.`,
+      description: `Exclusivo para vos.. en Glamour.`,
       url: `${domain}/catalogo-premium?p=${pParam}`,
       siteName: 'Glamour Urquiza',
       images: [
         {
-          url: imageUrl, // 👈 Link dinámico corregido
+          url: imageUrl, // 👈experimento -- Link dinámico corregido
           width: 1200,
-          height: 630,
+          height: 800,// 👈experimento --
         },
       ],
       type: 'website',
