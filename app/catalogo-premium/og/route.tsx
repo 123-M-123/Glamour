@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
                 background: 'white', 
                 borderRadius: '20px', 
                 width: '340px', 
-                height: '280px', /*// 👈experimento era 210--*/
+                height: '340px', /*// 👈alto de foto--experimento era 210--*/
                 overflow: 'hidden',
                 position: 'relative'
               }}>
@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
                   position: 'absolute', bottom: '10px', right: '10px', 
                   background: '#FF0000', color: 'white', 
                   padding: '5px 15px', borderRadius: '20px', 
-                  fontSize: '54px', fontWeight: 'bold', //era 24 PRECIO 👈experimento --
+                  fontSize: '50px', fontWeight: 'bold', //PRECIO--era 24  👈experimento --
                   display: 'flex'
                 }}>
                   ${new Intl.NumberFormat('es-AR').format(item.precioTransfer)}

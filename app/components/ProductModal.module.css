@@ -1,31 +1,31 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
-  padding: 20px;
+  z-index: 5000;
+  padding: 15px;
 }
 
 .modal {
-  background: #ffe6e6; /* Tu color elegido */
-  border-radius: 20px;
+  background: #ffe6e6; 
+  border-radius: 24px;
   width: 100%;
   max-width: 850px;
-  max-height: 90vh; /* TOPE: Nunca más alto que el 90% de la pantalla */
+  /* 📉 Achicado un 15% en mobile */
+  max-height: 75vh; 
   position: relative;
-  overflow-y: auto; /* Scroll interno si el contenido es muy largo */
-  animation: popIn 0.3s ease;
+  overflow-y: auto;
   border: 4px solid #ff0000;
-  margin-top: var(--header-h-mobile);
+  animation: popIn 0.3s ease;
 }
 
 @media (min-width: 768px) {
   .modal { 
-    margin-top: 0; 
-    overflow: hidden; /* En desktop suele entrar bien sin scroll */
+    max-height: 90vh; 
+    overflow: hidden;
   }
 }
 
@@ -43,7 +43,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 10;
+  z-index: 100;
 }
 
 .mainLayout {
@@ -52,57 +52,76 @@
 }
 
 @media (min-width: 768px) {
-  .mainLayout { 
-    flex-direction: row; 
-    height: 100%;
-    min-height: 500px;
-  }
+  .mainLayout { flex-direction: row; height: 100%; }
 }
 
-/* CONTENEDOR DE IMAGEN MEJORADO */
+/* 🎡 CARRUSEL DE IMÁGENES */
 .imageContainer {
-  flex: 1.2; /* Un poco más de espacio para la foto */
-  background: rgba(255, 255, 255, 0.3); /* Fondo sutil para que luzca la foto */
+  flex: 1.2;
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.carousel::-webkit-scrollbar { display: none; }
+
+.slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 300px; /* Altura controlada en mobile */
+  scroll-snap-align: start;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  position: relative;
+}
+
+@media (min-width: 768px) {
+  .slide { height: 550px; }
 }
 
 .image {
   width: 100%;
-  height: 350px; /* Altura base en mobile */
-  object-fit: contain; /* NUNCA SE CORTA, se ajusta al centro */
-  display: block;
+  height: 100%;
+  object-fit: contain;
 }
 
-@media (min-width: 768px) {
-  .image { 
-    height: 100%; 
-    max-height: 550px;
-  }
-}
-
-.infoContainer {
-  flex: 1;
-  padding: 25px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.priceAndWishlist {
+.scrollHint {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.5);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 5px;
+  pointer-events: none;
+}
+
+/* INFORMACIÓN */
+.infoContainer {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 900;
   color: #ff0000;
   margin-bottom: 10px;
   text-transform: uppercase;
@@ -110,117 +129,59 @@
 
 .priceBox {
   display: flex;
-  align-items: center;
-  gap: 15px;
+  align-items: baseline;
+  gap: 10px;
 }
 
-.precioOriginal {
-  text-decoration: line-through;
-  color: #999;
-  font-size: 18px;
+.precioOriginal { text-decoration: line-through; color: #999; font-size: 14px; }
+.precioTransfer { font-size: 24px; font-weight: 900; color: #ff0000; }
+
+.offPercent { color: #ff0000; font-size: 20px; font-weight: 900; }
+
+.extraInfo { margin: 15px 0; font-size: 14px; }
+
+.description {
+  font-size: 13px;
+  color: #555;
+  border-left: 3px solid #ff0000;
+  padding-left: 10px;
+  margin-bottom: 15px;
 }
 
-.precioTransfer {
-  font-size: 28px;
-  font-weight: 800;
-  color: #ff0000;
-}
-
-.descuentoInfo {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.offPercent {
-  color: #ff0000;
-  font-size: 24px; /* Un poco más grande como pediste */
-  font-weight: 800;
-}
-
-.offMethod {
-  color: #ff4248;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-@media (min-width: 768px) {
-  .descuentoInfo {
-    flex-direction: row;
-    gap: 5px;
-    align-items: baseline;
-  }
-}
-
-.wishlistBtn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.2s;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.wishlistIcon {
-  width: 45px;
-  height: auto;
-}
-
-.extraInfo {
-  margin-bottom: 20px;
-  font-size: 15px;
-  color: #333;
-}
-
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.actions { display: flex; flex-direction: column; gap: 10px; }
 
 .pagar {
   background: #ff0000;
   color: white;
   border: none;
-  padding: 16px;
+  padding: 14px;
   border-radius: 50px;
-  font-weight: 700;
+  font-weight: 900;
   cursor: pointer;
-  letter-spacing: 1px;
 }
 
 .consultar {
-  background: #ff6b6b; /* Color complementario suave */
+  background: #25D366; /* Verde WhatsApp real para mejor contraste */
   color: white;
-  padding: 6px;
+  padding: 8px;
   border-radius: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   text-decoration: none;
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: 800;
+  font-size: 13px;
 }
 
-/* Icono WhatsApp personalizado */
-.whatsIcon {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-
-@keyframes popIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
+.whatsIcon { width: 30px; height: 30px; }
 
 .shareBtn {
   position: absolute;
   bottom: 15px;
   right: 15px;
-  background: #ff0000;
-  border: none;
+  background: white;
+  border: 2px solid #ff0000;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -228,26 +189,10 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  color: white;
-  transition: transform 0.2s;
+  color: #ff0000;
 }
 
-.shareBtn:hover { transform: scale(1.1); }
-
-.description {
-  font-size: 14px;
-  color: #666;
-  font-style: italic;
-  margin-bottom: 15px;
-  line-height: 1.4;
-  border-left: 3px solid #ffcccc;
-  padding-left: 10px;
-}
-
-.specs {
-  font-size: 13px;
-  background: rgba(255, 0, 0, 0.05);
-  padding: 10px;
-  border-radius: 10px;
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
