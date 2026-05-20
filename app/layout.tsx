@@ -10,22 +10,22 @@ import Footer from './components/Footer'
 import WhatsappGlobal from './components/WhatsappGlobal'
 
 export const metadata: Metadata = {
-  title: "Glamour Urquiza | Indumentaria y Accesorios",
+  title: "Glamour | Indumentaria y Accesorios",
   description: "Resaltá tu esencia. Un espacio pensado para mujeres auténticas que buscan vestirse con estilo, comodidad y actitud  ",
   metadataBase: new URL("https://glamour-urquiza.vercel.app"),
 
   openGraph: {
-    title: "Glamour Urquiza | Indumentaria y Accesorios",
+    title: "Glamour | Indumentaria y Accesorios",
     description: "Resaltá tu esencia. Un espacio pensado para mujeres auténticas que buscan vestirse con estilo, comodidad y actitud",
     url: "https://glamour-urquiza.vercel.app",
-    siteName: "Glamour | Urquiza",
+    siteName: "Glamour",
     images: [
       {
         url: "/og/image-3.jpg",
         width: 1200,
         height: 630,
         type: "image-3/jpg",
-        alt: "Glamour Urquiza | Indumentaria y Accesorios",
+        alt: "Glamour | Indumentaria y Accesorios",
       },
     ],
     locale: "es_AR",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Glamour Urquiza | Indumentaria y Accesorios",
+    title: "Glamour | Indumentaria y Accesorios",
     description: "Resaltá tu esencia. Un espacio pensado para mujeres auténticas que buscan vestirse con estilo, comodidad y actitud",
     images: ["/og/image-3.jpg"],
   },
@@ -50,6 +50,7 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "Glamour",
+    startupImage: "/icon-512.png",
   },
 }
 
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" translate="no">
       <head>
         <meta name="theme-color" content="Ff0000" />
+        <link rel="apple-touch-startup-image" href="/icon-512.png" />
 
         <meta name="google-site-verification" content="c43EWcKPaKQuTZ0w9M0U0iLPzJEgoEQmVTxKVhzfn8I" />
 

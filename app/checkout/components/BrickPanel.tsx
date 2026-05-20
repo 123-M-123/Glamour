@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useCartStore } from '../../store/useCartStore';
 
-// 🛡️ DECLARACIÓN PARA ELIMINAR ERRORES TS(2339)
 declare global {
   interface Window {
     MercadoPago: any;
@@ -21,7 +20,6 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
       containerRef.current.innerHTML = "";
       setLoading(true);
 
-      // 🚀 Recuperamos los datos del cliente del Store de Zustand
       const { customerData } = useCartStore.getState();
 
       try {
@@ -33,7 +31,6 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
             price: Math.round(precio), 
             quantity: 1, 
             vendedorEmail,
-            // Enviamos los datos para que nazcan con la preferencia
             clienteNombre: customerData.nombre,
             clienteWhatsapp: customerData.whatsapp,
             puntoEntrega: customerData.entrega
@@ -66,18 +63,28 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
           },
           callbacks: {
             onReady: () => { if (isEffectActive) setLoading(false); },
-            onSubmit: async ({ formData }: any) => {
-              // Al procesar el pago final, también mandamos la metadata
+            onSubmit: async (param: any) => { // 🛡️ Recibimos el objeto completo
+              const { customerData } = useCartStore.getState();
+              
+              // 🧪 LÓGICA DE EXTRACCIÓN ROBUSTA
+              // Algunos SDKs mandan los datos en .formData, otros directo en el objeto.
+              const mpData = param.formData || param;
+
+              const payload = { 
+                ...mpData, // Aquí vienen token, method_id, etc.
+                transaction_amount: Math.round(precio), // 🚀 FORZAMOS EL PRECIO AQUÍ
+                vendedorEmail, 
+                clienteNombre: customerData.nombre, 
+                clienteWhatsapp: customerData.whatsapp, 
+                puntoEntrega: customerData.entrega 
+              };
+
+              console.log("Enviando al servidor:", payload);
+
               const r = await fetch('/api/process-payment', { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ 
-                  ...formData, 
-                  vendedorEmail, 
-                  clienteNombre: customerData.nombre, 
-                  clienteWhatsapp: customerData.whatsapp, 
-                  puntoEntrega: customerData.entrega 
-                }) 
+                body: JSON.stringify(payload) 
               });
               const p = await r.json();
               if (p.status === 'approved') onPagoAprobado();
@@ -85,10 +92,7 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
             onError: (err: any) => { console.error(err); setLoading(false); }
           },
         });
-      } catch (e) { 
-        console.error("Init Error:", e);
-        setLoading(false); 
-      }
+      } catch (e) { setLoading(false); }
     };
     initMP();
     return () => { isEffectActive = false; if (brickController.current) brickController.current.unmount(); };
