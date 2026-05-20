@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import { getProductsFromSheets, getBannersFromSheets } from '@/lib/googleSheets'
 import IndumentariaClient from './IndumentariaClient'
-
+export const revalidate = 10; // Para que sea instantáneo el cambio
 export const metadata: Metadata = {
   title: 'Indumentaria | Glamour Urquiza',
   description: 'Explorá nuestras categorías de moda femenina con estilo y actitud. Encontrá lo último en tendencia.',

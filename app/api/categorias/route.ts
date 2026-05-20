@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCategoriesFromSheets } from '@/lib/googleSheets';
 
-export const revalidate = 0; // Para que sea instantáneo el cambio
+export const revalidate = 10; // Para que sea instantáneo el cambio
 
 export async function GET() {
   try {
