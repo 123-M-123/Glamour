@@ -14,8 +14,7 @@
   border-radius: 24px;
   width: 100%;
   max-width: 850px;
-  /* 📉 Achicado un 15% en mobile */
-  max-height: 75vh; 
+  max-height: 80vh; /* Altura total reducida un 15% para móvil */
   position: relative;
   overflow-y: auto;
   border: 4px solid #ff0000;
@@ -24,7 +23,7 @@
 
 @media (min-width: 768px) {
   .modal { 
-    max-height: 90vh; 
+    max-height: 90vh; /* En desktop recuperamos altura completa */
     overflow: hidden;
   }
 }
@@ -68,7 +67,9 @@
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  /* Ocultamos scrollbar pero permitimos swipe */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .carousel::-webkit-scrollbar { display: none; }
@@ -76,7 +77,7 @@
 .slide {
   flex: 0 0 100%;
   width: 100%;
-  height: 300px; /* Altura controlada en mobile */
+  height: 320px; /* Ajuste de altura en móvil */
   scroll-snap-align: start;
   display: flex;
   align-items: center;
@@ -92,6 +93,33 @@
   height: 100%;
   object-fit: contain;
 }
+
+/* 🏹 BOTONES DE NAVEGACIÓN (Solo Desktop) */
+.arrowBtn {
+  display: none; /* Oculto en móvil */
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.7);
+  color: #ff0000;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  z-index: 10;
+  transition: 0.3s;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .arrowBtn { display: flex; } /* Aparece en Desktop */
+}
+
+.arrowBtn:hover { background: white; scale: 1.1; }
+.prev { left: 10px; }
+.next { right: 10px; }
 
 .scrollHint {
   position: absolute;
@@ -111,7 +139,7 @@
   pointer-events: none;
 }
 
-/* INFORMACIÓN */
+/* ℹ️ INFORMACIÓN Y TEXTOS */
 .infoContainer {
   flex: 1;
   padding: 20px;
@@ -136,9 +164,27 @@
 .precioOriginal { text-decoration: line-through; color: #999; font-size: 14px; }
 .precioTransfer { font-size: 24px; font-weight: 900; color: #ff0000; }
 
-.offPercent { color: #ff0000; font-size: 20px; font-weight: 900; }
+/* ❤️ CORAZÓN (AJUSTE DE TAMAÑO SOLICITADO) */
+.wishlistIcon {
+  width: 32px; /* Tamaño controlado en desktop */
+  height: auto;
+  transition: 0.3s;
+}
 
-.extraInfo { margin: 15px 0; font-size: 14px; }
+@media (max-width: 768px) {
+  .wishlistIcon {
+    width: 40px; /* Tamaño controlado en mobile para que no explote */
+  }
+}
+
+.priceAndWishlist {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.offPercent { color: #ff0000; font-size: 20px; font-weight: 900; }
 
 .description {
   font-size: 13px;
@@ -146,6 +192,20 @@
   border-left: 3px solid #ff0000;
   padding-left: 10px;
   margin-bottom: 15px;
+  margin-top: 15px;
+}
+
+.specsGrid {
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid #ffcccc;
+    margin-bottom: 20px;
+}
+
+.specsGrid p {
+    margin: 4px 0;
+    font-size: 13px;
 }
 
 .actions { display: flex; flex-direction: column; gap: 10px; }
@@ -161,7 +221,7 @@
 }
 
 .consultar {
-  background: #25D366; /* Verde WhatsApp real para mejor contraste */
+  background: #25D366; 
   color: white;
   padding: 8px;
   border-radius: 50px;
@@ -180,8 +240,8 @@
   position: absolute;
   bottom: 15px;
   right: 15px;
-  background: white;
-  border: 2px solid #ff0000;
+  background: #ff0000;  
+  border: 2px solid #ff9595;
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -189,7 +249,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #ff0000;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 @keyframes popIn {
