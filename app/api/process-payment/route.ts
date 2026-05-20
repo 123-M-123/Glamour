@@ -25,7 +25,6 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({ 
           ...formData, 
           external_reference: vendedorEmail || "gla_142@hotmail.com",
-          // 📦 METADATA: Nombres de campos consistentes para el Webhook
           metadata: { 
             vendedor_email: vendedorEmail,
             cliente_nombre: clienteNombre,
@@ -38,8 +37,14 @@ export async function POST(request: NextRequest) {
 
       const data = await response.json();
 
-      if (response.ok && data.status === 'approved') {
-        // Notificación manual al webhook para asegurar registro inmediato
+      // 🔍 DETECCIÓN DE ERROR DE MERCADO PAGO
+      if (!response.ok) {
+        console.error("🔥 ERROR MP PROCESS-PAYMENT:", JSON.stringify(data));
+        // Devolvemos el error real de MP para que el Brick lo entienda
+        return NextResponse.json(data, { status: response.status });
+      }
+
+      if (data.status === 'approved') {
         fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -53,7 +58,7 @@ export async function POST(request: NextRequest) {
       clearTimeout(timeout);
     }
   } catch (error: any) {
-    console.error('❌ Error en process-payment:', error.message);
+    console.error('❌ CRASH EN PROCESS-PAYMENT:', error.message);
     return NextResponse.json({ error: 'Error procesando el pago' }, { status: 500 });
   }
 }
