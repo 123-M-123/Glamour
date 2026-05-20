@@ -40,3 +40,7 @@ yarn-error.log*
 
 node_modules
 .env
+
+# 🛡️ Seguridad: Carpeta de fix de analitics con llaves privadas
+.fix-analytics/
+*.json
