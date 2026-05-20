@@ -1,7 +1,7 @@
 {
-  "name": "Glamour Urquiza | Indumentaria y Accesorios",
+  "name": "Glamour",
   "short_name": "Glamour",
-  "description": "Nombre Largo ej=> Glamour Urquiza (aca tiene que ir algo como de esta cantidad de texto que llame a la acción y genere ventas o visitas)",
+  "description": "Glaour Indumentaria y Accesorios",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#Ff0000",

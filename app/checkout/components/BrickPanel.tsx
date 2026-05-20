@@ -2,6 +2,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useCartStore } from '../../store/useCartStore';
 
+// 🛡️ DECLARACIÓN PARA ELIMINAR ERRORES TS(2339)
+declare global {
+  interface Window {
+    MercadoPago: any;
+  }
+}
+
 export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAprobado }: any) {
   const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -37,8 +44,10 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
 
         if (!window.MercadoPago) {
           await new Promise<void>(r => {
-            const s = document.createElement('script'); s.src = 'https://sdk.mercadopago.com/js/v2';
-            s.async = true; s.onload = () => r(); document.body.appendChild(s);
+            const s = document.createElement('script'); 
+            s.src = 'https://sdk.mercadopago.com/js/v2';
+            s.async = true; s.onload = () => r(); 
+            document.body.appendChild(s);
           });
         }
 
@@ -76,7 +85,10 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
             onError: (err: any) => { console.error(err); setLoading(false); }
           },
         });
-      } catch (e) { setLoading(false); }
+      } catch (e) { 
+        console.error("Init Error:", e);
+        setLoading(false); 
+      }
     };
     initMP();
     return () => { isEffectActive = false; if (brickController.current) brickController.current.unmount(); };
