@@ -11,7 +11,7 @@ const formatPrice = (n: number) => new Intl.NumberFormat('es-AR').format(n)
 export default function ProductModal({ open, producto, onClose }: any) {
   const { addToCart } = useCartStore()
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlistStore()
-  const carouselRef = useRef<HTMLDivElement>(null); // Referencia para el scroll
+  const carouselRef = useRef<HTMLDivElement>(null)
 
   if (!open || !producto) return null
 
@@ -23,14 +23,13 @@ export default function ProductModal({ open, producto, onClose }: any) {
   const isFav = isInWishlist(producto.id)
   const imagenes = producto.galeria || [producto.imagen]
 
-  // 🚀 FUNCIÓN PARA DESLIZAR EN DESKTOP
   const scroll = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const { scrollLeft, clientWidth } = carouselRef.current;
-      const scrollTo = direction === 'left' ? scrollLeft - clientWidth : scrollLeft + clientWidth;
-      carouselRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' });
+      const { scrollLeft, clientWidth } = carouselRef.current
+      const scrollTo = direction === 'left' ? scrollLeft - clientWidth : scrollLeft + clientWidth
+      carouselRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' })
     }
-  };
+  }
 
   const handleShare = async () => {
     const url = `${window.location.origin}${window.location.pathname}?p=${producto.id}`
@@ -50,11 +49,7 @@ export default function ProductModal({ open, producto, onClose }: any) {
         <button className={styles.close} onClick={onClose} aria-label="Cerrar"><X size={24} /></button>
 
         <div className={styles.mainLayout}>
-          
-          {/* 🎡 CONTENEDOR DE IMÁGENES */}
           <div className={styles.imageContainer}>
-            
-            {/* Flechas de navegación (Solo visibles en Desktop vía CSS) */}
             {imagenes.length > 1 && (
               <>
                 <button className={`${styles.arrowBtn} ${styles.prev}`} onClick={() => scroll('left')}>
@@ -74,16 +69,11 @@ export default function ProductModal({ open, producto, onClose }: any) {
               ))}
             </div>
             
-            {/* Indicador visual para móvil */}
             {imagenes.length > 1 && (
-              <div className={styles.scrollHint}>
-                Deslizá para ver más <ChevronRight size={14} />
-              </div>
+              <div className={styles.scrollHint}>Deslizá para ver más <ChevronRight size={14} /></div>
             )}
 
-            <button className={styles.shareBtn} onClick={handleShare} title="Compartir">
-              <Share2 size={20} />
-            </button>
+            <button className={styles.shareBtn} onClick={handleShare} title="Compartir"><Share2 size={20} /></button>
           </div>
 
           <div className={styles.infoContainer}>
@@ -101,22 +91,15 @@ export default function ProductModal({ open, producto, onClose }: any) {
                 </div>
               </div>
 
-              {/* ❤️ BOTÓN FAVORITOS (CORREGIDO) */}
-              <button 
-                className={styles.wishlistBtn} 
-                onClick={() => isFav ? removeFromWishlist(producto.id) : addToWishlist(producto)}
-              >
-                <img 
-                  src="/icons/corazon-rojo.png" 
-                  className={styles.wishlistIcon} 
-                  style={{ filter: isFav ? 'none' : 'grayscale(1) opacity(0.3)' }} 
-                  alt="Favoritos" 
-                />
+              <button className={styles.wishlistBtn} onClick={() => isFav ? removeFromWishlist(producto.id) : addToWishlist(producto)}>
+                <img src="/icons/corazon-rojo.png" className={styles.wishlistIcon} style={{ filter: isFav ? 'none' : 'grayscale(1) opacity(0.3)' }} alt="Favoritos" />
               </button>
             </div>
 
             <div className={styles.extraInfo}>
-              {producto.description && <p className={styles.description}>{producto.description}</p>}
+              {/* 🛡️ CORREGIDO: De description a descripcion */}
+              {producto.descripcion && <p className={styles.description}>{producto.descripcion}</p>}
+              
               <div className={styles.specsGrid}>
                 {producto.talles && <p><strong>Talles:</strong> {producto.talles}</p>}
                 {producto.colores && <p><strong>Colores:</strong> {producto.colores}</p>}

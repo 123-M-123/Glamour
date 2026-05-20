@@ -26,7 +26,6 @@ function getDriveDirectLink(url: string) {
 
 export async function getProductsFromSheets() {
   try {
-    // 🛡️ Aumentamos el rango hasta la columna O para tener 5 fotos extra
     const range = "'Carga de productos'!A2:O"; 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: CLIENT_ID, 
@@ -44,7 +43,6 @@ export async function getProductsFromSheets() {
         const catSlug = slugify(catRaw.replace('*', ''));
         const esAccesorio = catRaw.startsWith('*') || ACCESORIOS_EXISTENTES.includes(catSlug);
         
-        // 📸 Mapeo de Galería (Columna F + K, L, M, N, O)
         const principal = getDriveDirectLink(row[5] || "");
         const extras = [row[10], row[11], row[12], row[13], row[14]]
           .filter(url => url && url.includes("drive.google.com"))
@@ -55,9 +53,9 @@ export async function getProductsFromSheets() {
           nombre: row[2]?.toString() || "",
           precio: Math.round(precioTransfer / 0.8),
           precioTransfer: precioTransfer,
-          descripcion: row[4] || "",
+          descripcion: row[4] || "", // 👈 CAMPO CLAVE: descripcion
           imagen: principal,
-          galeria: [principal, ...extras], // 👈 Array con todas las fotos
+          galeria: [principal, ...extras],
           categoria: catRaw.replace('*', '').trim(),
           categoriaSlug: catSlug,
           tipo: esAccesorio ? 'accesorios' : 'indumentaria',
