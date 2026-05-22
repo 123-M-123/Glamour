@@ -17,13 +17,13 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}`;
   
   return {
-    title: `Catálogo Glamour Urquiza`,
+    title: `Catálogo Glamour`,
     description: `Selección exclusiva de productos.`,
     openGraph: {
-      title: 'CATÁLOGO PERSONALIZADO 🛍️',
+      title: 'SELECCION PERSONALIZADA 🛍️',
       description: `Exclusivo para vos...`,
       url: `${domain}/catalogo-premium?p=${pParam}`,
-      siteName: 'Glamour Urquiza',
+      siteName: 'Glamour',
       images: [
         {
           url: imageUrl, // 👈experimento -- Link dinámico corregido

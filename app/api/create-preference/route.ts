@@ -10,13 +10,11 @@ export async function POST(req: Request) {
     const body = await req.json()
     const vendedorEmail = body.vendedorEmail || "gla_142@hotmail.com"; 
 
+    // Limpieza y validación de precio
     const unitPrice = Math.round(Number(body.price));
     if (unitPrice < 150) {
-      return NextResponse.json({ error: "Monto menor al mínimo" }, { status: 400 });
+      return NextResponse.json({ error: "Monto muy bajo" }, { status: 400 });
     }
-
-    // 🛡️ Limpiamos la URL para evitar el Warning de url.parse
-    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`.trim();
 
     const preference = new Preference(client)
     const result = await preference.create({
@@ -29,12 +27,13 @@ export async function POST(req: Request) {
           currency_id: 'ARS',
         }],
         external_reference: vendedorEmail,
-        notification_url: webhookUrl,
+        // 🛡️ NOTIFICACIÓN A TU CENTRAL (Respetando tu ruta actual)
+        notification_url: "https://tienda-de-tiendas.vercel.app/api/webhook",
         metadata: {
           vendedor_email: vendedorEmail,
-          cliente_nombre: body.clienteNombre || "Cliente Online",
-          cliente_whatsapp: body.clienteWhatsapp || "",
-          punto_entrega: body.puntoEntrega || "No especificado"
+          cliente_nombre: body.clienteNombre || "S/D",
+          cliente_whatsapp: body.clienteWhatsapp || "S/D",
+          punto_entrega: body.puntoEntrega || "S/D"
         }
       },
     })

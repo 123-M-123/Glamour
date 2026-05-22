@@ -33,9 +33,9 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
                 marginBottom: '20px' 
             }} 
           />
-          <h1 style={{ fontWeight: 950, color: 'white', fontSize: '1.6rem', margin: 0, letterSpacing: '1px' }}>CATÁLOGO PERSONALIZADO</h1>
+          <h1 style={{ fontWeight: 950, color: 'white', fontSize: '1.6rem', margin: 0, letterSpacing: '1px' }}>SELECCIÓN PERSONALIZADA</h1>
           <div style={{ background: 'white', color: '#FF0000', padding: '6px 20px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 900, marginTop: '15px' }}>
-            SELECCIÓN EXCLUSIVA PARA VOS
+           EXCLUSIVA PARA VOS...
           </div>
         </header>
 

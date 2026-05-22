@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
                   position: 'absolute', bottom: '15px', right: '15px', 
                   background: '#FF0000', color: 'white', 
                   padding: '8px 20px', borderRadius: '50px', 
-                  fontSize: '32px', fontWeight: 'bold',
+                  fontSize: '64px', fontWeight: 'bold',
                   display: 'flex',
                   boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
                 }}>
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
           </div>
         </div>
       ),
-      { width: 1200, height: 1000 }
+      { width: 1600, height: 1600 }
     )
 
     // 2. 🪄 CONVERSIÓN A JPG (Fix de error TS)
