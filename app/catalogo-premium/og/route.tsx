@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
                 background: 'white', 
                 borderRadius: '25px', 
                 width: '340px', 
-                height: '340px', 
+                height: '300px', 
                 overflow: 'hidden',
                 position: 'relative'
               }}>
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
                   position: 'absolute', bottom: '15px', right: '15px', 
                   background: '#FF0000', color: 'white', 
                   padding: '8px 20px', borderRadius: '50px', 
-                  fontSize: '64px', fontWeight: 'bold',
+                  fontSize: '48px', fontWeight: 'bold',  //PRECIO--era 24  👈experimento --
                   display: 'flex',
                   boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
                 }}>
@@ -80,13 +80,13 @@ export async function GET(req: NextRequest) {
           {/* Footer con Branding (Tus medidas exactas) */}
           <div style={{ marginTop: 'auto', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', borderTop: '2px solid rgba(255,255,255,0.3)', paddingTop: '30px', gap: '20px' }}>
               <img src={`${origin}/icons/whats.png`} style={{ width: '90px', height: '90px' }} />
-              <span style={{ color: 'white', fontSize: '60px', fontWeight: 800, display: 'flex' }}>
+              <span style={{ color: 'white', fontSize: '48px', fontWeight: 800, display: 'flex' }}>
                 CATÁLOGO EXCLUSIVO WHATSAPP
               </span>
           </div>
         </div>
       ),
-      { width: 1600, height: 1600 }
+      { width: 1200, height: 1200 }
     )
 
     // 2. 🪄 CONVERSIÓN A JPG (Fix de error TS)
