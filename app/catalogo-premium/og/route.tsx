@@ -1,78 +1,75 @@
 import { ImageResponse } from 'next/og'
 import { getProductsFromSheets } from '@/lib/googleSheets'
 import { NextRequest } from 'next/server'
+import sharp from 'sharp'
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * 📉 OPTIMIZACIÓN DE ORIGEN
+ * Pedimos 500px para que sharp tenga buena base para el JPG final.
+ */
+function getThumb(url: string) {
+  if (!url) return '';
+  return url.replace('sz=w1000', 'sz=w500');
+}
+
 export async function GET(req: NextRequest) {
-  // 🛡️ Obtenemos el dominio actual de la rama de forma dinámica
   const { origin } = req.nextUrl;
   
   try {
     const { searchParams } = new URL(req.url)
     const pParam = searchParams.get('p') || ''
-    
-    if (!pParam) {
-      return new ImageResponse(
-        <div style={{ background: '#FF0000', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 40 }}>
-            GLAMOUR - SELECCIONÁ PRODUCTOS
-        </div>
-      )
-    }
-
     const ids = pParam.split(',').map(id => id.trim())
     const allProducts = await getProductsFromSheets()
     
-    if (!allProducts || allProducts.length === 0) throw new Error('Error al leer Excel');
-
     const items = allProducts
       .filter(p => ids.includes(p.id.toString()))
       .slice(0, 6);
 
-    return new ImageResponse(
+    // 1. Generamos el diseño (PNG interno en memoria)
+    const res = new ImageResponse(
       (
         <div style={{
           background: '#FF0000',
-          width: '100%',
-          height: '100%',
+          width: '1200px',
+          height: '1000px',
           display: 'flex',
           flexDirection: 'column',
-          padding: '40px',
+          padding: '50px',
           alignItems: 'center',
         }}>
-          {/* 🛡️ LOGO CON FALLBACK: Si no carga la imagen, no explota el 500 */}
-          <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginBottom: '30px' }}>
+          {/* Header con Logo Blanco */}
+          <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginBottom: '40px' }}>
             <img 
               src={`${origin}/icons/logo-no.png`} 
-              alt="Logo"
-              style={{ height: '80px' }}
-              // @ts-ignore
-              onError="this.style.display='none'" 
+              style={{ height: '120px', objectFit: 'contain' }} 
             />
           </div>
 
-          {/* Grid de 6 productos */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', width: '1120px' }}>
+          {/* Grid de 6 productos (Tus medidas exactas: 340x340) */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '25px', justifyContent: 'center', width: '1100px' }}>
             {items.map((item) => (
               <div key={item.id} style={{ 
                 display: 'flex', 
                 background: 'white', 
-                borderRadius: '20px', 
+                borderRadius: '25px', 
                 width: '340px', 
-                height: '340px', /*// 👈alto de foto--experimento era 210--*/
+                height: '340px', 
                 overflow: 'hidden',
                 position: 'relative'
               }}>
                 <img 
-                  src={item.imagen.replace('sz=w1000', 'sz=w400')} 
+                  src={getThumb(item.imagen)} 
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
                 />
                 <div style={{ 
-                  position: 'absolute', bottom: '10px', right: '10px', 
+                  position: 'absolute', bottom: '15px', right: '15px', 
                   background: '#FF0000', color: 'white', 
-                  padding: '5px 15px', borderRadius: '20px', 
-                  fontSize: '50px', fontWeight: 'bold', //PRECIO--era 24  👈experimento --
-                  display: 'flex'
+                  padding: '8px 20px', borderRadius: '50px', 
+                  fontSize: '32px', fontWeight: 'bold',
+                  display: 'flex',
+                  boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
                 }}>
                   ${new Intl.NumberFormat('es-AR').format(item.precioTransfer)}
                 </div>
@@ -80,24 +77,34 @@ export async function GET(req: NextRequest) {
             ))}
           </div>
 
-            {/* Footer ultra limpio */}
-          <div style={{ marginTop: 'auto', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', gap: '15px' }}>
-            <img src={`${origin}/icons/whats.png`} style={{ width: '90px', height: '90px' }} />
-            <div style={{ color: 'white', fontSize: '70px', fontWeight: 800, letterSpacing: '1px', display: 'flex' }}>
-                CONSULTA POR WHATSAPP 
-            </div>
+          {/* Footer con Branding (Tus medidas exactas) */}
+          <div style={{ marginTop: 'auto', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', borderTop: '2px solid rgba(255,255,255,0.3)', paddingTop: '30px', gap: '20px' }}>
+              <img src={`${origin}/icons/whats.png`} style={{ width: '90px', height: '90px' }} />
+              <span style={{ color: 'white', fontSize: '60px', fontWeight: 800, display: 'flex' }}>
+                CATÁLOGO EXCLUSIVO WHATSAPP
+              </span>
           </div>
         </div>
       ),
-      { width: 1200, height: 1000 }// 👈experimento --
+      { width: 1200, height: 1000 }
     )
+
+    // 2. 🪄 CONVERSIÓN A JPG (Fix de error TS)
+    const pngBuffer = await res.arrayBuffer();
+    const jpgBuffer = await sharp(Buffer.from(pngBuffer))
+      .jpeg({ quality: 80, mozjpeg: true }) // Calidad 80 para un balance perfecto
+      .toBuffer();
+
+    // 3. 🛡️ RETORNO SEGURO (Convertimos Buffer a Uint8Array para que TS no se queje)
+    return new Response(new Uint8Array(jpgBuffer), {
+      headers: {
+        'Content-Type': 'image/jpeg',
+        'Cache-Control': 'public, immutable, no-transform, max-age=3600',
+      },
+    });
+
   } catch (e: any) {
-    // Si falla algo, devolvemos una imagen de error elegante en lugar de un 500
-    return new ImageResponse(
-      <div style={{ background: '#FF0000', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 30, flexDirection: 'column', padding: 50 }}>
-        <div style={{ display: 'flex', fontWeight: 'bold' }}>GLAMOUR URQUIZA</div>
-        <div style={{ display: 'flex', fontSize: 20, marginTop: 20 }}>Catálogo Temporal: {String(e.message)}</div>
-      </div>
-    )
+    console.error("Error en OG Engine:", e.message);
+    return new Response(`Error al generar imagen: ${e.message}`, { status: 500 });
   }
 }

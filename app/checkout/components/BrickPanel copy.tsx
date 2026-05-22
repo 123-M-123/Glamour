@@ -63,25 +63,23 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
           },
           callbacks: {
             onReady: () => { if (isEffectActive) setLoading(false); },
-            onSubmit: async (param: any) => {
+            onSubmit: async (param: any) => { // 🛡️ Recibimos el objeto completo
               const { customerData } = useCartStore.getState();
+              
+              // 🧪 LÓGICA DE EXTRACCIÓN ROBUSTA
+              // Algunos SDKs mandan los datos en .formData, otros directo en el objeto.
               const mpData = param.formData || param;
 
-              // 🛡️ REGLA SENIOR: Si el usuario eligió "Wallet" (Cuenta MP), 
-              // no llamamos a nuestro servidor, dejamos que el Brick termine su flujo.
-              if (metodo === 'mp' || mpData.payment_method_id === 'wallet_purchase') {
-                return; 
-              }
-
-              // Si es TARJETA, seguimos con el proceso normal
               const payload = { 
-                ...mpData, 
-                transaction_amount: Math.round(precio),
+                ...mpData, // Aquí vienen token, method_id, etc.
+                transaction_amount: Math.round(precio), // 🚀 FORZAMOS EL PRECIO AQUÍ
                 vendedorEmail, 
                 clienteNombre: customerData.nombre, 
                 clienteWhatsapp: customerData.whatsapp, 
                 puntoEntrega: customerData.entrega 
               };
+
+              console.log("Enviando al servidor:", payload);
 
               const r = await fetch('/api/process-payment', { 
                 method: 'POST', 
