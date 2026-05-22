@@ -28,12 +28,17 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    if (response.ok && data.status === 'approved') {
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'payment', data: { id: data.id } })
-      }).catch(e => console.error("Error trigger webhook:", e));
+    // 🛡️ REGLA SENIOR: Notificamos al webhook si el pago es aprobado O pendiente (Efectivo)
+    if (response.ok && (data.status === 'approved' || data.status === 'pending')) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/webhook`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'payment', data: { id: data.id } })
+        });
+      } catch (webhookError) {
+        console.error('Error notificando webhook manual:', webhookError);
+      }
     }
 
     return NextResponse.json(data);

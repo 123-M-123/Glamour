@@ -39,7 +39,7 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
         const pref = await res.json();
         if (!isEffectActive) return;
 
-        if (!window.MercadoPago) {
+        if (!window.window.MercadoPago) {
           await new Promise<void>(r => {
             const s = document.createElement('script'); 
             s.src = 'https://sdk.mercadopago.com/js/v2';
@@ -67,13 +67,10 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
               const { customerData } = useCartStore.getState();
               const mpData = param.formData || param;
 
-              // 🛡️ REGLA SENIOR: Si el usuario eligió "Wallet" (Cuenta MP), 
-              // no llamamos a nuestro servidor, dejamos que el Brick termine su flujo.
               if (metodo === 'mp' || mpData.payment_method_id === 'wallet_purchase') {
                 return; 
               }
 
-              // Si es TARJETA, seguimos con el proceso normal
               const payload = { 
                 ...mpData, 
                 transaction_amount: Math.round(precio),
@@ -88,8 +85,21 @@ export default function BrickPanel({ metodo, precio, vendedorEmail, onPagoAproba
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify(payload) 
               });
+              
               const p = await r.json();
-              if (p.status === 'approved') onPagoAprobado();
+
+              // ✅ CASO 1: Pago aprobado al instante (Tarjeta)
+              if (p.status === 'approved') {
+                onPagoAprobado();
+              } 
+              // 🎫 CASO 2: Pago pendiente (Pago Fácil / Rapipago)
+              else if (p.status === 'pending') {
+                const ticketUrl = p.transaction_details?.external_resource_url;
+                if (ticketUrl) {
+                  window.open(ticketUrl, '_blank'); // Abrimos el cupón para que el cliente lo pague
+                }
+                onPagoAprobado(); // Llamamos al éxito para que la web diga "¡Pedido Recibido!"
+              }
             },
             onError: (err: any) => { console.error(err); setLoading(false); }
           },
