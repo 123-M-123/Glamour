@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { X, ShoppingBag, ArrowLeft, Share2, Eraser } from 'lucide-react' // 👈 Cambiado Trash2 por X
+import { X, ShoppingBag, ArrowLeft, Share2, Eraser, Facebook, Download, Send } from 'lucide-react'
 import { useWishlistStore } from '../store/useWishlistStore'
 import { useCartStore } from '../store/useCartStore'
 import styles from './wishlist.module.css'
@@ -9,13 +10,36 @@ import styles from './wishlist.module.css'
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist, clearWishlist } = useWishlistStore()
   const { addToCart } = useCartStore()
+  
+  // 🛡️ Estados para el Hub Social
+  const [showModal, setShowModal] = useState(false)
+  const [conPrecios, setConPrecios] = useState(true)
 
-  const handleCompartir = () => {
-    const ids = wishlist.map(item => item.id).join(',')
-    const base = window.location.origin
-    const shareUrl = `${base}/catalogo-premium?p=${ids}`
-    const text = encodeURIComponent(`🛍️TIENDA ON LINE 🛍️ \n${shareUrl}`)
+  const ids = wishlist.map(item => item.id).join(',')
+  const base = typeof window !== 'undefined' ? window.location.origin : ''
+  const shareUrl = `${base}/catalogo-premium?p=${ids}&precios=${conPrecios ? 'si' : 'no'}`
+  const imageUrl = `${base}/catalogo-premium/og?p=${ids}&precios=${conPrecios ? 'si' : 'no'}`
+
+  const handleWA = () => {
+    const text = encodeURIComponent(`🛍️ TIENDA ON LINE\n${shareUrl}`)
     window.open(`https://wa.me/?text=${text}`, '_blank')
+  }
+
+  const handleFB = () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank')
+  }
+
+  const handleDL = () => {
+    const link = document.createElement('a')
+    link.href = imageUrl
+    link.download = `Flyer-Glamour-${Date.now()}.jpg`
+    link.click()
+  }
+
+  const handleUniversal = async () => {
+    if (navigator.share) {
+      await navigator.share({ title: 'Catálogo Glamour', url: shareUrl })
+    }
   }
 
   if (wishlist.length === 0) {
@@ -36,18 +60,13 @@ export default function WishlistPage() {
     <div className={styles.container}>
       <header className={styles.wishHeader}>
         <img src="/icons/corazon-rojo-deseotexto.png" alt="Wishlist" className={styles.mainHeartIcon} />
-        
         <div className={styles.actionGrid}>
-          <div className={`${styles.wishBtn} ${styles.btnRed}`}>
-            {wishlist.length} FAVORITOS
-          </div>
-          <button className={`${styles.wishBtn} ${styles.btnGreen}`} onClick={handleCompartir}>
+          <div className={`${styles.wishBtn} ${styles.btnRed}`}>{wishlist.length} PRODUCTOS</div>
+          <button className={`${styles.wishBtn} ${styles.btnGreen}`} onClick={() => setShowModal(true)}>
             <Share2 size={20} /> COMPARTIR
           </button>
-          <Link href="/" className={`${styles.wishBtn} ${styles.btnWhite}`}>
-            MIRAR MÁS
-          </Link>
-          <button className={`${styles.wishBtn} ${styles.btnGrey}`} onClick={() => { if(confirm('¿Vaciar lista completa?')) clearWishlist() }}>
+          <Link href="/" className={`${styles.wishBtn} ${styles.btnWhite}`}>MIRAR MÁS</Link>
+          <button className={`${styles.wishBtn} ${styles.btnGrey}`} onClick={() => confirm('¿Vaciar?') && clearWishlist()}>
             <Eraser size={20} /> VACIAR
           </button>
         </div>
@@ -56,34 +75,41 @@ export default function WishlistPage() {
       <div className={styles.grid}>
         {wishlist.map((item) => (
           <div key={item.id} className={styles.card}>
-            {/* ❌ Botón Eliminar en esquina superior derecha */}
-            <button 
-              className={styles.removeBtn}
-              onClick={(e) => {
-                e.stopPropagation();
-                removeFromWishlist(item.id);
-              }}
-            >
-              <X size={20} strokeWidth={3} />
-            </button>
-
-            <div className={styles.imageWrapper}>
-              <img src={item.imagen} alt={item.nombre} className={styles.image} />
-            </div>
-
+            <button className={styles.removeBtn} onClick={() => removeFromWishlist(item.id)}><X size={20} strokeWidth={3} /></button>
+            <div className={styles.imageWrapper}><img src={item.imagen} alt={item.nombre} className={styles.image} /></div>
             <div className={styles.info}>
               <h3 className={styles.name}>{item.nombre}</h3>
               <p className={styles.price}>$ {new Intl.NumberFormat('es-AR').format(item.precio)}</p>
-              <button 
-                className={styles.addCartBtn}
-                onClick={() => addToCart({...item, precioTransfer: item.precio * 0.8}, 0)}
-              >
-                <ShoppingBag size={14} /> LO QUIERO
-              </button>
+              <button className={styles.addCartBtn} onClick={() => addToCart({...item, precioTransfer: item.precio * 0.8}, 0)}><ShoppingBag size={14} /> LO QUIERO</button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* 🚀 MODAL SOCIAL HUB (EL QUE QUERÍAS) */}
+      {showModal && (
+        <div className={styles.socialOverlay}>
+          <div className={styles.socialModal}>
+            <button style={{position:'absolute', top:20, right:20, border:'none', background:'none'}} onClick={()=>setShowModal(false)}><X/></button>
+            <h2 className={styles.modalTitle}>CONFIGURAR FLYER</h2>
+            
+            <div className={styles.configSection}>
+              <span className={styles.toggleLabel}>¿MOSTRAR PRECIOS EN LA IMAGEN?</span>
+              <div className={styles.toggleGroup}>
+                <button className={`${styles.toggleBtn} ${conPrecios ? styles.toggleBtnActive : ''}`} onClick={()=>setConPrecios(true)}>SÍ, CON PRECIOS</button>
+                <button className={`${styles.toggleBtn} {!conPrecios ? styles.toggleBtnActive : ''}`} onClick={()=>setConPrecios(false)}>NO, SIN PRECIOS</button>
+              </div>
+            </div>
+
+            <div className={styles.socialGrid}>
+              <button className={`${styles.socialAction} ${styles.wa}`} onClick={handleWA}><Send size={20}/> WHATSAPP</button>
+              <button className={`${styles.socialAction} ${styles.fb}`} onClick={handleFB}><Facebook size={20}/> FACEBOOK</button>
+              <button className={`${styles.socialAction} ${styles.dl}`} onClick={handleDL}><Download size={20}/> BAJAR JPG</button>
+              <button className={`${styles.socialAction} ${styles.sh}`} onClick={handleUniversal}><Share2 size={20}/> OTROS</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
