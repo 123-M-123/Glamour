@@ -16,22 +16,29 @@ const CLIENT_ID = process.env.CLIENT_CONTENT_SHEET_ID;
 const SOCIOS_AUTORIZADOS = ["gla_142@hotmail.com", "elcampito@gmail.com"];
 const ACCESORIOS_EXISTENTES = ['cinturones', 'carteras', 'gorras', 'billeteras', 'sobres-de-fiesta', 'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'];
 
-function getDriveDirectLink(url: string) {
+/**
+ * 🖼️ HELPER: Generador de Links Directos (Sin Redirección)
+ * Usamos lh3.googleusercontent.com para que el parámetro de versión (?v=X)
+ * sea respetado por el celular y rompa el caché.
+ */
+function getDriveDirectLink(url: string, version: string = "1") {
   if (!url || !url.includes("drive.google.com")) return url;
+  
+  // Extraemos el ID del archivo de Drive
   const match = url.match(/\/d\/(.+?)(?:\/|$)|\/file\/d\/(.+?)\/|id=(.+?)(?:&|$)/);
   const fileId = match ? (match[1] || match[2] || match[3]) : null;
+  
   if (!fileId) return url;
-  return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+
+  // 🚀 Usamos el formato directo de servidor de imágenes de Google
+  // s1000 = tamaño máximo 1000px. Agregamos la versión al final.
+  return `https://lh3.googleusercontent.com/d/${fileId}=s1000?v=${version}`;
 }
 
 export async function getProductsFromSheets() {
   try {
     const range = "'Carga de productos'!A2:O"; 
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: CLIENT_ID, 
-      range,
-    });
-
+    const response = await sheets.spreadsheets.values.get({ spreadsheetId: CLIENT_ID, range });
     const rows = response.data.values;
     if (!rows) return [];
 
@@ -43,17 +50,18 @@ export async function getProductsFromSheets() {
         const catSlug = slugify(catRaw.replace('*', ''));
         const esAccesorio = catRaw.startsWith('*') || ACCESORIOS_EXISTENTES.includes(catSlug);
         
-        const principal = getDriveDirectLink(row[5] || "");
+        // Para productos usamos versión fija por ahora o podrías agregar otra columna
+        const principal = getDriveDirectLink(row[5] || "", "1");
         const extras = [row[10], row[11], row[12], row[13], row[14]]
           .filter(url => url && url.includes("drive.google.com"))
-          .map(url => getDriveDirectLink(url));
+          .map(url => getDriveDirectLink(url, "1"));
 
         return {
           id: row[1]?.toString() || "",
           nombre: row[2]?.toString() || "",
           precio: Math.round(precioTransfer / 0.8),
           precioTransfer: precioTransfer,
-          descripcion: row[4] || "", // 👈 CAMPO CLAVE: descripcion
+          descripcion: row[4] || "",
           imagen: principal,
           galeria: [principal, ...extras],
           categoria: catRaw.replace('*', '').trim(),
@@ -70,6 +78,35 @@ export async function getProductsFromSheets() {
   }
 }
 
+/**
+ * 🚩 BANNERS: Implementación de Cache Busting Real
+ */
+export async function getBannersFromSheets() {
+  try {
+    const range = "'Baners Publicidad'!A2:E"; 
+    const response = await sheets.spreadsheets.values.get({ spreadsheetId: MASTER_ID, range });
+    const rows = response.data.values;
+    if (!rows) return [];
+
+    return rows
+      .filter((row: any) => row[0] && SOCIOS_AUTORIZADOS.includes(row[0].trim().toLowerCase()))
+      .map((row: any) => {
+        const urlOriginal = row[1] || "";
+        const version = row[4] || "1"; // Columna E (Version)
+        
+        return {
+          // 🚀 Le pasamos la versión al generador de link directo
+          imagen: getDriveDirectLink(urlOriginal, version),
+          ubicacion: row[2]?.toString().toLowerCase().trim() || "",
+          linkDestino: row[3] || null
+        };
+      });
+  } catch (error: any) { 
+    console.error("❌ Error en getBannersFromSheets:", error.message);
+    return []; 
+  }
+}
+
 export async function getCategoriesFromSheets() {
   const products = await getProductsFromSheets();
   const uniqueMap = new Map();
@@ -79,20 +116,6 @@ export async function getCategoriesFromSheets() {
     }
   });
   return Array.from(uniqueMap.values());
-}
-
-export async function getBannersFromSheets() {
-  try {
-    const range = "'Baners Publicidad'!A2:D"; 
-    const response = await sheets.spreadsheets.values.get({ spreadsheetId: MASTER_ID, range });
-    const rows = response.data.values;
-    if (!rows) return [];
-    return rows.filter((row: any) => row[0] && SOCIOS_AUTORIZADOS.includes(row[0].trim().toLowerCase())).map((row: any) => ({
-      imagen: getDriveDirectLink(row[1] || ""),
-      ubicacion: row[2]?.toString().toLowerCase().trim() || "",
-      linkDestino: row[3] || null
-    }));
-  } catch (error: any) { return []; }
 }
 
 export async function savePaymentToMaster(paymentData: any[]) {
