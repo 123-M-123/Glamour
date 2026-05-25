@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCartStore } from '../../store/useCartStore';
 import { CreditCard, Lock, ShieldCheck, Loader2 } from 'lucide-react';
 
@@ -12,15 +12,13 @@ const K = {
   muted: '#9A9690' 
 };
 
+// ✅ URL local para el SDK alojado en /public/decidir-sdk.js
 const SDK_URL = '/decidir-sdk.js';
-const DECIDIR_URL_SANDBOX = 'https://developers.decidir.com/api/v2';
 
 export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number, onPagoExitoso: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sdkReady, setSdkReady] = useState(false);
-  
-  const hiddenFormRef = useRef<HTMLFormElement>(null);
   
   const customerData = useCartStore((state) => state.customerData);
   const items = useCartStore((state) => state.items);
@@ -34,29 +32,32 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
   });
 
   useEffect(() => {
-    // Diagnóstico de Clave (Verificar en consola del navegador)
+    // 🛠️ LOG DE DIAGNÓSTICO PARA VERCEL
     const pk = process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY;
-    console.log("🛠️ Diagnóstico Payway - Clave detectada:", pk ? `${pk.substring(0,5)}...` : "❌ NO DETECTADA");
+    console.log("🛠️ Diagnóstico Payway - Public Key Detectada:", pk ? `${pk.substring(0,6)}...` : "❌ NO DETECTADA");
 
     const scriptId = 'decidir-js-sdk-local';
+    
     const initSDK = () => {
       // @ts-ignore
       if (window.Decidir) {
-        console.log("✅ SDK Payway listo");
+        console.log("✅ SDK Payway cargado y disponible en window.Decidir");
         setSdkReady(true);
       }
     };
 
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script');
-      script.src = SDK_URL;
-      script.id = scriptId;
-      script.async = true;
-      script.onload = initSDK;
-      document.body.appendChild(script);
-    } else {
+    if (document.getElementById(scriptId)) {
       initSDK();
+      return;
     }
+
+    const script = document.createElement('script');
+    script.src = SDK_URL;
+    script.id = scriptId;
+    script.async = true;
+    script.onload = initSDK;
+    script.onerror = () => setError("Error de red cargando el archivo de la pasarela.");
+    document.body.appendChild(script);
   }, []);
 
   const handleCardNumber = (e: any) => {
@@ -73,37 +74,55 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const pk = process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY;
     
-    if (!sdkReady || !pk) {
-      setError("Error de configuración o carga. Por favor, redeployá el proyecto en Vercel.");
-      return;
+    if (!sdkReady) { 
+      setError("La pasarela aún no está lista. Aguardá un segundo."); 
+      return; 
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      // ✅ Inicialización limpia
-      // @ts-ignore
-      const decidir = new window.Decidir(DECIDIR_URL_SANDBOX);
-      decidir.setPublishableKey(pk);
+      const parts = formData.expiry.split('/');
+      if (parts.length !== 2) throw new Error("Fecha MM/AA requerida");
 
-      console.log("🚀 Iniciando cobro de prueba...");
-
-      // ✅ Usamos el formulario oculto (el SDK leerá los data-decidir)
+      // ✅ CORRECTO: Instanciación según documentación de soporte Prisma
       // @ts-ignore
-      decidir.createToken(hiddenFormRef.current, async (status: number, response: any) => {
-        
+      const decidir = window.Decidir(
+        'https://developers.decidir.com/api/v2',
+        true // true = entorno de sandbox
+      );
+
+      const publicKey = process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY;
+      if (!publicKey) throw new Error("API Key pública no configurada en Vercel.");
+
+      // ✅ Seteamos la clave en la instancia
+      decidir.setPublishableKey(publicKey);
+
+      const cardData = {
+        card_number: formData.cardNumber.replace(/\s/g, ''),
+        card_holder_name: formData.cardName,
+        card_expiration_month: parts[0],
+        card_expiration_year: `20${parts[1].slice(-2)}`, // Asegura formato YYYY
+        security_code: formData.cvv,
+        card_holder_doc_type: 'dni',
+        card_holder_doc_number: formData.dni,
+      };
+
+      console.log("🚀 Solicitando token con datos:", { ...cardData, card_number: '****' });
+
+      decidir.createToken(cardData, async (status: number, response: any) => {
+        console.log('📡 Decidir Respuesta - Status:', status, 'Response:', response);
+
         if (status !== 200 && status !== 201) {
-          console.error("❌ Error retornado por Decidir:", status, response);
           setLoading(false);
-          const detail = response.error?.[0]?.description || "Error en los datos bancarios.";
-          setError(`${detail} (Cod: ${status})`);
+          const msg = response?.error?.[0]?.description || `Error en los datos bancarios. (Cod: ${status})`;
+          setError(msg);
           return;
         }
 
-        console.log("✅ Token generado:", response.id);
+        console.log("✅ Token obtenido exitosamente:", response.id);
 
         const res = await fetch('/api/process-payment', {
           method: 'POST',
@@ -113,61 +132,93 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
             monto: precio,
             customer: customerData,
             items: items,
-            paymentDetail: { 
-              token: response.id, 
-              lastFour: formData.cardNumber.replace(/\s/g, '').slice(-4) 
+            paymentDetail: {
+              token: response.id,
+              lastFour: formData.cardNumber.replace(/\s/g, '').slice(-4)
             }
           })
         });
 
-        const data = await res.json();
-        if (res.ok) onPagoExitoso();
-        else {
+        if (res.ok) {
+          onPagoExitoso();
+        } else {
+          const errData = await res.json();
           setLoading(false);
-          setError(data.error || "Pago rechazado.");
+          setError(errData.error || 'La tarjeta fue rechazada.');
         }
       });
 
-    } catch (err) {
+    } catch (err: any) {
+      console.error("🔥 Error en handleSubmit:", err.message);
       setLoading(false);
-      setError("Error al conectar con la pasarela.");
+      setError(err.message || 'Error al validar el formulario.');
     }
-  };
-
-  // Formateo de año para el formulario oculto (Aseguramos 4 dígitos para evitar el 422)
-  const getYear = () => {
-    const y = formData.expiry.split('/')[1];
-    if (!y) return "";
-    return y.length === 2 ? `20${y}` : y;
   };
 
   return (
     <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
       
-      {/* 🛡️ FORMULARIO OCULTO - CRÍTICO PARA EL SDK */}
-      <form ref={hiddenFormRef} style={{ display: 'none' }}>
-        <input data-decidir="card_number" defaultValue={formData.cardNumber.replace(/\s/g, '')} />
-        <input data-decidir="card_holder_name" defaultValue={formData.cardName} />
-        <input data-decidir="card_expiration_month" defaultValue={formData.expiry.split('/')[0]} />
-        <input data-decidir="card_expiration_year" defaultValue={getYear()} />
-        <input data-decidir="security_code" defaultValue={formData.cvv} />
-        <input data-decidir="card_holder_doc_type" defaultValue="dni" />
-        <input data-decidir="card_holder_doc_number" defaultValue={formData.dni} />
-      </form>
-
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem', justifyContent: 'center' }}>
         <img src="/ico-ui/payway-2.png" alt="Payway" style={{ height: 25 }} />
         <span style={{ fontSize: '0.9rem', fontWeight: 700, color: K.text }}>Pago Bancario Seguro</span>
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <input required type="text" placeholder="Número de tarjeta" value={formData.cardNumber} onChange={handleCardNumber} style={inputStyle} />
-        <input required type="text" placeholder="Nombre en la tarjeta" value={formData.cardName} onChange={(e) => setFormData({ ...formData, cardName: e.target.value.toUpperCase() })} style={inputStyle} />
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input required type="text" placeholder="MM/AA" value={formData.expiry} onChange={handleExpiry} style={{ ...inputStyle, flex: 1 }} />
-          <input required type="password" placeholder="CVV" maxLength={4} value={formData.cvv} onChange={(e) => setFormData({ ...formData, cvv: e.target.value.replace(/\D/g, '') })} style={{ ...inputStyle, flex: 1 }} />
+        
+        <div style={{ position: 'relative' }}>
+          <input 
+            required 
+            id="user_card_number"
+            type="text" 
+            placeholder="Número de tarjeta" 
+            value={formData.cardNumber} 
+            onChange={handleCardNumber} 
+            style={inputStyle} 
+          />
+          <CreditCard size={18} style={{ position: 'absolute', right: 15, top: '50%', transform: 'translateY(-50%)', color: K.muted }} />
         </div>
-        <input required type="text" placeholder="DNI del Titular" value={formData.dni} onChange={(e) => setFormData({ ...formData, dni: e.target.value.replace(/\D/g, '') })} style={inputStyle} />
+
+        <input 
+          required 
+          id="user_card_name"
+          type="text" 
+          placeholder="Nombre en la tarjeta" 
+          value={formData.cardName} 
+          onChange={(e) => setFormData({ ...formData, cardName: e.target.value.toUpperCase() })} 
+          style={inputStyle} 
+        />
+
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <input 
+            required 
+            id="user_card_expiry"
+            type="text" 
+            placeholder="MM/AA" 
+            value={formData.expiry} 
+            onChange={handleExpiry} 
+            style={{ ...inputStyle, flex: 1 }} 
+          />
+          <input 
+            required 
+            id="user_card_cvv"
+            type="password" 
+            placeholder="CVV" 
+            maxLength={4} 
+            value={formData.cvv} 
+            onChange={(e) => setFormData({ ...formData, cvv: e.target.value.replace(/\D/g, '') })} 
+            style={{ ...inputStyle, flex: 1 }} 
+          />
+        </div>
+
+        <input 
+          required 
+          id="user_card_dni"
+          type="text" 
+          placeholder="DNI del Titular" 
+          value={formData.dni} 
+          onChange={(e) => setFormData({ ...formData, dni: e.target.value.replace(/\D/g, '') })} 
+          style={inputStyle} 
+        />
 
         {error && (
           <p style={{ color: K.accent, fontSize: '0.8rem', fontWeight: 600, textAlign: 'center', background: '#FFF0F1', padding: '10px', borderRadius: '10px', border: `1px solid ${K.border}` }}>
@@ -178,14 +229,44 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         <button 
           type="submit" 
           disabled={loading}
-          style={{ width: '100%', padding: '1.2rem', borderRadius: 50, background: loading ? K.muted : K.accent, color: 'white', fontWeight: 900, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
+          style={{ 
+            width: '100%', 
+            padding: '1.2rem', 
+            borderRadius: 50, 
+            background: loading ? K.muted : K.accent, 
+            color: 'white', 
+            fontWeight: 900, 
+            border: 'none', 
+            cursor: loading ? 'not-allowed' : 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            gap: '10px',
+            fontSize: '1rem'
+          }}
         >
           {loading ? <Loader2 className="animate-spin" /> : <Lock size={18} />}
           {loading ? 'PROCESANDO...' : `PAGAR $${new Intl.NumberFormat('es-AR').format(precio)}`}
         </button>
+
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+          <ShieldCheck size={16} color="#22c55e" />
+          <span style={{ fontSize: '0.7rem', color: K.muted, fontWeight: 600 }}>Protección Bancaria de 256 bits</span>
+        </div>
+
       </form>
     </div>
   );
 }
 
-const inputStyle = { width: '100%', padding: '1rem', borderRadius: '12px', border: `1.5px solid ${K.border}`, background: K.bg, outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: K.text };
+const inputStyle = { 
+  width: '100%', 
+  padding: '1rem', 
+  borderRadius: '12px', 
+  border: `1.5px solid ${K.border}`, 
+  background: K.bg, 
+  outline: 'none', 
+  fontSize: '0.95rem', 
+  fontWeight: 600, 
+  color: K.text 
+};
