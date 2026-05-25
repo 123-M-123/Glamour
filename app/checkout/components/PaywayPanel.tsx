@@ -12,10 +12,10 @@ const K = {
   muted: '#9A9690' 
 };
 
-// ✅ URL local para evitar errores de DNS
+// ✅ URL local para el SDK alojado en /public
 const SDK_URL = '/decidir-sdk.js';
 
-// ✅ URL correcta para sandbox de Decidir
+// ✅ Endpoint para Sandbox (Pruebas)
 const DECIDIR_URL_SANDBOX = 'https://developers.decidir.com/api/v2';
 
 export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number, onPagoExitoso: () => void }) {
@@ -23,7 +23,6 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
   const [error, setError] = useState<string | null>(null);
   const [sdkReady, setSdkReady] = useState(false);
   
-  // Referencia al formulario oculto para el SDK
   const hiddenFormRef = useRef<HTMLFormElement>(null);
   
   const customerData = useCartStore((state) => state.customerData);
@@ -39,20 +38,26 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
 
   useEffect(() => {
     const scriptId = 'decidir-js-sdk-local';
-    if (document.getElementById(scriptId)) {
+    
+    const initSDK = () => {
+      // @ts-ignore
+      if (window.Decidir) {
+        console.log("✅ SDK Payway listo para operar");
         setSdkReady(true);
-        return;
+      }
+    };
+
+    if (document.getElementById(scriptId)) {
+      initSDK();
+      return;
     }
 
     const script = document.createElement('script');
     script.src = SDK_URL;
     script.id = scriptId;
     script.async = true;
-    script.onload = () => {
-      console.log("✅ SDK Payway cargado correctamente");
-      setSdkReady(true);
-    };
-    script.onerror = () => setError("Error cargando pasarela.");
+    script.onload = initSDK;
+    script.onerror = () => setError("Error cargando pasarela bancaria.");
     document.body.appendChild(script);
   }, []);
 
@@ -70,31 +75,44 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!sdkReady) return;
+    
+    // Verificación de seguridad de la API KEY
+    const publicKey = process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY;
+    if (!publicKey) {
+      setError("Error de configuración: API Key no encontrada.");
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
-      const parts = formData.expiry.split('/');
-      
-      // ✅ Instanciamos el SDK
+      // ✅ Instanciamos el SDK con el endpoint de Sandbox
       // @ts-ignore
       const decidir = new window.Decidir(DECIDIR_URL_SANDBOX);
-      decidir.setPublishableKey(process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY);
+      
+      // ✅ Seteamos la clave justo antes de crear el token
+      decidir.setPublishableKey(publicKey);
+      decidir.setTimeout(15000); // 15 segundos de timeout para redes lentas
 
-      // ✅ Usamos el formulario oculto para evitar el error "querySelectorAll"
-      // El SDK leerá los campos por los atributos data-decidir
+      console.log("🚀 Solicitando token a Decidir...");
+
+      // ✅ Usamos el formulario oculto para evitar el error de querySelectorAll
       // @ts-ignore
       decidir.createToken(hiddenFormRef.current, async (status: number, response: any) => {
+        
         if (status !== 200 && status !== 201) {
-          console.error("❌ Error SDK:", response);
+          console.error("❌ Error de Decidir:", status, response);
           setLoading(false);
-          setError(response.error?.[0]?.description || 'Datos de tarjeta inválidos.');
+          // Si el error es 401, el problema es la Public Key
+          const msg = status === 401 
+            ? "Error de autenticación bancaria (API Key)." 
+            : (response.error?.[0]?.description || 'Datos de tarjeta inválidos.');
+          setError(msg);
           return;
         }
 
-        console.log("✅ Token obtenido:", response.id);
+        console.log("✅ Token recibido exitosamente:", response.id);
 
         const res = await fetch('/api/process-payment', {
           method: 'POST',
@@ -106,31 +124,33 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
             items: items,
             paymentDetail: { 
               token: response.id, 
-              lastFour: formData.cardNumber.slice(-4) 
+              lastFour: formData.cardNumber.replace(/\s/g, '').slice(-4) 
             }
           })
         });
 
-        if (res.ok) {
+        const paymentResult = await res.json();
+
+        if (res.ok && paymentResult.status === 'approved') {
           onPagoExitoso();
         } else {
-          const errData = await res.json();
           setLoading(false);
-          setError(errData.error || 'Pago rechazado.');
+          setError(paymentResult.error || 'La tarjeta fue rechazada por el banco.');
         }
       });
 
     } catch (err: any) {
+      console.error("🔥 Error crítico en el submit:", err);
       setLoading(false);
-      setError("Error al procesar el formulario.");
+      setError("Error interno al procesar el pago.");
     }
   };
 
   return (
     <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
       
-      {/* 🛡️ FORMULARIO OCULTO (Para que el SDK no crashee) */}
-      <form ref={hiddenFormRef} style={{ display: 'none' }}>
+      {/* 🛡️ FORMULARIO OCULTO (OBLIGATORIO PARA EL SDK) */}
+      <form ref={hiddenFormRef} style={{ display: 'none' }} aria-hidden="true">
         <input data-decidir="card_number" defaultValue={formData.cardNumber.replace(/\s/g, '')} />
         <input data-decidir="card_holder_name" defaultValue={formData.cardName} />
         <input data-decidir="card_expiration_month" defaultValue={formData.expiry.split('/')[0]} />
@@ -150,6 +170,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         <div style={{ position: 'relative' }}>
           <input 
             required 
+            id="user_card_number"
             type="text" 
             placeholder="Número de tarjeta" 
             value={formData.cardNumber} 
@@ -161,6 +182,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
 
         <input 
           required 
+          id="user_card_name"
           type="text" 
           placeholder="Nombre en la tarjeta" 
           value={formData.cardName} 
@@ -171,6 +193,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         <div style={{ display: 'flex', gap: '10px' }}>
           <input 
             required 
+            id="user_card_expiry"
             type="text" 
             placeholder="MM/AA" 
             value={formData.expiry} 
@@ -179,6 +202,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
           />
           <input 
             required 
+            id="user_card_cvv"
             type="password" 
             placeholder="CVV" 
             maxLength={4} 
@@ -190,6 +214,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
 
         <input 
           required 
+          id="user_card_dni"
           type="text" 
           placeholder="DNI del Titular" 
           value={formData.dni} 
@@ -198,14 +223,14 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         />
 
         {error && (
-          <p style={{ color: K.accent, fontSize: '0.8rem', fontWeight: 600, textAlign: 'center', background: '#FFF0F1', padding: '10px', borderRadius: '10px' }}>
+          <p style={{ color: K.accent, fontSize: '0.8rem', fontWeight: 600, textAlign: 'center', background: '#FFF0F1', padding: '10px', borderRadius: '10px', border: `1px solid ${K.border}` }}>
             ✕ {error}
           </p>
         )}
 
         <button 
           type="submit" 
-          disabled={loading}
+          disabled={loading || !sdkReady}
           style={{ 
             width: '100%', 
             padding: '1.2rem', 
