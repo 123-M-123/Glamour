@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useCartStore } from '../../store/useCartStore';
 import { CreditCard, Lock, ShieldCheck, Loader2 } from 'lucide-react';
 import Script from 'next/script';
@@ -15,7 +15,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
   const items = useCartStore((state) => state.items);
 
   const [formData, setFormData] = useState({
-    cardNumber: '', cardName: '', expiry: '', cvv: '', dni: '', email: 'cliente@tienda.com'
+    cardNumber: '', cardName: '', expiry: '', cvv: '', dni: ''
   });
 
   const handleCardNumber = (e: any) => {
@@ -42,19 +42,19 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         card_number: formData.cardNumber.replace(/\s/g, ''),
         card_holder_name: formData.cardName,
         card_expiration_month: month,
-        card_expiration_year: year,
+        card_expiration_year: year.length === 2 ? `20${year}` : year,
         security_code: formData.cvv,
         card_holder_doc_type: 'dni',
         card_holder_doc_number: formData.dni
       };
 
-      // @ts-ignore (Decidir SDK)
+      // @ts-ignore
       window.Decidir.setPublishableKey(process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY);
       // @ts-ignore
       window.Decidir.createToken(cardData, async (status: number, response: any) => {
         if (status !== 200 && status !== 201) {
           setLoading(false);
-          setError('Datos de tarjeta inválidos. Verifique y reintente.');
+          setError('Tarjeta rechazada por la pasarela (Error Decidir).');
           return;
         }
 
@@ -78,14 +78,14 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
       });
     } catch (err) {
       setLoading(false);
-      setError('Error de conexión con la pasarela.');
+      setError('Error de conexión.');
     }
   };
 
   return (
     <>
       <Script 
-        src="https://libs.decidir.com/sdk/v2/index.js" 
+        src="https://live.decidir.com/static/v2/index.js" 
         onLoad={() => setSdkReady(true)} 
       />
       
@@ -96,7 +96,10 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <input required type="text" placeholder="Número de tarjeta" value={formData.cardNumber} onChange={handleCardNumber} style={inputStyle} />
+          <div style={{position:'relative'}}>
+             <input required type="text" placeholder="Número de tarjeta" value={formData.cardNumber} onChange={handleCardNumber} style={inputStyle} />
+             <CreditCard size={18} style={{position:'absolute', right:15, top:'50%', transform:'translateY(-50%)', color:K.muted}} />
+          </div>
           <input required type="text" placeholder="Nombre en la tarjeta" value={formData.cardName} onChange={(e) => setFormData({ ...formData, cardName: e.target.value.toUpperCase() })} style={inputStyle} />
           <div style={{ display: 'flex', gap: '10px' }}>
             <input required type="text" placeholder="MM/AA" value={formData.expiry} onChange={handleExpiry} style={{ ...inputStyle, flex: 1 }} />

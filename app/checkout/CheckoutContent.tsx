@@ -14,9 +14,10 @@ const VENDEDOR_EMAIL = "tiendadtiendas@gmail.com";
 const OPCIONES = [
   { id: 'alias', label: 'Transferencia', sub: '20% OFF directo', icon: '/ico-ui/alias.png' },
   { id: 'qr', label: 'QR Bancario', sub: 'MODO o bancos', icon: '/ico-ui/qr.png' },
-  { id: 'tarjeta', label: 'Tarjeta (MP)', sub: 'Crédito o Rapipago', icon: '/ico-ui/tarjeta.png' },
-  { id: 'payway', label: 'Tarjeta Bancaria', sub: 'Débito o Crédito', icon: '/ico-ui/payway.png' },
+  { id: 'tarjeta', label: 'Tarjeta / Efectivo', sub: 'Crédito o Rapipago', icon: '/ico-ui/tarjeta.png' },
   { id: 'mp', label: 'Cuenta MP', sub: 'Saldo o tarjetas MP', icon: '/ico-ui/mp.png' },
+  { id: 'payway', label: 'Tarjeta Bancaria', sub: 'Débito o Crédito', icon: '/ico-ui/payway.png' },
+  { id: 'otros', label: 'Otros métodos', sub: 'Payway y globales', icon: '/ico-ui/otros.png' },
 ] as const;
 
 export default function CheckoutContent() {
@@ -31,7 +32,6 @@ export default function CheckoutContent() {
   const total = cart.reduce((acc: number, item: any) => acc + item.producto.precioTransfer * item.cantidad + item.envio, 0);
   const precioLista = Math.round(total / 0.8);
   const ahorro = precioLista - total;
-  
   const precioFinal = metodo === 'alias' ? total : metodo === 'qr' ? total * 1.10 : total * 1.25;
   const montoFormateado = new Intl.NumberFormat('es-AR').format(Math.round(precioFinal));
   
@@ -39,7 +39,7 @@ export default function CheckoutContent() {
 
   const handleSelectMetodo = (id: string) => {
     setMetodo(id);
-    if (id !== 'alias' && !tieneDatos) {
+    if (id !== 'alias' && id !== 'otros' && !tieneDatos) {
       setShowModal(true);
     }
   };
@@ -49,7 +49,7 @@ export default function CheckoutContent() {
       <div style={{ maxWidth: 450, background: 'white', padding: '3rem', borderRadius: 30, textAlign: 'center', border: `2px solid ${K.accent}` }}>
         <CheckCircle2 size={80} color={K.accent} style={{ marginBottom: '20px' }} />
         <h1 style={{ fontWeight: 900 }}>¡PEDIDO RECIBIDO!</h1>
-        <button onClick={() => window.location.href = '/'} style={{ width: '100%', padding: '1rem', borderRadius: 50, background: K.accent, color: 'white', border: 'none', cursor: 'pointer', marginTop: '20px', fontWeight: 800 }}>VOLVER AL INICIO</button>
+        <button onClick={() => window.location.href = '/'} style={{ width: '100%', padding: '1rem', borderRadius: 50, background: K.accent, color: 'white', border: 'none', cursor: 'pointer', marginTop: '20px' }}>VOLVER AL INICIO</button>
       </div>
     </div>
   );
@@ -80,15 +80,16 @@ export default function CheckoutContent() {
           ))}
         </div>
 
-        {/* Banner Informativo */}
+        {/* Banner Informativo Original */}
         <div style={{ background: '#FFF0F1', padding: '1.1rem', borderRadius: 15, marginBottom: '1.5rem', display: 'flex', gap: '15px', alignItems: 'center', border: `1px solid ${K.border}` }}>
           <img src={OPCIONES.find(o => o.id === metodo)?.icon} style={{ width: 34, height: 34, objectFit: 'contain' }} alt="icon" />
           <p style={{ margin: 0, fontSize: '0.88rem', fontWeight: 700, color: '#333', lineHeight: 1.4 }}>
              {metodo === 'alias' && 'TRANSFERENCIA: 20% OFF aplicado. Transferí y subí el comprobante.'}
-             {metodo === 'qr' && 'QR BANCARIO: 10% OFF aplicado. Pagá con MODO o tu Banco.'}
-             {metodo === 'tarjeta' && 'MERCADO PAGO: Pagá en cuotas con tarjeta o Rapipago.'}
-             {metodo === 'payway' && 'TARJETA BANCARIA: Pagá con débito o crédito vía Payway.'}
-             {metodo === 'mp' && 'CUENTA MP: Usá tu saldo o tarjetas guardadas en Mercado Pago.'}
+             {metodo === 'qr' && 'QR BANCARIO: 10% OFF aplicado. Pagá con MODO, Ualá o tu Banco.'}
+             {metodo === 'tarjeta' && 'TARJETAS: Pagá en cuotas de forma segura vía Mercado Pago.'}
+             {metodo === 'mp' && 'CUENTA MERCADO PAGO: Usá tu saldo o tarjetas guardadas.'}
+             {metodo === 'payway' && 'TARJETA BANCARIA: Pagá con débito o crédito mediante Payway.'}
+             {metodo === 'otros' && 'OTROS MÉTODOS: Payway y globales.'}
           </p>
         </div>
 
@@ -103,17 +104,39 @@ export default function CheckoutContent() {
              : <DataPrompt onClick={()=>setShowModal(true)} />
           )}
 
-          {/* RESTAURADO: Mercado Pago Bricks */}
           {(metodo === 'tarjeta' || metodo === 'mp') && (tieneDatos ? 
              <BrickPanel metodo={metodo} precio={precioFinal} vendedorEmail={VENDEDOR_EMAIL} onPagoAprobado={() => setCompletado(true)} />
              : <DataPrompt onClick={()=>setShowModal(true)} />
           )}
 
-          {/* NUEVO: Payway */}
           {metodo === 'payway' && (tieneDatos ? 
              <PaywayPanel precio={precioFinal} onPagoExitoso={() => setCompletado(true)} />
              : <DataPrompt onClick={()=>setShowModal(true)} />
           )}
+
+          {metodo === 'otros' && (
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              {[
+                { n: 'Payway', i: 'payway' }, { n: 'Apple Pay', i: 'a-pay' }, { n: 'Google Pay', i: 'g-pay' },
+                { n: 'PayPal', i: 'paypal' }, { n: 'Cripto', i: 'cripto' }, { n: 'Stripe', i: 'stripe' },
+              ].map(p => (
+                <div key={p.n} style={{ flex: '1 1 120px', maxWidth: '160px', padding: '1.2rem 0.5rem', borderRadius: 16, border: `1.5px solid ${K.border}`, textAlign: 'center', background: '#fdfdfd' }}>
+                  <img src={`/ico-ui/${p.i}.png`} alt={p.n} style={{ width: 35, height: 35, objectFit: 'contain', marginBottom: '0.6rem', display: 'inline-block' }} />
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: K.text }}>{p.n}</div>
+                  <div style={{ fontSize: '0.6rem', color: '#999' }}>Próximamente</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Botón WhatsApp Original */}
+        <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+          <a href={`https://wa.me/5491167914366?text=Link Payway $${montoFormateado}`} target="_blank" style={{ display: 'inline-flex', alignItems: 'center', gap: '15px', background: '#FF0000', color: 'white', padding: '0.8rem 2rem', borderRadius: 50, textDecoration: 'none', fontWeight: 800, fontSize: '1rem', boxShadow: '0 10px 25px rgba(255,0,0,0.2)' }}>
+            <img src="/ico-ui/payway-2.png" alt="Payway" style={{ height: '36px' }} />
+            <span>Solicitar Link Payway</span>
+            <img src="/icons/whats.png" alt="WhatsApp" style={{ height: '40px' }} />
+          </a>
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
@@ -123,7 +146,6 @@ export default function CheckoutContent() {
         </div>
       </div>
 
-      {/* Modal Interceptor */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, padding: '20px', backdropFilter: 'blur(4px)' }}>
           <div style={{ background: 'white', width: '100%', maxWidth: '400px', borderRadius: '24px', padding: '2.5rem', border: `2px solid ${K.accent}`, position: 'relative' }}>
