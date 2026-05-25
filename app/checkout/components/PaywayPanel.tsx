@@ -1,22 +1,62 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCartStore } from '../../store/useCartStore';
 import { CreditCard, Lock, ShieldCheck, Loader2 } from 'lucide-react';
-import Script from 'next/script';
 
-const K = { bg: '#FFF8F8', border: '#FFC9CB', accent: '#FF0000', text: '#1C1B19', muted: '#9A9690' };
+const K = { 
+  bg: '#FFF8F8', 
+  border: '#FFC9CB', 
+  accent: '#FF0000', 
+  text: '#1C1B19', 
+  muted: '#9A9690' 
+};
 
 export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number, onPagoExitoso: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sdkReady, setSdkReady] = useState(false);
+  
   const customerData = useCartStore((state) => state.customerData);
   const items = useCartStore((state) => state.items);
 
   const [formData, setFormData] = useState({
-    cardNumber: '', cardName: '', expiry: '', cvv: '', dni: ''
+    cardNumber: '', 
+    cardName: '', 
+    expiry: '', 
+    cvv: '', 
+    dni: ''
   });
+
+  // --- CARGA MANUAL DEL SDK ---
+  useEffect(() => {
+    const scriptId = 'decidir-sdk';
+    const existingScript = document.getElementById(scriptId);
+
+    const initializeDecidir = () => {
+      // @ts-ignore
+      if (window.Decidir) {
+        console.log("✅ SDK Payway (Decidir) detectado y listo");
+        setSdkReady(true);
+      }
+    };
+
+    if (!existingScript) {
+      const script = document.createElement('script');
+      // URL OFICIAL DE DECIDIR V2
+      script.src = "https://live.decidir.com/static/v2/index.js";
+      script.id = scriptId;
+      script.async = true;
+      script.onload = initializeDecidir;
+      script.onerror = () => {
+        console.error("❌ Error de red cargando el SDK de Decidir");
+        setError("Error de conexión con Payway. Verificá tu internet.");
+      };
+      document.body.appendChild(script);
+    } else {
+      initializeDecidir();
+    }
+  }, []);
 
   const handleCardNumber = (e: any) => {
     let v = e.target.value.replace(/\D/g, '').substring(0, 16);
@@ -32,17 +72,27 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!sdkReady) {
-      setError("Cargando pasarela de pago... Reintentá en 2 segundos.");
+      setError("La pasarela aún se está cargando. Esperá un momento.");
       return;
     }
+
     setLoading(true);
     setError(null);
 
     try {
       const expiryParts = formData.expiry.split('/');
-      if (expiryParts.length !== 2) throw new Error("Formato de fecha inválido (MM/AA)");
+      if (expiryParts.length !== 2) {
+        throw new Error("La fecha debe ser MM/AA");
+      }
 
+      // @ts-ignore
+      const decidir = window.Decidir;
+      
+      // Seteamos la Key Pública desde el .env
+      decidir.setPublishableKey(process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY);
+      
       const cardData = {
         card_number: formData.cardNumber.replace(/\s/g, ''),
         card_holder_name: formData.cardName,
@@ -53,15 +103,17 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         card_holder_doc_number: formData.dni
       };
 
-      // @ts-ignore
-      const decidir = window.Decidir;
-      decidir.setPublishableKey(process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY);
+      console.log("🚀 Enviando datos a Payway para tokenizar...");
+
       decidir.createToken(cardData, async (status: number, response: any) => {
         if (status !== 200 && status !== 201) {
+          console.error("❌ Error de Payway:", response);
           setLoading(false);
           setError(response.error?.[0]?.description || 'Datos de tarjeta inválidos.');
           return;
         }
+
+        console.log("✅ Token recibido:", response.id);
 
         const res = await fetch('/api/process-payment', {
           method: 'POST',
@@ -71,17 +123,22 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
             monto: precio,
             customer: customerData,
             items: items,
-            paymentDetail: { token: response.id, lastFour: formData.cardNumber.slice(-4) }
+            paymentDetail: { 
+              token: response.id, 
+              lastFour: formData.cardNumber.slice(-4) 
+            }
           })
         });
 
-        if (res.ok) onPagoExitoso();
-        else {
-          setLoading(false);
+        if (res.ok) {
+          onPagoExitoso();
+        } else {
           const errData = await res.json();
-          setError(errData.error || 'Pago rechazado por el banco.');
+          setLoading(false);
+          setError(errData.error || 'El banco rechazó la operación.');
         }
       });
+
     } catch (err: any) {
       setLoading(false);
       setError(err.message || 'Error en el formulario.');
@@ -89,54 +146,120 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
   };
 
   return (
-    <>
-      <Script 
-        src="https://live.decidir.com/static/v2/index.js" 
-        strategy="afterInteractive"
-        onLoad={() => {
-          console.log("✅ SDK Payway Cargado");
-          setSdkReady(true);
-        }}
-        onError={() => setError("Error cargando el SDK de Payway. Revisá tu conexión.")}
-      />
-      
-      <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem', justifyContent: 'center' }}>
-          <img src="/ico-ui/payway-2.png" alt="Payway" style={{ height: 25 }} />
-          <span style={{ fontSize: '0.9rem', fontWeight: 700, color: K.text }}>Pago Bancario Seguro</span>
+    <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem', justifyContent: 'center' }}>
+        <img src="/ico-ui/payway-2.png" alt="Payway" style={{ height: 25 }} />
+        <span style={{ fontSize: '0.9rem', fontWeight: 700, color: K.text }}>Pago Bancario Seguro</span>
+      </div>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        
+        <div style={{ position: 'relative' }}>
+          <input 
+            required 
+            id="payway_card"
+            name="payway_card"
+            type="text" 
+            placeholder="Número de tarjeta" 
+            value={formData.cardNumber} 
+            onChange={handleCardNumber} 
+            style={inputStyle} 
+          />
+          <CreditCard size={18} style={{ position: 'absolute', right: 15, top: '50%', transform: 'translateY(-50%)', color: K.muted }} />
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{position:'relative'}}>
-             <input required id="card_number" name="card_number" type="text" placeholder="Número de tarjeta" value={formData.cardNumber} onChange={handleCardNumber} style={inputStyle} />
-             <CreditCard size={18} style={{position:'absolute', right:15, top:'50%', transform:'translateY(-50%)', color:K.muted}} />
-          </div>
-          <input required id="card_name" name="card_name" type="text" placeholder="Nombre en la tarjeta" value={formData.cardName} onChange={(e) => setFormData({ ...formData, cardName: e.target.value.toUpperCase() })} style={inputStyle} />
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <input required id="expiry" name="expiry" type="text" placeholder="MM/AA" value={formData.expiry} onChange={handleExpiry} style={{ ...inputStyle, flex: 1 }} />
-            <input required id="cvv" name="cvv" type="password" placeholder="CVV" maxLength={4} value={formData.cvv} onChange={(e) => setFormData({ ...formData, cvv: e.target.value.replace(/\D/g, '') })} style={{ ...inputStyle, flex: 1 }} />
-          </div>
-          <input required id="dni" name="dni" type="text" placeholder="DNI del Titular" value={formData.dni} onChange={(e) => setFormData({ ...formData, dni: e.target.value.replace(/\D/g, '') })} style={inputStyle} />
+        <input 
+          required 
+          id="payway_name"
+          name="payway_name"
+          type="text" 
+          placeholder="Nombre en la tarjeta" 
+          value={formData.cardName} 
+          onChange={(e) => setFormData({ ...formData, cardName: e.target.value.toUpperCase() })} 
+          style={inputStyle} 
+        />
 
-          {error && <p style={{ color: K.accent, fontSize: '0.8rem', fontWeight: 600, textAlign: 'center', background: '#FFF0F1', padding: '10px', borderRadius: '10px' }}>✕ {error}</p>}
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <input 
+            required 
+            id="payway_expiry"
+            name="payway_expiry"
+            type="text" 
+            placeholder="MM/AA" 
+            value={formData.expiry} 
+            onChange={handleExpiry} 
+            style={{ ...inputStyle, flex: 1 }} 
+          />
+          <input 
+            required 
+            id="payway_cvv"
+            name="payway_cvv"
+            type="password" 
+            placeholder="CVV" 
+            maxLength={4} 
+            value={formData.cvv} 
+            onChange={(e) => setFormData({ ...formData, cvv: e.target.value.replace(/\D/g, '') })} 
+            style={{ ...inputStyle, flex: 1 }} 
+          />
+        </div>
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            style={{ 
-              width: '100%', padding: '1.2rem', borderRadius: 50, 
-              background: loading ? K.muted : K.accent, 
-              color: 'white', fontWeight: 900, border: 'none', cursor: 'pointer', 
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' 
-            }}
-          >
-            {loading ? <Loader2 className="animate-spin" /> : <Lock size={18} />}
-            {loading ? 'PROCESANDO...' : `PAGAR $${new Intl.NumberFormat('es-AR').format(precio)}`}
-          </button>
-        </form>
-      </div>
-    </>
+        <input 
+          required 
+          id="payway_dni"
+          name="payway_dni"
+          type="text" 
+          placeholder="DNI del Titular" 
+          value={formData.dni} 
+          onChange={(e) => setFormData({ ...formData, dni: e.target.value.replace(/\D/g, '') })} 
+          style={inputStyle} 
+        />
+
+        {error && (
+          <p style={{ color: K.accent, fontSize: '0.8rem', fontWeight: 600, textAlign: 'center', background: '#FFF0F1', padding: '10px', borderRadius: '10px' }}>
+            ✕ {error}
+          </p>
+        )}
+
+        <button 
+          type="submit" 
+          disabled={loading}
+          style={{ 
+            width: '100%', 
+            padding: '1.2rem', 
+            borderRadius: 50, 
+            background: loading ? K.muted : K.accent, 
+            color: 'white', 
+            fontWeight: 900, 
+            border: 'none', 
+            cursor: loading ? 'not-allowed' : 'pointer', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            gap: '10px' 
+          }}
+        >
+          {loading ? <Loader2 className="animate-spin" /> : <Lock size={18} />}
+          {loading ? 'PROCESANDO...' : `PAGAR $${new Intl.NumberFormat('es-AR').format(precio)}`}
+        </button>
+
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '10px' }}>
+          <ShieldCheck size={16} color="#22c55e" />
+          <span style={{ fontSize: '0.7rem', color: K.muted, fontWeight: 600 }}>Protección Bancaria de 256 bits</span>
+        </div>
+
+      </form>
+    </div>
   );
 }
 
-const inputStyle = { width: '100%', padding: '1rem', borderRadius: '12px', border: `1.5px solid ${K.border}`, background: K.bg, outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: K.text };
+const inputStyle = { 
+  width: '100%', 
+  padding: '1rem', 
+  borderRadius: '12px', 
+  border: `1.5px solid ${K.border}`, 
+  background: K.bg, 
+  outline: 'none', 
+  fontSize: '0.95rem', 
+  fontWeight: 600, 
+  color: K.text 
+};
