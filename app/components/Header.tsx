@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { 
   Menu, X, Instagram, ShoppingBag, Home, 
-  ChevronDown, ChevronRight, Shirt, Sparkles 
+  ChevronDown, ChevronRight, Shirt, Sparkles,
+  Info
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -11,6 +12,17 @@ import styles from './Header.module.css'
 import { useCartStore } from '../store/useCartStore'
 import { useWishlistStore } from '../store/useWishlistStore'
 import CartModal from './CartModal'
+import { STORE_CONFIG } from '@/lib/storeConfig'
+
+// Icono TikTok personalizado para hacer match con Lucide
+const TikTokIcon = ({ size = 24, color = "white" }) => (
+  <svg 
+    width={size} height={size} viewBox="0 0 24 24" fill="none" 
+    stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+)
 
 export default function Header() {
   const { items } = useCartStore()
@@ -21,6 +33,7 @@ export default function Header() {
   const [showAccesorios, setShowAccesorios] = useState(false)
 
   const [cats, setCats] = useState<any[]>([])
+  const config = STORE_CONFIG["glamour-urquiza"]
 
   useEffect(() => {
     fetch('/api/categorias')
@@ -54,9 +67,14 @@ export default function Header() {
           <button className={styles.menuBtn} onClick={() => setOpenMenu(true)}>
             <Menu color="white" size={35} />
           </button>
-          <a href="https://www.instagram.com/glamour.urquiza" target="_blank" className={styles.hideMobile}>
-            <Instagram color="white" size={30} />
-          </a>
+          <div className={styles.socialDesktop}>
+            <a href={config.instagram} target="_blank" rel="noopener noreferrer">
+              <Instagram color="white" size={28} />
+            </a>
+            <a href={config.tiktok} target="_blank" rel="noopener noreferrer">
+              <TikTokIcon size={28} />
+            </a>
+          </div>
         </div>
         <div className={styles.center}>
           <Link href="/"><img src="/logo.png" className={styles.logo} alt="Logo" /></Link>
@@ -81,6 +99,7 @@ export default function Header() {
           </div>
           <button onClick={() => setOpenMenu(false)}><X size={30} /></button>
         </div>
+        
         <nav className={styles.sidebarNav}>
           <Link href="/" className={styles.sidebarItem} onClick={() => setOpenMenu(false)}><Home size={22} /> Inicio</Link>
           
@@ -119,8 +138,26 @@ export default function Header() {
               )}
             </AnimatePresence>
           </div>
+
+          <Link href="/politicas" className={styles.sidebarItem} onClick={() => setOpenMenu(false)}>
+            <Info size={22} /> Políticas de Tienda
+          </Link>
         </nav>
+
+        {/* Footer del Sidebar con Redes Sociales (Mobile Only) */}
+        <div className={styles.sidebarFooterSocial}>
+          <p className={styles.footerSocialTitle}>SÍGUENOS EN REDES</p>
+          <div className={styles.socialIconsContainer}>
+            <a href={config.instagram} target="_blank" rel="noopener noreferrer">
+              <Instagram size={30} color="#ff0000" />
+            </a>
+            <a href={config.tiktok} target="_blank" rel="noopener noreferrer">
+              <TikTokIcon size={30} color="#ff0000" />
+            </a>
+          </div>
+        </div>
       </div>
+      
       {openMenu && <div className={styles.overlay} onClick={() => setOpenMenu(false)} />}
       <CartModal open={openCart} onClose={() => setOpenCart(false)} />
     </>
