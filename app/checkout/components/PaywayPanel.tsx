@@ -12,6 +12,12 @@ const K = {
   muted: '#9A9690' 
 };
 
+// ✅ URL local para evitar errores de DNS
+const SDK_URL = '/decidir-sdk.js';
+
+// ✅ Endpoint correcto para Sandbox
+const DECIDIR_URL_SANDBOX = 'https://developers.decidir.com/api/v2';
+
 export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number, onPagoExitoso: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,33 +35,31 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
   });
 
   useEffect(() => {
-    const scriptId = 'decidir-js-sdk';
-    const existingScript = document.getElementById(scriptId);
+    const scriptId = 'decidir-js-sdk-local';
 
     const initSDK = () => {
       // @ts-ignore
       if (window.Decidir) {
-        console.log("✅ SDK Payway cargado correctamente");
+        console.log("✅ SDK Payway cargado desde /public");
         setSdkReady(true);
       }
     };
 
-    if (!existingScript) {
-      const script = document.createElement('script');
-      // URL oficial estable para Decidir 2.0
-      script.src = "https://libs.decidir.com/sdk/v2/index.js";
-      script.id = scriptId;
-      script.async = true;
-      script.crossOrigin = "anonymous";
-      script.onload = initSDK;
-      script.onerror = () => {
-        console.error("❌ Error de red cargando el SDK de Decidir");
-        setError("Error de conexión con Payway. Verificá si tenés un bloqueador de anuncios activo.");
-      };
-      document.body.appendChild(script);
-    } else {
+    if (document.getElementById(scriptId)) {
       initSDK();
+      return;
     }
+
+    const script = document.createElement('script');
+    script.src = SDK_URL;
+    script.id = scriptId;
+    script.async = true;
+    script.onload = initSDK;
+    script.onerror = () => {
+      console.error("❌ Error cargando /public/decidir-sdk.js");
+      setError("Error interno: No se encontró el archivo de la pasarela.");
+    };
+    document.body.appendChild(script);
   }, []);
 
   const handleCardNumber = (e: any) => {
@@ -74,7 +78,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
     e.preventDefault();
     
     if (!sdkReady) {
-      setError("La pasarela aún no está lista. Aguardá un segundo.");
+      setError("La pasarela se está iniciando. Reintentá en un segundo.");
       return;
     }
 
@@ -85,8 +89,9 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
       const parts = formData.expiry.split('/');
       if (parts.length !== 2) throw new Error("Fecha MM/AA requerida");
 
+      // ✅ Instanciación correcta para Sandbox
       // @ts-ignore
-      const decidir = window.Decidir;
+      const decidir = new window.Decidir(DECIDIR_URL_SANDBOX);
       decidir.setPublishableKey(process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY);
       
       const cardData = {
@@ -99,10 +104,13 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         card_holder_doc_number: formData.dni
       };
 
+      console.log("🚀 Iniciando tokenización Payway...");
+
       decidir.createToken(cardData, async (status: number, response: any) => {
         if (status !== 200 && status !== 201) {
+          console.error("❌ Error SDK:", response);
           setLoading(false);
-          setError(response.error?.[0]?.description || 'Los datos de la tarjeta son incorrectos.');
+          setError(response.error?.[0]?.description || 'Datos de tarjeta inválidos.');
           return;
         }
 
@@ -126,7 +134,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         } else {
           const errData = await res.json();
           setLoading(false);
-          setError(errData.error || 'La tarjeta fue rechazada por el banco.');
+          setError(errData.error || 'Pago rechazado por el banco.');
         }
       });
 
