@@ -12,7 +12,6 @@ const K = {
   muted: '#9A9690' 
 };
 
-// ✅ URL local para el SDK alojado en /public/decidir-sdk.js
 const SDK_URL = '/decidir-sdk.js';
 
 export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number, onPagoExitoso: () => void }) {
@@ -32,17 +31,19 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
   });
 
   useEffect(() => {
-    // 🛠️ LOG DE DIAGNÓSTICO PARA VERCEL
     const pk = process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY;
-    console.log("🛠️ Diagnóstico Payway - Public Key Detectada:", pk ? `${pk.substring(0,6)}...` : "❌ NO DETECTADA");
+    console.log("🛠️ Diagnóstico Payway - Public Key:", pk ? `${pk.substring(0,6)}...` : "❌ NO DETECTADA");
 
     const scriptId = 'decidir-js-sdk-local';
     
     const initSDK = () => {
       // @ts-ignore
       if (window.Decidir) {
-        console.log("✅ SDK Payway cargado y disponible en window.Decidir");
+        console.log("✅ SDK Payway listo en window.Decidir");
         setSdkReady(true);
+      } else {
+        console.error("❌ window.Decidir no encontrado tras cargar script");
+        setError("Error interno del SDK. Recargá la página.");
       }
     };
 
@@ -87,24 +88,22 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
       const parts = formData.expiry.split('/');
       if (parts.length !== 2) throw new Error("Fecha MM/AA requerida");
 
-      // ✅ CORRECTO: Instanciación según documentación de soporte Prisma
-      // @ts-ignore
-      const decidir = window.Decidir(
+      const publicKey = process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY;
+      if (!publicKey) throw new Error("API Key pública no configurada.");
+
+      // ✅ FIX: usar "new" para instanciar la clase correctamente
+      const decidir = new (window as any).Decidir(
         'https://developers.decidir.com/api/v2',
-        true // true = entorno de sandbox
+        true // true = sandbox
       );
 
-      const publicKey = process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY;
-      if (!publicKey) throw new Error("API Key pública no configurada en Vercel.");
-
-      // ✅ Seteamos la clave en la instancia
       decidir.setPublishableKey(publicKey);
 
       const cardData = {
         card_number: formData.cardNumber.replace(/\s/g, ''),
         card_holder_name: formData.cardName,
         card_expiration_month: parts[0],
-        card_expiration_year: `20${parts[1].slice(-2)}`, // Asegura formato YYYY
+        card_expiration_year: `20${parts[1].slice(-2)}`,
         security_code: formData.cvv,
         card_holder_doc_type: 'dni',
         card_holder_doc_number: formData.dni,
@@ -113,7 +112,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
       console.log("🚀 Solicitando token con datos:", { ...cardData, card_number: '****' });
 
       decidir.createToken(cardData, async (status: number, response: any) => {
-        console.log('📡 Decidir Respuesta - Status:', status, 'Response:', response);
+        console.log('📡 Decidir Status:', status, '| Response:', response);
 
         if (status !== 200 && status !== 201) {
           setLoading(false);
@@ -122,7 +121,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
           return;
         }
 
-        console.log("✅ Token obtenido exitosamente:", response.id);
+        console.log("✅ Token obtenido:", response.id);
 
         const res = await fetch('/api/process-payment', {
           method: 'POST',
@@ -263,10 +262,10 @@ const inputStyle = {
   width: '100%', 
   padding: '1rem', 
   borderRadius: '12px', 
-  border: `1.5px solid ${K.border}`, 
-  background: K.bg, 
+  border: `1.5px solid #FFC9CB`, 
+  background: '#FFF8F8', 
   outline: 'none', 
   fontSize: '0.95rem', 
   fontWeight: 600, 
-  color: K.text 
+  color: '#1C1B19'
 };
