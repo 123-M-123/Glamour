@@ -28,33 +28,33 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
     dni: ''
   });
 
-  // --- CARGA MANUAL DEL SDK ---
   useEffect(() => {
-    const scriptId = 'decidir-sdk';
+    const scriptId = 'decidir-js-sdk';
     const existingScript = document.getElementById(scriptId);
 
-    const initializeDecidir = () => {
+    const initSDK = () => {
       // @ts-ignore
       if (window.Decidir) {
-        console.log("✅ SDK Payway (Decidir) detectado y listo");
+        console.log("✅ SDK Payway cargado correctamente");
         setSdkReady(true);
       }
     };
 
     if (!existingScript) {
       const script = document.createElement('script');
-      // URL OFICIAL DE DECIDIR V2
-      script.src = "https://live.decidir.com/static/v2/index.js";
+      // URL oficial estable para Decidir 2.0
+      script.src = "https://libs.decidir.com/sdk/v2/index.js";
       script.id = scriptId;
       script.async = true;
-      script.onload = initializeDecidir;
+      script.crossOrigin = "anonymous";
+      script.onload = initSDK;
       script.onerror = () => {
         console.error("❌ Error de red cargando el SDK de Decidir");
-        setError("Error de conexión con Payway. Verificá tu internet.");
+        setError("Error de conexión con Payway. Verificá si tenés un bloqueador de anuncios activo.");
       };
       document.body.appendChild(script);
     } else {
-      initializeDecidir();
+      initSDK();
     }
   }, []);
 
@@ -74,7 +74,7 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
     e.preventDefault();
     
     if (!sdkReady) {
-      setError("La pasarela aún se está cargando. Esperá un momento.");
+      setError("La pasarela aún no está lista. Aguardá un segundo.");
       return;
     }
 
@@ -82,38 +82,29 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
     setError(null);
 
     try {
-      const expiryParts = formData.expiry.split('/');
-      if (expiryParts.length !== 2) {
-        throw new Error("La fecha debe ser MM/AA");
-      }
+      const parts = formData.expiry.split('/');
+      if (parts.length !== 2) throw new Error("Fecha MM/AA requerida");
 
       // @ts-ignore
       const decidir = window.Decidir;
-      
-      // Seteamos la Key Pública desde el .env
       decidir.setPublishableKey(process.env.NEXT_PUBLIC_PAYWAY_PUBLIC_KEY);
       
       const cardData = {
         card_number: formData.cardNumber.replace(/\s/g, ''),
         card_holder_name: formData.cardName,
-        card_expiration_month: expiryParts[0],
-        card_expiration_year: expiryParts[1].length === 2 ? `20${expiryParts[1]}` : expiryParts[1],
+        card_expiration_month: parts[0],
+        card_expiration_year: parts[1].length === 2 ? `20${parts[1]}` : parts[1],
         security_code: formData.cvv,
         card_holder_doc_type: 'dni',
         card_holder_doc_number: formData.dni
       };
 
-      console.log("🚀 Enviando datos a Payway para tokenizar...");
-
       decidir.createToken(cardData, async (status: number, response: any) => {
         if (status !== 200 && status !== 201) {
-          console.error("❌ Error de Payway:", response);
           setLoading(false);
-          setError(response.error?.[0]?.description || 'Datos de tarjeta inválidos.');
+          setError(response.error?.[0]?.description || 'Los datos de la tarjeta son incorrectos.');
           return;
         }
-
-        console.log("✅ Token recibido:", response.id);
 
         const res = await fetch('/api/process-payment', {
           method: 'POST',
@@ -135,18 +126,19 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         } else {
           const errData = await res.json();
           setLoading(false);
-          setError(errData.error || 'El banco rechazó la operación.');
+          setError(errData.error || 'La tarjeta fue rechazada por el banco.');
         }
       });
 
     } catch (err: any) {
       setLoading(false);
-      setError(err.message || 'Error en el formulario.');
+      setError(err.message || 'Error al validar el formulario.');
     }
   };
 
   return (
     <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+      
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem', justifyContent: 'center' }}>
         <img src="/ico-ui/payway-2.png" alt="Payway" style={{ height: 25 }} />
         <span style={{ fontSize: '0.9rem', fontWeight: 700, color: K.text }}>Pago Bancario Seguro</span>
@@ -157,9 +149,10 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         <div style={{ position: 'relative' }}>
           <input 
             required 
-            id="payway_card"
-            name="payway_card"
+            id="cc-number"
+            name="cc-number"
             type="text" 
+            autoComplete="cc-number"
             placeholder="Número de tarjeta" 
             value={formData.cardNumber} 
             onChange={handleCardNumber} 
@@ -170,9 +163,10 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
 
         <input 
           required 
-          id="payway_name"
-          name="payway_name"
+          id="cc-name"
+          name="cc-name"
           type="text" 
+          autoComplete="cc-name"
           placeholder="Nombre en la tarjeta" 
           value={formData.cardName} 
           onChange={(e) => setFormData({ ...formData, cardName: e.target.value.toUpperCase() })} 
@@ -182,9 +176,10 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
         <div style={{ display: 'flex', gap: '10px' }}>
           <input 
             required 
-            id="payway_expiry"
-            name="payway_expiry"
+            id="cc-exp"
+            name="cc-exp"
             type="text" 
+            autoComplete="cc-exp"
             placeholder="MM/AA" 
             value={formData.expiry} 
             onChange={handleExpiry} 
@@ -192,9 +187,10 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
           />
           <input 
             required 
-            id="payway_cvv"
-            name="payway_cvv"
+            id="cc-csc"
+            name="cc-csc"
             type="password" 
+            autoComplete="cc-csc"
             placeholder="CVV" 
             maxLength={4} 
             value={formData.cvv} 
@@ -205,8 +201,8 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
 
         <input 
           required 
-          id="payway_dni"
-          name="payway_dni"
+          id="billing-dni"
+          name="billing-dni"
           type="text" 
           placeholder="DNI del Titular" 
           value={formData.dni} 
@@ -235,7 +231,8 @@ export default function PaywayPanel({ precio, onPagoExitoso }: { precio: number,
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center', 
-            gap: '10px' 
+            gap: '10px',
+            fontSize: '1rem'
           }}
         >
           {loading ? <Loader2 className="animate-spin" /> : <Lock size={18} />}
