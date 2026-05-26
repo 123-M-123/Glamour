@@ -146,7 +146,7 @@ export default function Header() {
 
         {/* Footer del Sidebar con Redes Sociales (Mobile Only) */}
         <div className={styles.sidebarFooterSocial}>
-          <p className={styles.footerSocialTitle}>SÍGUENOS EN REDES</p>
+          <p className={styles.footerSocialTitle}>Seguinos</p>
           <div className={styles.socialIconsContainer}>
             <a href={config.instagram} target="_blank" rel="noopener noreferrer">
               <Instagram size={30} color="#ff0000" />

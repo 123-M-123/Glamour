@@ -7,7 +7,7 @@ export const STORE_CONFIG = {
     politicas: {
       cambios: {
         titulo: "Política de Cambios",
-        cuerpo: "Tenés 30 días desde que recibís tu compra para realizar cambios. Las prendas deben estar en las mismas condiciones en que fueron entregadas, con etiqueta y sin uso. Los costos de envío por cambio corren por cuenta del cliente, excepto por fallas de fábrica."
+        cuerpo: "Tenés 10 días desde que recibís tu compra para realizar cambios. Las prendas deben estar en las mismas condiciones en que fueron entregadas, con etiqueta y sin uso. Los costos de envío por cambio corren por cuenta del cliente, excepto por fallas de fábrica."
       },
       devoluciones: {
         titulo: "Devoluciones y Arrepentimiento",
@@ -15,7 +15,7 @@ export const STORE_CONFIG = {
       },
       envios: {
         titulo: "Información de Envío",
-        cuerpo: "Los pedidos se procesan en 24/48hs hábiles. Realizamos envíos a todo el país vía Correo Argentino y motomensajería en CABA/GBA."
+        cuerpo: "Los pedidos se procesan en 24/48hs hábiles. Realizamos envíos a todo el país vía Correo ANDREANI y motomensajería en CABA/GBA CONSULTAR."
       }
     }
   }
