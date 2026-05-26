@@ -4,7 +4,7 @@ import { useState } from 'react'
 import styles from './CartModal.module.css'
 import { useCartStore } from '../store/useCartStore'
 import { useRouter } from 'next/navigation'
-import { X, Trash2 } from 'lucide-react'
+import { X, Trash2, Share2 } from 'lucide-react'
 
 export default function CartModal({ open, onClose }: any) {
   const router = useRouter()
@@ -17,6 +17,21 @@ export default function CartModal({ open, onClose }: any) {
   const totalLista = items.reduce((acc, item) => acc + (item.producto.precio * item.cantidad), 0)
   const ahorro = totalLista - totalTransfer
   const totalFinal = totalTransfer + envioGlobal
+
+  // 🪄 FUNCIÓN MAESTRA: EXPORTAR CATÁLOGO (TEXTOS DEFINITIVOS)
+  const handleExportSelection = () => {
+    if (items.length === 0) return;
+
+    const ids = items.map(item => item.producto.id).join(',');
+    const baseUrl = "https://glamour-urquiza.vercel.app"; 
+    const shareUrl = `${baseUrl}/catalogo-premium?p=${ids}&precios=si`;
+
+    // 💡 ORDEN CRÍTICO: Link primero, luego textos solicitados
+    const message = `${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`;
+    
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
+  };
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -59,6 +74,13 @@ export default function CartModal({ open, onClose }: any) {
         </div>
 
         <div className={styles.footer}>
+          {/* BOTÓN EXPORTAR */}
+          {items.length > 0 && (
+            <button className={styles.exportBtn} onClick={handleExportSelection}>
+              <Share2 size={16} /> COMPARTIR ESTA SELECCIÓN POR WHATSAPP
+            </button>
+          )}
+
           <div className={styles.summary}>
             {ahorro > 0 && <div className={styles.ahorroBadge}>¡Ahorrás ${new Intl.NumberFormat('es-AR').format(ahorro)}!</div>}
             <div className={styles.totalRow}>
