@@ -1,6 +1,6 @@
 export const STORE_CONFIG = {
   "glamour-urquiza": {
-    name: "Glamour Urquiza",
+    name: "Glamour",
     instagram: "https://www.instagram.com/glamour.urquiza",
     tiktok: "https://www.tiktok.com/@glamour.urquiza",
     whatsapp: "5491167914366",

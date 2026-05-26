@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const titleText = pageData ? pageData.title : slug.replace(/-/g, ' ').toUpperCase()
 
   return {
-    title: `${titleText} | Glamour Urquiza`,
-    description: pageData?.content || `Explorá nuestra colección de ${titleText} en Glamour Urquiza. Vestite como querés sentirte.`,
+    title: `${titleText} | Glamour`,
+    description: pageData?.content || `Explorá nuestra colección de ${titleText} en Glamour. Vestite como querés sentirte.`,
   }
 }
 
@@ -29,7 +29,7 @@ export default function SlugPage({ params }: Props) {
 
   const pageData = seoPages.find(p => p.slug === slug)
   const displayTitle = pageData ? pageData.h1 : slug.replace(/-/g, ' ').toUpperCase()
-  const displayContent = pageData ? pageData.content : `¿Estás buscando ${displayTitle.toLowerCase()}? En Glamour Urquiza ofrecemos indumentaria femenina actual, versátil y de calidad.`
+  const displayContent = pageData ? pageData.content : `¿Estás buscando ${displayTitle.toLowerCase()}? En Glamour ofrecemos indumentaria femenina actual, versátil y de calidad.`
 
   const whatsappUrl = `https://wa.me/5491167914366?text=Hola! Vi la página de ${displayTitle} y quería consultar por stock.`
 

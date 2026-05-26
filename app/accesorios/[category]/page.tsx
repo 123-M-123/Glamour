@@ -19,11 +19,11 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   // 2. Si el link tiene un producto (?p=...), mostramos SU foto y SU nombre
   if (producto) {
     return {
-      title: `${producto.nombre} | Glamour Urquiza`,
+      title: `${producto.nombre} | Glamour`,
       description: producto.descripcion || `Vistite con estilo. Mirá este artículo de ${categoryName}.`,
       openGraph: {
         title: producto.nombre,
-        description: `$${producto.precioTransfer} - ${producto.descripcion || 'Glamour Urquiza'}`,
+        description: `$${producto.precioTransfer} - ${producto.descripcion || 'Glamour'}`,
         images: [
           {
             url: producto.imagen, // 👈 LA FOTO DEL PRODUCTO REAL
@@ -38,8 +38,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   // 3. Si es el link de la categoría normal, mostramos tu card genérica
   return {
-    title: `${categoryName} | Glamour Urquiza`,
-    description: `Explorá nuestra colección exclusiva de ${categoryName} en Glamour Urquiza.`,
+    title: `${categoryName} | Glamour`,
+    description: `Explorá nuestra colección exclusiva de ${categoryName} en Glamour.`,
     openGraph: {
       images: ['/og/image-2.jpg'], // 👈 TU CARD GENÉRICA
     }

@@ -10,7 +10,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const ids = searchParams.p?.split(',') || []
   return {
     title: `Selección Glamour - ${ids.length} productos`,
-    description: 'Mirá la selección exclusiva que preparé para vos en Glamour Urquiza.',
+    description: 'Mirá la selección exclusiva que preparé para vos en Glamour.',
     openGraph: {
       title: 'Catálogo Personalizado Glamour',
       description: `Vistite con estilo. Mirá estos ${ids.length} artículos elegidos.`,

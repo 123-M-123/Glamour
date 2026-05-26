@@ -25,9 +25,9 @@ export async function GET() {
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
   <channel>
-    <title>Glamour Urquiza</title>
+    <title>Glamour</title>
     <link>${baseUrl}</link>
-    <description>Catálogo de Indumentaria Femenina Glamour Urquiza</description>`;
+    <description>Catálogo de Indumentaria Femenina Glamour</description>`;
 
     productos.forEach((p: any) => {
       const catPrincipal = ['cinturones', 'carteras', 'gorras', 'billeteras', 'sobres-de-fiesta', 'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'].includes(p.categoria.toLowerCase()) 
@@ -45,7 +45,7 @@ export async function GET() {
       <g:description>${escapeXml(p.descripcion || 'Indumentaria femenina de alta calidad')}</g:description>
       <g:link>${productLink}</g:link>
       <g:image_link>${imageLink}</g:image_link>
-      <g:brand>Glamour Urquiza</g:brand>
+      <g:brand>Glamour</g:brand>
       <g:condition>new</g:condition>
       <g:availability>${p.stock > 0 ? 'in stock' : 'out of stock'}</g:availability>
       <g:price>${p.precioTransfer} ARS</g:price>

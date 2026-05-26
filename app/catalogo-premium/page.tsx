@@ -22,7 +22,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       title: 'SELECCIÓN PERSONALIZADA 🛍️',
       description: `Exclusivo para vos...`, // 👈 CAMBIO: Forzamos el texto corto en Meta/WhatsApp
       url: `${domain}/catalogo-premium?p=${pParam}&precios=${preParam}`,
-      siteName: 'Glamour Urquiza',
+      siteName: 'Glamour',
       images: [
         {
           url: imageUrl,
