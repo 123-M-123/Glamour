@@ -17,7 +17,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}&precios=${preParam}`;
   const pageUrl = `${domain}/catalogo-premium?p=${pParam}&precios=${preParam}`;
 
-  const cleanTitle = "Glamour Urquiza"; // 🎯 EL NOMBRE DE TU MARCA
+  const cleanTitle = "Glamour"; // 🎯 EL NOMBRE DE TU MARCA
   const shareTitle = "Selección Personalizada 🛍️";
 
   return {
@@ -37,7 +37,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
           url: imageUrl,
           width: 1200,
           height: 1000,
-          type: 'image/png', // 👈 Forzamos el tipo
+          type: 'image/jpg', // 👈 Forzamos el tipo
         },
       ],
       locale: 'es_AR',
