@@ -6,7 +6,8 @@ import { useCartStore } from '@/app/store/useCartStore'
 import { useWishlistStore } from '@/app/store/useWishlistStore'
 import { ShoppingBag, Share2 } from 'lucide-react'
 
-export default function CategoryClient({ category, productos, banners }: any) {
+// 👈 searchParams inyectado para el Deep Linking
+export default function CategoryClient({ category, productos, banners, searchParams }: any) {
   const [selected, setSelected] = useState<any | null>(null)
   const [mounted, setMounted] = useState(false)
   const { addToCart } = useCartStore()
@@ -15,12 +16,14 @@ export default function CategoryClient({ category, productos, banners }: any) {
   // 🏃‍♂️ CONFIGURACIÓN DE VELOCIDAD CONSTANTE
   const VELOCIDAD_POR_ITEM = 5;
 
+  // 🪄 FILTRADO DE PRODUCTOS POR CATEGORÍA
   const productosCategoria = useMemo(() => {
     return productos.filter((p: any) => p.categoriaSlug === category)
   }, [productos, category])
 
   const categoryLabel = productosCategoria[0]?.categoria || category.replace(/-/g, ' ');
 
+  // 🪄 PRODUCTOS RECOMENDADOS (AL AZAR)
   const productosOtros = useMemo(() => {
     return productos
       .filter((p: any) => p.categoriaSlug !== category)
@@ -28,20 +31,35 @@ export default function CategoryClient({ category, productos, banners }: any) {
       .slice(0, 10)
   }, [productos, category])
 
-  useEffect(() => { setMounted(true) }, [])
+  // 🔥 EFECTO DE MONTAJE Y DEEP LINKING (Abre modal por URL)
+  useEffect(() => {
+    setMounted(true)
+    const productId = searchParams?.p;
+    if (productId && productos) {
+      const prod = productos.find((p: any) => p.id.toString() === productId.toString());
+      if (prod) {
+        // Pequeño delay para asegurar que el DOM esté listo
+        setTimeout(() => setSelected(prod), 300);
+      }
+    }
+  }, [searchParams, productos]);
+
   if (!mounted) return null
 
+  // 🛒 AGREGAR DIRECTO A LA BOLSA
   const handleQuickBag = (e: any, item: any) => {
     e.stopPropagation();
     addToCart({ ...item, envio: 0 }, 0);
   }
 
+  // ❤️ TOGGLE FAVORITOS
   const handleQuickWish = (e: any, item: any) => {
     e.stopPropagation();
     if (isInWishlist(item.id)) removeFromWishlist(item.id);
     else addToWishlist({ id: item.id, nombre: item.nombre, precio: item.precio, imagen: item.imagen });
   }
 
+  // 🔗 COMPARTIR PRODUCTO INDIVIDUAL
   const handleQuickShare = (e: any, item: any) => {
     e.stopPropagation();
     const url = `${window.location.origin}${window.location.pathname}?p=${item.id}`;
@@ -49,11 +67,11 @@ export default function CategoryClient({ category, productos, banners }: any) {
       navigator.share({ title: item.nombre, url });
     } else {
       navigator.clipboard.writeText(url);
-      alert("Link copiado al portapapeles");
+      alert("Enlace copiado al portapapeles");
     }
   }
 
-  // 🪄 MOTOR DE BANNERS MEJORADO (Con links de destino)
+  // 🪄 MOTOR DE RENDERIZADO DE BANNERS (Con links de destino Columna D)
   const renderBanner = (ubicacion: string) => {
     const banner = banners.find((b: any) => b.ubicacion === ubicacion.toLowerCase());
     if (!banner) return null;
@@ -73,7 +91,7 @@ export default function CategoryClient({ category, productos, banners }: any) {
     );
   }
 
-  // Duraciones dinámicas para velocidad constante
+  // Cálculo de duraciones dinámicas para velocidad constante
   const duracionSup = productosCategoria.length * VELOCIDAD_POR_ITEM;
   const duracionOtros = productosOtros.length * VELOCIDAD_POR_ITEM;
 
@@ -100,7 +118,7 @@ export default function CategoryClient({ category, productos, banners }: any) {
 
       {renderBanner(`hero-${category}`)}
 
-      {/* 🟦 GRID PRINCIPAL */}
+      {/* 🟦 GRID PRINCIPAL DE PRODUCTOS */}
       <div className={styles.grid}>
         {productosCategoria.map((item: any) => {
           const isFav = isInWishlist(item.id);
@@ -109,12 +127,12 @@ export default function CategoryClient({ category, productos, banners }: any) {
               <div className={styles.imageBox}>
                 <img src={item.imagen} alt={item.nombre} />
                 
-                {/* Bolsa */}
+                {/* BOTÓN BOLSA */}
                 <button className={styles.quickBag} onClick={(e) => handleQuickBag(e, item)}>
                   <ShoppingBag size={18} color="white" />
                 </button>
 
-                {/* Corazón con lógica de fondo Nude/Rojo */}
+                {/* BOTÓN WISHLIST DINÁMICO */}
                 <button 
                   className={styles.quickWish} 
                   onClick={(e) => handleQuickWish(e, item)} 
@@ -123,7 +141,7 @@ export default function CategoryClient({ category, productos, banners }: any) {
                   <img src={isFav ? "/icons/corazon-blanco.png" : "/icons/corazon-rojo.png"} alt="Fav" />
                 </button>
 
-                {/* Compartir */}
+                {/* BOTÓN COMPARTIR */}
                 <button className={styles.quickShare} onClick={(e) => handleQuickShare(e, item)}>
                   <Share2 size={18} color="white" />
                 </button>
@@ -139,7 +157,7 @@ export default function CategoryClient({ category, productos, banners }: any) {
 
       <h2 className={styles.sectionTitle}>También te puede gustar</h2>
       
-      {/* 🎡 CARRUSEL 2 (Sugerencias) */}
+      {/* 🎡 CARRUSEL 2 (Sugerencias dinámicas) */}
       <div className={styles.carouselContainer}>
         <div 
           className={`${styles.track} ${styles.trackReverse}`} 

@@ -6,7 +6,6 @@ import CatalogoClient from './CatalogoClient'
 type Props = { searchParams: { p?: string, precios?: string } }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  // 🛡️ DETECCIÓN DINÁMICA DEL HOST
   const headersList = headers();
   const host = headersList.get('host') || 'glamour-urquiza.vercel.app';
   const domain = `https://${host}`;
@@ -17,12 +16,12 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   
   return {
     title: `Catálogo Glamour`,
-    description: `Exclusivo para vos...`, // 👈 CAMBIO: Texto corto para la previsualización
+    description: `Exclusivo para vos...`,
     openGraph: {
       title: 'SELECCIÓN PERSONALIZADA 🛍️',
-      description: `Exclusivo para vos...`, // 👈 CAMBIO: Forzamos el texto corto en Meta/WhatsApp
+      description: `Exclusivo para vos...`,
       url: `${domain}/catalogo-premium?p=${pParam}&precios=${preParam}`,
-      siteName: 'Glamour',
+      siteName: 'Glamour Urquiza', // 👈 Forzamos el nombre de la marca
       images: [
         {
           url: imageUrl,
@@ -32,7 +31,6 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       ],
       type: 'website',
     },
-    // 🛡️ Evitamos que herede textos largos de otros layouts
     twitter: {
       card: 'summary_large_image',
       title: 'SELECCIÓN PERSONALIZADA 🛍️',

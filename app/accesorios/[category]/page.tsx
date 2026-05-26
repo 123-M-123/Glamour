@@ -4,51 +4,40 @@ import { Metadata } from 'next'
 
 type Props = {
   params: { category: string }
-  searchParams: { p?: string } // 👈 Capturamos el ID del producto que viene en el link
+  searchParams: { p?: string }
 }
 
-// 🪄 ESTA ES LA FUNCIÓN QUE LEE WHATSAPP/INSTAGRAM
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const categoryName = params.category.charAt(0).toUpperCase() + params.category.slice(1)
-  
-  // 1. Buscamos los productos para ver si se está compartiendo uno específico
   const productos = await getProductsFromSheets()
   const productoId = searchParams.p
   const producto = productos.find(p => p.id.toString() === productoId)
 
-  // 2. Si el link tiene un producto (?p=...), mostramos SU foto y SU nombre
   if (producto) {
     return {
       title: `${producto.nombre} | Glamour`,
-      description: producto.descripcion || `Vistite con estilo. Mirá este artículo de ${categoryName}.`,
+      description: producto.descripcion || `Vestite con estilo.`,
       openGraph: {
         title: producto.nombre,
         description: `$${producto.precioTransfer} - ${producto.descripcion || 'Glamour'}`,
-        images: [
-          {
-            url: producto.imagen, // 👈 LA FOTO DEL PRODUCTO REAL
-            width: 800,
-            height: 800,
-          },
-        ],
+        siteName: 'Glamour', // 👈 CLAVE: Esto ayuda a limpiar el link en WhatsApp
+        images: [{ url: producto.imagen, width: 800, height: 800 }],
         type: 'website',
       },
     }
   }
 
-  // 3. Si es el link de la categoría normal, mostramos tu card genérica
   return {
     title: `${categoryName} | Glamour`,
-    description: `Explorá nuestra colección exclusiva de ${categoryName} en Glamour.`,
+    description: `Explorá nuestra colección exclusiva.`,
     openGraph: {
-      images: ['/og/image-2.jpg'], // 👈 TU CARD GENÉRICA
+      siteName: 'Glamour',
+      images: ['/og/image-2.jpg'],
     }
   }
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
-  const { category } = params
-  
   const [productos, banners] = await Promise.all([
     getProductsFromSheets(),
     getBannersFromSheets()
@@ -56,9 +45,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   return (
     <CategoryClient 
-      category={category} 
+      category={params.category} 
       productos={productos} 
-      banners={banners} 
+      banners={banners}
+      searchParams={searchParams} // 👈 Pasamos los parámetros al cliente
     />
   )
 }
