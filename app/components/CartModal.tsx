@@ -18,16 +18,20 @@ export default function CartModal({ open, onClose }: any) {
   const ahorro = totalLista - totalTransfer
   const totalFinal = totalTransfer + envioGlobal
 
-  // 🪄 FUNCIÓN MAESTRA: EXPORTAR CATÁLOGO (TEXTOS DEFINITIVOS)
+  // 🪄 FUNCIÓN EXPORTAR (TEXTOS SIMÉTRICOS ACTUALIZADOS)
   const handleExportSelection = () => {
     if (items.length === 0) return;
 
     const ids = items.map(item => item.producto.id).join(',');
+    // Usamos el dominio de producción para asegurar la limpieza
     const baseUrl = "https://glamour-urquiza.vercel.app"; 
     const shareUrl = `${baseUrl}/catalogo-premium?p=${ids}&precios=si`;
 
-    // 💡 ORDEN CRÍTICO: Link primero, luego textos solicitados
-    const message = `${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`;
+    // 💡 ESTRUCTURA DE LIMPIEZA: 
+    // 1. Link (Sin texto al lado)
+    // 2. Título solicitado
+    // 3. Subtítulo solicitado
+    const message = `${shareUrl}\n\n*Ahora Tienda On line*\nSeleccion personalizada para vos.. 🛍️`;
     
     const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank');
@@ -74,7 +78,6 @@ export default function CartModal({ open, onClose }: any) {
         </div>
 
         <div className={styles.footer}>
-          {/* BOTÓN EXPORTAR */}
           {items.length > 0 && (
             <button className={styles.exportBtn} onClick={handleExportSelection}>
               <Share2 size={16} /> COMPARTIR ESTA SELECCIÓN POR WHATSAPP

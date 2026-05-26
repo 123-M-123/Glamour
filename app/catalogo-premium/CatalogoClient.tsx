@@ -14,20 +14,14 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
   
   useEffect(() => { setMounted(true) }, [])
 
-  // 🪄 FUNCIÓN COMPARTIR SELECCIÓN (TEXTOS DEFINITIVOS)
+  // 🪄 COMPARTIR INTERNO (SIMÉTRICO)
   const handleShareSelection = async () => {
     const url = window.location.href;
-    const shareData = {
-      title: 'Glamour',
-      // Mismo formato: Link arriba para limpieza
-      text: `${url}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`,
-    };
-
     try {
       if (navigator.share) {
         await navigator.share({
             title: 'Glamour',
-            text: 'Ahora Tienda On line\nSeleccion personalizada para vos..',
+            text: `Ahora Tienda On line\nSeleccion personalizada para vos..`,
             url: url
         });
       } else {
@@ -46,11 +40,11 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
         
         <header style={{ textAlign: 'center', marginBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <img src="/icons/logo-no.png" alt="Logo" style={{ height: '75px', width: 'auto', objectFit: 'contain', marginBottom: '20px' }} />
-          <h1 style={{ fontWeight: 950, color: 'white', fontSize: '1.6rem', margin: 0, letterSpacing: '1px' }}>SELECCIÓN PERSONALIZADA</h1>
+          <h1 style={{ fontWeight: 950, color: 'white', fontSize: '1.6rem', margin: 0, letterSpacing: '1px' }}>AHORA TIENDA ON LINE</h1>
           
           <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
             <div style={{ background: 'white', color: '#FF0000', padding: '6px 20px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 900 }}>
-             EXCLUSIVA PARA VOS...
+             SELECCION PERSONALIZADA PARA VOS..
             </div>
             
             <button 

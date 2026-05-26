@@ -16,24 +16,27 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}&precios=${preParam}`;
   const pageUrl = `${domain}/catalogo-premium?p=${pParam}&precios=${preParam}`;
 
+  // 🎯 TEXTOS SIMÉTRICOS SOLICITADOS
   const brandName = "Glamour"; 
+  const mainTitle = "Ahora Tienda On line";
+  const subTitle = "Seleccion personalizada para vos..";
 
   return {
     metadataBase: new URL(domain),
-    title: brandName,
-    description: "Exclusivo para vos...", // 👈 Mantengo tu mensaje original interno
+    title: mainTitle,
+    description: subTitle,
     
     openGraph: {
       siteName: brandName, 
-      title: 'SELECCIÓN PERSONALIZADA 🛍️',
-      description: "Exclusivo para vos...", // 👈 Mantengo tu mensaje original interno
+      title: mainTitle, // 👈 Ahora Tienda On line
+      description: subTitle, // 👈 Seleccion personalizada para vos..
       url: pageUrl,
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 1000,
-          type: 'image/jpeg', // 👈 Formato JPG estándar
+          type: 'image/jpeg', 
         },
       ],
       locale: 'es_AR',
@@ -46,7 +49,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
     twitter: {
       card: 'summary_large_image',
-      title: brandName,
+      title: mainTitle,
       images: [imageUrl],
     }
   }
