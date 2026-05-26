@@ -19,20 +19,23 @@ export default function CartModal({ open, onClose }: any) {
   const totalFinal = totalTransfer + envioGlobal
 
   // 🪄 FUNCIÓN EXPORTAR (CON RUTA ACORTADA /C-P)
+  // ... (mantené tus imports y lógica inicial igual)
+
   const handleExportSelection = () => {
     if (items.length === 0) return;
 
     const ids = items.map(item => item.producto.id).join(',');
     const baseUrl = "https://glamour-urquiza.vercel.app"; 
-    // 📉 RUTA ACORTADA
-    const shareUrl = `${baseUrl}/c-p?p=${ids}&precios=si`;
+    // 📉 REDUCCIÓN MÁXIMA CON $
+    const shareUrl = `${baseUrl}/c-p?p=${ids}&$=1`;
 
-    // 💡 ORDEN DE LIMPIEZA TOTAL: Link arriba sin adornos
     const message = `${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`;
     
     const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank');
   };
+
+// ... (resto del archivo igual)
 
   return (
     <div className={styles.overlay} onClick={onClose}>

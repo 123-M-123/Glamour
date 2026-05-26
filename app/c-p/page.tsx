@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import { headers } from 'next/headers'
 import CatalogoClient from './CatalogoClient'
 
-type Props = { searchParams: { p?: string, precios?: string } }
+type Props = { searchParams: { p?: string, $: string } }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const headersList = headers();
@@ -11,11 +11,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const domain = `https://${host}`;
   
   const pParam = searchParams.p || '';
-  const preParam = searchParams.precios || 'si';
+  const preParam = searchParams.$ || '1'; // 👈 Ahora usa $
   
-  // 📸 URL acortada a /c-p/og
-  const imageUrl = `${domain}/c-p/og?p=${pParam}&precios=${preParam}`;
-  const pageUrl = `${domain}/c-p?p=${pParam}&precios=${preParam}`;
+  const imageUrl = `${domain}/c-p/og?p=${pParam}&$=${preParam}`;
+  const pageUrl = `${domain}/c-p?p=${pParam}&$=${preParam}`;
 
   const brandName = "Glamour"; 
   const mainTitle = "Ahora Tienda On line";
@@ -50,7 +49,6 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     twitter: {
       card: 'summary_large_image',
       title: mainTitle,
-      description: subTitle,
       images: [imageUrl],
     }
   }

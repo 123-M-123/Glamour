@@ -11,17 +11,18 @@ export default function WishlistPage() {
   const { wishlist, removeFromWishlist, clearWishlist } = useWishlistStore()
   const { addToCart } = useCartStore()
   
-  // 🛡️ Estados para el Hub Social
   const [showModal, setShowModal] = useState(false)
   const [conPrecios, setConPrecios] = useState(true)
 
   const ids = wishlist.map(item => item.id).join(',')
   const base = typeof window !== 'undefined' ? window.location.origin : ''
-  const shareUrl = `${base}/catalogo-premium?p=${ids}&precios=${conPrecios ? 'si' : 'no'}`
-  const imageUrl = `${base}/catalogo-premium/og?p=${ids}&precios=${conPrecios ? 'si' : 'no'}`
+  
+  // 📉 URL ACORTADA CON $
+  const shareUrl = `${base}/c-p?p=${ids}&$=${conPrecios ? '1' : '0'}`
+  const imageUrl = `${base}/c-p/og?p=${ids}&$=${conPrecios ? '1' : '0'}`
 
   const handleWA = () => {
-    const text = encodeURIComponent(`🛍️ TIENDA ON LINE\n${shareUrl}`)
+    const text = encodeURIComponent(`${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`)
     window.open(`https://wa.me/?text=${text}`, '_blank')
   }
 
@@ -38,7 +39,11 @@ export default function WishlistPage() {
 
   const handleUniversal = async () => {
     if (navigator.share) {
-      await navigator.share({ title: 'Catálogo Glamour', url: shareUrl })
+      await navigator.share({ 
+        title: 'Glamour', 
+        text: 'Ahora Tienda On line\nSeleccion personalizada para vos..',
+        url: shareUrl 
+      })
     }
   }
 
@@ -48,7 +53,7 @@ export default function WishlistPage() {
         <div className={styles.emptyCard}>
           <img src="/icons/corazon-rojo-deseotexto.png" alt="Favoritos" className={styles.mainHeartIcon} />
           <p className={styles.emptyText}>Tu lista está vacía.</p>
-          <Link href="/" className={styles.wishBtn} style={{background:'white', color:'#ff0000', border:'2px solid #ff0000', textDecoration:'none', width:'100%'}}>
+          <Link href="/" className={styles.wishBtn} style={{background:'white', color:'#ff0000', border:'2px solid #ff0000', textDecoration:'none', width:'100%', display:'flex', alignItems:'center', justifyContent:'center'}}>
             VOLVER A LA TIENDA
           </Link>
         </div>
@@ -86,18 +91,17 @@ export default function WishlistPage() {
         ))}
       </div>
 
-      {/* 🚀 MODAL SOCIAL HUB (EL QUE QUERÍAS) */}
       {showModal && (
         <div className={styles.socialOverlay}>
           <div className={styles.socialModal}>
-            <button style={{position:'absolute', top:20, right:20, border:'none', background:'none'}} onClick={()=>setShowModal(false)}><X/></button>
+            <button style={{position:'absolute', top:20, right:20, border:'none', background:'none', cursor:'pointer'}} onClick={()=>setShowModal(false)}><X/></button>
             <h2 className={styles.modalTitle}>CONFIGURAR FLYER</h2>
             
             <div className={styles.configSection}>
               <span className={styles.toggleLabel}>¿MOSTRAR PRECIOS EN LA IMAGEN?</span>
               <div className={styles.toggleGroup}>
                 <button className={`${styles.toggleBtn} ${conPrecios ? styles.toggleBtnActive : ''}`} onClick={()=>setConPrecios(true)}>SÍ, CON PRECIOS</button>
-                <button className={`${styles.toggleBtn} {!conPrecios ? styles.toggleBtnActive : ''}`} onClick={()=>setConPrecios(false)}>NO, SIN PRECIOS</button>
+                <button className={`${styles.toggleBtn} ${!conPrecios ? styles.toggleBtnActive : ''}`} onClick={()=>setConPrecios(false)}>NO, SIN PRECIOS</button>
               </div>
             </div>
 
