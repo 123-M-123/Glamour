@@ -6,12 +6,13 @@ import Link from 'next/link'
 
 export default function HeroSection({ banners }: { banners: any[] }) {
   
-  // 1. Buscamos el banner superior (hero-promos)
+  // 1. Banner superior exclusivo de la Home
   const promoBanner = banners?.find((b: any) => b.ubicacion === 'hero-promos')
   
-  // 2. Buscamos TODOS los banners que empiecen con "footer-" (footer-1, footer-2, footer-pagos, etc)
+  // 2. 🎯 FILTRO CORREGIDO: Buscamos específicamente los que dicen "footer-h-" 
+  // (footer-h-1, footer-h-2, etc.) para que no se mezclen con los de otras categorías.
   const footerBanners = banners?.filter((b: any) => 
-    b.ubicacion.startsWith('footer-')
+    b.ubicacion.startsWith('footer-h-')
   ).sort((a, b) => a.ubicacion.localeCompare(b.ubicacion))
 
   return (
@@ -22,10 +23,10 @@ export default function HeroSection({ banners }: { banners: any[] }) {
         <div className={styles.topBanner}>
           {promoBanner.linkDestino ? (
             <a href={promoBanner.linkDestino} target="_blank" rel="noopener noreferrer">
-              <img src={promoBanner.imagen} alt="Promoción" />
+              <img src={promoBanner.imagen} alt="Promoción Principal" />
             </a>
           ) : (
-            <img src={promoBanner.imagen} alt="Promoción" />
+            <img src={promoBanner.imagen} alt="Promoción Principal" />
           )}
         </div>
       )}
@@ -56,12 +57,12 @@ export default function HeroSection({ banners }: { banners: any[] }) {
           </p>
         </div>
 
-        {/* CONTENEDOR DINÁMICO DE BANNERS (footer-1 al 5) CON LINKS */}
+        {/* 🚀 CONTENEDOR DE BANNERS EXCLUSIVOS DE LA HOME (footer-h-1 al 5) */}
         <div className={styles.footerBannersContainer}>
           {footerBanners && footerBanners.map((banner, index) => {
             const BannerImg = (
               <div className={styles.paymentsBanner}>
-                <img src={banner.imagen} alt={banner.ubicacion} />
+                <img src={banner.imagen} alt={`Banner Home ${index + 1}`} />
               </div>
             );
 
