@@ -14,19 +14,14 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
   
   useEffect(() => { setMounted(true) }, [])
 
-  // ... (mantené tus imports y lógica inicial igual)
-
+  // 🪄 COMPARTIR INTERNO ACORTADO
   const handleShareSelection = async () => {
     const url = window.location.href;
-    const title = 'Glamour';
-    const text = 'Ahora Tienda On line\nSeleccion personalizada para vos..';
-
     try {
       if (navigator.share) {
-        // 💡 Usamos campos separados en navigator.share para que el sistema operativo limpie el link
         await navigator.share({
-            title: title,
-            text: text,
+            title: 'Glamour',
+            text: `Ahora Tienda On line\nSeleccion personalizada para vos..`,
             url: url
         });
       } else {
@@ -35,8 +30,6 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
       }
     } catch (err) { console.log(err) }
   }
-
-// ... (resto del archivo igual)
 
   if (!mounted) return null
   const totalItems = items.reduce((acc, item) => acc + item.cantidad, 0)

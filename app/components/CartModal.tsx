@@ -18,24 +18,22 @@ export default function CartModal({ open, onClose }: any) {
   const ahorro = totalLista - totalTransfer
   const totalFinal = totalTransfer + envioGlobal
 
- // ... (mantené tus imports y lógica de estado igual)
-
+  // 🪄 FUNCIÓN EXPORTAR (CON RUTA ACORTADA /C-P)
   const handleExportSelection = () => {
     if (items.length === 0) return;
 
     const ids = items.map(item => item.producto.id).join(',');
     const baseUrl = "https://glamour-urquiza.vercel.app"; 
-    const shareUrl = `${baseUrl}/catalogo-premium?p=${ids}&precios=si`;
+    // 📉 RUTA ACORTADA
+    const shareUrl = `${baseUrl}/c-p?p=${ids}&precios=si`;
 
-    // 💡 ESTRUCTURA DE MÁXIMA LIMPIEZA:
-    // No usamos "*" para negritas aquí, mandamos el link crudo primero.
+    // 💡 ORDEN DE LIMPIEZA TOTAL: Link arriba sin adornos
     const message = `${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`;
     
     const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank');
   };
 
-// ... (resto del archivo igual)
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -77,6 +75,7 @@ export default function CartModal({ open, onClose }: any) {
         </div>
 
         <div className={styles.footer}>
+          {/* BOTÓN EXPORTAR */}
           {items.length > 0 && (
             <button className={styles.exportBtn} onClick={handleExportSelection}>
               <Share2 size={16} /> COMPARTIR ESTA SELECCIÓN POR WHATSAPP

@@ -13,8 +13,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const pParam = searchParams.p || '';
   const preParam = searchParams.precios || 'si';
   
-  const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}&precios=${preParam}`;
-  const pageUrl = `${domain}/catalogo-premium?p=${pParam}&precios=${preParam}`;
+  // 📸 URL acortada a /c-p/og
+  const imageUrl = `${domain}/c-p/og?p=${pParam}&precios=${preParam}`;
+  const pageUrl = `${domain}/c-p?p=${pParam}&precios=${preParam}`;
 
   const brandName = "Glamour"; 
   const mainTitle = "Ahora Tienda On line";
@@ -22,13 +23,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
   return {
     metadataBase: new URL(domain),
-    title: brandName,
+    title: mainTitle,
+    description: subTitle,
     
     openGraph: {
       siteName: brandName, 
       title: mainTitle, 
       description: subTitle, 
-      url: domain, // 👈 TRUCO: Apuntamos al dominio base en el OG para limpiar la vista
+      url: pageUrl,
       images: [
         {
           url: imageUrl,
@@ -38,12 +40,11 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
         },
       ],
       locale: 'es_AR',
-      type: 'website',
+      type: 'article',
     },
 
-    // 🛡️ Esto fuerza a los navegadores a confiar en el contenido
     alternates: {
-      canonical: pageUrl,
+      canonical: domain, 
     },
 
     twitter: {

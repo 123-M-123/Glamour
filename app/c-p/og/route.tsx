@@ -3,10 +3,13 @@ import { getProductsFromSheets } from '@/lib/googleSheets'
 import { NextRequest } from 'next/server'
 import sharp from 'sharp'
 
+// 🛡️ Forzamos el runtime de Nodejs porque 'sharp' no corre en el Edge de Vercel
+export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
 function getThumb(url: string) {
   if (!url) return '';
+  // Optimizamos la carga pidiendo una miniatura de 500px a Google Drive
   return url.replace('sz=w1000', 'sz=w500');
 }
 
@@ -16,15 +19,17 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
     const pParam = searchParams.get('p') || ''
-    const mostrarPrecios = searchParams.get('precios') !== 'no'; // 👈 Sensor de precios
+    const mostrarPrecios = searchParams.get('precios') !== 'no';
     
     const ids = pParam.split(',').map(id => id.trim())
     const allProducts = await getProductsFromSheets()
     
+    // Tomamos hasta 6 productos para que la grilla sea armoniosa
     const items = allProducts
       .filter(p => ids.includes(p.id.toString()))
       .slice(0, 6);
 
+    // 1. Generamos la imagen con Next/OG (esto sale en PNG)
     const res = new ImageResponse(
       (
         <div style={{
@@ -36,10 +41,12 @@ export async function GET(req: NextRequest) {
           padding: '50px',
           alignItems: 'center',
         }}>
+          {/* LOGO SUPERIOR */}
           <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginBottom: '40px' }}>
             <img src={`${origin}/icons/logo-no.png`} style={{ height: '120px', objectFit: 'contain' }} />
           </div>
 
+          {/* GRILLA DE PRODUCTOS */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '25px', justifyContent: 'center', width: '1100px' }}>
             {items.map((item) => (
               <div key={item.id} style={{ 
@@ -48,7 +55,7 @@ export async function GET(req: NextRequest) {
               }}>
                 <img src={getThumb(item.imagen)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 
-                {/* 💰 LÓGICA CONDICIONAL DE PRECIO */}
+                {/* PRECIO CONDICIONAL */}
                 {mostrarPrecios && (
                   <div style={{ 
                     position: 'absolute', bottom: '15px', right: '15px', 
@@ -64,6 +71,7 @@ export async function GET(req: NextRequest) {
             ))}
           </div>
 
+          {/* PIE DE IMAGEN CON ICONO WHATSAPP */}
           <div style={{ marginTop: 'auto', display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center', borderTop: '2px solid rgba(255,255,255,0.3)', paddingTop: '30px', gap: '20px' }}>
               <img src={`${origin}/icons/whats.png`} style={{ width: '90px', height: '90px' }} />
               <span style={{ color: 'white', fontSize: '60px', fontWeight: 800, display: 'flex' }}>
@@ -72,17 +80,32 @@ export async function GET(req: NextRequest) {
           </div>
         </div>
       ),
-      { width: 1200, height: 1000 }
+      { 
+        width: 1200, 
+        height: 1000,
+        // Usamos una fuente estándar de sistema para máxima velocidad de renderizado
+      }
     )
 
+    // 2. Convertimos el PNG de ImageResponse a JPG usando Sharp
     const pngBuffer = await res.arrayBuffer();
-    const jpgBuffer = await sharp(Buffer.from(pngBuffer)).jpeg({ quality: 80, mozjpeg: true }).toBuffer();
+    const jpgBuffer = await sharp(Buffer.from(pngBuffer))
+      .jpeg({ 
+        quality: 75, // Bajamos un poco la calidad para que el archivo pese menos y WhatsApp lo cargue más rápido
+        mozjpeg: true 
+      })
+      .toBuffer();
 
+    // 3. Respondemos con el MIME type correcto image/jpeg
     return new Response(new Uint8Array(jpgBuffer), {
-      headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, immutable, max-age=3600' },
+      headers: { 
+        'Content-Type': 'image/jpeg', 
+        'Cache-Control': 'public, immutable, max-age=3600' 
+      },
     });
 
   } catch (e: any) {
+    console.error("Error en OG Route:", e.message);
     return new Response(`Error: ${e.message}`, { status: 500 });
   }
 }
