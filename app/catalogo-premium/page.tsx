@@ -15,27 +15,40 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}&precios=${preParam}`;
   
   return {
-    title: `Catálogo Glamour`,
-    description: `Exclusivo para vos...`,
+    // 🛡️ CONFIGURACIÓN DE BASE PARA RUTAS ABSOLUTAS
+    metadataBase: new URL(domain),
+    title: `Catálogo Glamour Urquiza`,
+    description: `Catálogo Premium`,
+    
     openGraph: {
-      title: 'SELECCIÓN PERSONALIZADA 🛍️',
-      description: `Exclusivo para vos...`,
-      url: `${domain}/catalogo-premium?p=${pParam}&precios=${preParam}`,
-      siteName: 'Glamour Urquiza', // 👈 Forzamos el nombre de la marca
+      // 🎯 IGUALAMOS EL SITE NAME AL QUE SÍ FUNCIONA
+      siteName: 'Glamour Urquiza', 
+      title: 'Selección Personalizada', // Quitamos emojis para evitar que parezca spam
+      description: 'Exclusivo para vos...',
+      url: `/catalogo-premium?p=${pParam}&precios=${preParam}`,
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 1000,
+          alt: 'Selección Glamour'
         },
       ],
+      locale: 'es_AR',
       type: 'website',
     },
+    
+    // 🔥 CONFIGURACIÓN EXTRA PARA WHATSAPP/IOS
     twitter: {
       card: 'summary_large_image',
-      title: 'SELECCIÓN PERSONALIZADA 🛍️',
+      title: 'Selección Personalizada',
       description: 'Exclusivo para vos...',
       images: [imageUrl],
+    },
+    
+    // Esto ayuda a que el robot no se pierda en los parámetros
+    alternates: {
+      canonical: `/catalogo-premium?p=${pParam}`,
     }
   }
 }
