@@ -9,8 +9,6 @@ export default function IndumentariaClient({ productos, banners }: { productos: 
   useEffect(() => { setMounted(true) }, [])
   if (!mounted) return null
 
-  // 🪄 MAGIA: Filtramos categorías de tipo 'indumentaria' dinámicamente
-  // Usamos un Map para asegurar que sean únicas por su slug
   const catMap = new Map();
   productos.forEach(p => {
     if (p.tipo === 'indumentaria' && !catMap.has(p.categoriaSlug)) {
@@ -20,13 +18,23 @@ export default function IndumentariaClient({ productos, banners }: { productos: 
 
   const categoriasFinales = Array.from(catMap.entries());
 
+  // 🪄 MOTOR DE RENDERIZADO CORREGIDO (Con Link de Destino)
   const renderBanner = (ubicacion: string) => {
     const banner = banners.find(b => b.ubicacion === ubicacion.toLowerCase());
     if (!banner) return null;
-    return (
+
+    const content = (
       <div className={styles.bannerContainer}>
-        <img src={banner.imagen} alt="Publicidad" className={styles.bannerImg} />
+        <img src={banner.imagen} alt="Publicidad Glamour" className={styles.bannerImg} />
       </div>
+    );
+
+    return banner.linkDestino ? (
+      <a href={banner.linkDestino} target="_blank" rel="noopener noreferrer">
+        {content}
+      </a>
+    ) : (
+      content
     );
   }
 

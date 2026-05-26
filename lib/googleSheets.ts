@@ -66,20 +66,30 @@ export async function getProductsFromSheets() {
   }
 }
 
+// lib/googleSheets.ts - SOLO LA FUNCIÓN DE BANNERS (Asegurate de pegarla bien)
+
 export async function getBannersFromSheets() {
   try {
-    const range = "'Baners Publicidad'!A2:E"; 
+    const range = "'Baners Publicidad'!A2:E"; // Leemos hasta la E para la versión
     const response = await sheets.spreadsheets.values.get({ spreadsheetId: MASTER_ID, range });
     const rows = response.data.values;
     if (!rows) return [];
+
     return rows
-      .filter((row: any) => row[0] && SOCIOS_AUTORIZADOS.includes(row[0].trim().toLowerCase()))
+      .filter((row: any) => {
+        // Filtro estricto por mail para que no se mezclen clientes
+        const emailEnFila = row[0]?.toString().trim().toLowerCase();
+        return emailEnFila && SOCIOS_AUTORIZADOS.includes(emailEnFila);
+      })
       .map((row: any) => {
         const urlOriginal = row[1] || "";
-        const version = row[4] || "1";
+        const version = row[4] || "1"; // Columna E para el ?v=
+        
         return {
+          // 🚀 CACHE AGRESIVO: Usamos lh3 directo con el parámetro de versión
           imagen: getDriveDirectLink(urlOriginal, version),
           ubicacion: row[2]?.toString().toLowerCase().trim() || "",
+          // 🔗 LINK DE DESTINO: Capturamos la columna D
           linkDestino: row[3] || null
         };
       });

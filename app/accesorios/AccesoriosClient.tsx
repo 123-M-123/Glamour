@@ -13,9 +13,6 @@ export default function AccesoriosClient({ productos, banners }: { productos: an
   
   if (!mounted) return null
 
-  // 🪄 MAGIA DINÁMICA: 
-  // Filtramos productos que el motor identificó como 'accesorios' (los que tenían *)
-  // Usamos un Map para garantizar categorías únicas por su slug normalizado.
   const catMap = new Map();
   productos.forEach(p => {
     if (p.tipo === 'accesorios' && !catMap.has(p.categoriaSlug)) {
@@ -25,20 +22,29 @@ export default function AccesoriosClient({ productos, banners }: { productos: an
 
   const categoriasFinales = Array.from(catMap.entries());
 
-  // Motor de renderizado de banners
+  // 🪄 MOTOR DE RENDERIZADO CORREGIDO (Con Link de Destino)
   const renderBanner = (ubicacion: string) => {
     const banner = banners.find(b => b.ubicacion === ubicacion.toLowerCase());
     if (!banner) return null;
-    return (
+
+    const content = (
       <div className={styles.bannerContainer}>
         <img src={banner.imagen} alt="Publicidad Glamour" className={styles.bannerImg} />
       </div>
+    );
+
+    // Si tiene link en la planilla, lo envolvemos en un <a>
+    return banner.linkDestino ? (
+      <a href={banner.linkDestino} target="_blank" rel="noopener noreferrer">
+        {content}
+      </a>
+    ) : (
+      content
     );
   }
 
   return (
     <main className={styles.container}>
-      {/* BANNER SUPERIOR DINÁMICO */}
       {renderBanner("hero-accesorios")}
 
       <header className={styles.header}>
@@ -69,7 +75,6 @@ export default function AccesoriosClient({ productos, banners }: { productos: an
         ))}
       </div>
 
-      {/* BANNER INFERIOR DINÁMICO */}
       {renderBanner("footer-accesorios")}
     </main>
   )

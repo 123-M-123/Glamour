@@ -90,7 +90,7 @@ export default function PoliticasPage() {
 
         {/* FOOTER DE PÁGINA */}
         <div style={pageFooter}>
-          <p>© 2026 {config.name} Glamour</p>
+          <p>© 2026  Glamour</p>
           <div style={socials}>
              <a href={config.instagram} target="_blank" style={socialLink}>INSTAGRAM</a>
              <a href={config.tiktok} target="_blank" style={socialLink}>TIKTOK</a>
