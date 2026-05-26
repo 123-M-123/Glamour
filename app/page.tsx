@@ -1,6 +1,6 @@
 import { getBannersFromSheets } from '@/lib/googleSheets'
 import HeroSection from '@/app/components/HeroSection'
-
+export const revalidate = 1; 
 export default async function Home() {
   // Pedimos los datos directamente en el servidor
   // Esto es mucho mejor para el SEO y la velocidad inicial
