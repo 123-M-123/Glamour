@@ -125,38 +125,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
-.brand { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 4px;
-}
-
-.sidebarLogo {
-  height: 25px;
-  width: auto;
-  object-fit: contain;
-}
-
-.sidebarSubtitle { 
-  font-size: 11px; 
-  opacity: 0.9; 
-  text-transform: uppercase; 
-  letter-spacing: 2px;
-  font-weight: 800;
-}
-
+.brand { display: flex; flex-direction: column; gap: 4px; }
+.sidebarLogo { height: 25px; width: auto; object-fit: contain; }
+.sidebarSubtitle { font-size: 11px; opacity: 0.9; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; }
 .sidebarHeader button { background: none; border: none; color: white; cursor: pointer; }
 
 /* =========================
-   NAVEGACIÓN (ESTILO ORIGINAL)
+   NAVEGACIÓN
 ========================= */
 .sidebarNav { 
   display: flex; 
   flex-direction: column; 
   padding: 10px 0; 
-  overflow-y: auto;
+  overflow-y: auto; /* Permite scroll si hay muchas categorías */
   flex: 1;
 }
 
@@ -166,90 +150,65 @@
   align-items: center;
   gap: 15px;
   text-decoration: none;
-  color: #333; /* Color suave original */
-  font-weight: 600; /* Peso medio original */
+  color: #333;
+  font-weight: 600;
   border-bottom: 1px solid #f2f2f2;
   background: transparent;
   width: 100%;
   text-align: left;
-  text-transform: capitalize; /* 👈 RESTAURADO: Primera letra mayúscula */
+  text-transform: capitalize;
 }
 
-.accordionTrigger {
-  justify-content: space-between;
-  border-left: none; border-right: none; border-top: none;
-}
-
+.accordionTrigger { justify-content: space-between; border: none; }
 .triggerLeft { display: flex; align-items: center; gap: 15px; }
 .active { background: #fff0f1; color: #ff0000; }
 .rotate { transform: rotate(180deg); transition: transform 0.3s; }
 
-.accordionContent {
-  background: #fafafa;
-  display: flex; 
-  flex-direction: column;
-}
+.accordionContent { background: #fafafa; display: flex; flex-direction: column; }
 
-/* SUB-ITEMS CON ICONOS DE 50PX */
+/* 🪄 FILA DE CATEGORÍA CORREGIDA */
 .subItem {
-  padding: 8px 20px 8px 85px; /* 👈 Padding ajustado para iconos de 50px */
+  padding: 10px 20px;
   display: flex; 
   align-items: center; 
-  gap: 12px;
+  gap: 20px; /* Espacio real entre icono y texto */
   text-decoration: none; 
   color: #555;
   font-size: 15px; 
-  font-weight: 500; /* Letra más liviana */
+  font-weight: 500;
   border-bottom: 1px solid #f0f0f0;
-  text-transform: capitalize; /* 👈 RESTAURADO: Primera letra mayúscula */
-  min-height: 60px; /* Para asegurar que el icono quepa */
+  text-transform: capitalize;
+  min-height: 70px;
 }
 
-/* 🖼️ ICONOS DEL SIDEBAR (50PX GLOBAL) */
+/* 🖼️ ICONOS DE 50PX (SISTEMA FLEX) */
 .iconWrapper {
   width: 50px; 
   height: 50px;
   display: flex; 
   align-items: center; 
   justify-content: center;
-  position: absolute; /* Para que el padding del texto no lo mueva */
-  left: 20px;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Evita que el texto lo aplaste */
+  position: relative;
 }
 
 .sidebarPng { 
   width: 100%; 
   height: 100%; 
   object-fit: contain; 
-  z-index: 2; 
 }
 
-.sidebarLucide { 
-  color: #ff0000; 
-  z-index: 1; 
-  position: absolute; 
-}
-
-/* =========================
-   EXTRAS
-========================= */
+/* FOOTER SOCIAL SIDEBAR */
 .sidebarFooterSocial {
-  padding: 30px 20px;
+  padding: 20px;
   border-top: 1px solid #eee;
   text-align: center;
-  background: #fdfdfd;
+  background: white;
+  flex-shrink: 0; /* Asegura que el footer no se mueva */
 }
 
-.footerSocialTitle {
-  font-size: 10px;
-  font-weight: 900;
-  color: #999;
-  letter-spacing: 1px;
-  margin-bottom: 15px;
-}
-
+.footerSocialTitle { font-size: 10px; font-weight: 900; color: #999; letter-spacing: 1px; margin-bottom: 10px; }
 .socialIconsContainer { display: flex; justify-content: center; gap: 30px; }
-.socialIconsContainer a:active { transform: scale(0.9); }
 
 .overlay {
   position: fixed; top: 0; left: 0;
