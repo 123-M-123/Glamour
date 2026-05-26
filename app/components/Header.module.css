@@ -63,23 +63,13 @@
 /* =========================
    ICONOS Y BADGES
 ========================= */
-.cart { 
+.cart, .wishlistBtn, .menuBtn { 
   position: relative; 
   display: flex; 
   align-items: center; 
   background: none; 
   border: none; 
   cursor: pointer; 
-}
-
-.wishlistBtn {
-  position: relative;
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
 }
 
 .wishlistIcon {
@@ -107,14 +97,6 @@
   align-items: center; 
   justify-content: center;
   border: 1px solid #ff0000;
-}
-
-.menuBtn { 
-  background: none; 
-  border: none; 
-  cursor: pointer; 
-  display: flex; 
-  align-items: center; 
 }
 
 /* =========================
@@ -145,7 +127,11 @@
   align-items: center;
 }
 
-.brand { display: flex; flex-direction: column; gap: 4px; }
+.brand { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 4px;
+}
 
 .sidebarLogo {
   height: 25px;
@@ -164,7 +150,7 @@
 .sidebarHeader button { background: none; border: none; color: white; cursor: pointer; }
 
 /* =========================
-   NAVEGACIÓN Y ACORDEONES
+   NAVEGACIÓN (ESTILO ORIGINAL)
 ========================= */
 .sidebarNav { 
   display: flex; 
@@ -180,31 +166,73 @@
   align-items: center;
   gap: 15px;
   text-decoration: none;
-  color: #1a1a1a;
-  font-weight: 700;
+  color: #333; /* Color suave original */
+  font-weight: 600; /* Peso medio original */
   border-bottom: 1px solid #f2f2f2;
-  transition: background 0.2s;
   background: transparent;
   width: 100%;
   text-align: left;
+  text-transform: capitalize; /* 👈 RESTAURADO: Primera letra mayúscula */
 }
 
-.accordionTrigger { justify-content: space-between; border: none; }
+.accordionTrigger {
+  justify-content: space-between;
+  border-left: none; border-right: none; border-top: none;
+}
+
 .triggerLeft { display: flex; align-items: center; gap: 15px; }
 .active { background: #fff0f1; color: #ff0000; }
 .rotate { transform: rotate(180deg); transition: transform 0.3s; }
 
-.accordionContent { background: #fafafa; display: flex; flex-direction: column; }
-
-.subItem {
-  padding: 12px 20px 12px 65px;
-  display: flex; align-items: center; gap: 12px;
-  text-decoration: none; color: #555;
-  font-size: 14px; font-weight: 600;
-  border-bottom: 1px solid #f0f0f0;
+.accordionContent {
+  background: #fafafa;
+  display: flex; 
+  flex-direction: column;
 }
 
-/* FOOTER SOCIAL SIDEBAR */
+/* SUB-ITEMS CON ICONOS DE 50PX */
+.subItem {
+  padding: 8px 20px 8px 85px; /* 👈 Padding ajustado para iconos de 50px */
+  display: flex; 
+  align-items: center; 
+  gap: 12px;
+  text-decoration: none; 
+  color: #555;
+  font-size: 15px; 
+  font-weight: 500; /* Letra más liviana */
+  border-bottom: 1px solid #f0f0f0;
+  text-transform: capitalize; /* 👈 RESTAURADO: Primera letra mayúscula */
+  min-height: 60px; /* Para asegurar que el icono quepa */
+}
+
+/* 🖼️ ICONOS DEL SIDEBAR (50PX GLOBAL) */
+.iconWrapper {
+  width: 50px; 
+  height: 50px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  position: absolute; /* Para que el padding del texto no lo mueva */
+  left: 20px;
+  flex-shrink: 0;
+}
+
+.sidebarPng { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: contain; 
+  z-index: 2; 
+}
+
+.sidebarLucide { 
+  color: #ff0000; 
+  z-index: 1; 
+  position: absolute; 
+}
+
+/* =========================
+   EXTRAS
+========================= */
 .sidebarFooterSocial {
   padding: 30px 20px;
   border-top: 1px solid #eee;
@@ -222,29 +250,6 @@
 
 .socialIconsContainer { display: flex; justify-content: center; gap: 30px; }
 .socialIconsContainer a:active { transform: scale(0.9); }
-
-/* 🖼️ ICONOS HÍBRIDOS (CORREGIDO) */
-.iconWrapper {
-  width: 36px;  /* Tamaño más grande para los PNG del sidebar */
-  height: 36px;
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-  position: relative;
-}
-
-.sidebarPng { 
-  width: 100%; 
-  height: 100%; 
-  object-fit: contain; 
-  z-index: 2; 
-}
-
-.sidebarLucide { 
-  color: #ff0000; 
-  z-index: 1; 
-  position: absolute; 
-}
 
 .overlay {
   position: fixed; top: 0; left: 0;
