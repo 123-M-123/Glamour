@@ -12,43 +12,55 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   
   const pParam = searchParams.p || '';
   const preParam = searchParams.precios || 'si';
-  const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}&precios=${preParam}`;
   
+  // 📸 Generamos la URL de la imagen (Aseguramos que sea absoluta y limpia)
+  const imageUrl = `${domain}/catalogo-premium/og?p=${pParam}&precios=${preParam}`;
+  const pageUrl = `${domain}/catalogo-premium?p=${pParam}&precios=${preParam}`;
+
+  const cleanTitle = "Glamour Urquiza"; // 🎯 EL NOMBRE DE TU MARCA
+  const shareTitle = "Selección Personalizada 🛍️";
+
   return {
-    // 🛡️ CONFIGURACIÓN DE BASE PARA RUTAS ABSOLUTAS
+    // 🛡️ 1. BASE DE METADATOS (Sin barra al final)
     metadataBase: new URL(domain),
-    title: `Catálogo Glamour Urquiza`,
-    description: `Catálogo Premium`,
+    title: cleanTitle,
+    description: "Catálogo exclusivo para vos...",
     
+    // 🛡️ 2. ESTO ES LO QUE WHATSAPP MIRA PARA EL LINK CORTO
     openGraph: {
-      // 🎯 IGUALAMOS EL SITE NAME AL QUE SÍ FUNCIONA
-      siteName: 'Glamour Urquiza', 
-      title: 'Selección Personalizada', // Quitamos emojis para evitar que parezca spam
-      description: 'Exclusivo para vos...',
-      url: `/catalogo-premium?p=${pParam}&precios=${preParam}`,
+      siteName: cleanTitle, // Debe ser idéntico al que funciona
+      title: shareTitle,
+      description: "Hacé clic para ver los productos seleccionados.",
+      url: pageUrl,
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 1000,
-          alt: 'Selección Glamour'
+          type: 'image/png', // 👈 Forzamos el tipo
         },
       ],
       locale: 'es_AR',
-      type: 'website',
+      type: 'article', // 👈 Cambiamos website por article (a veces fuerza el link limpio)
     },
-    
-    // 🔥 CONFIGURACIÓN EXTRA PARA WHATSAPP/IOS
+
+    // 🛡️ 3. SOPORTE PARA IPHONE/WHATSAPP IOS
+    appleWebApp: {
+      title: cleanTitle,
+      statusBarStyle: 'default',
+    },
+
+    // 🛡️ 4. TWITTER CARD (WhatsApp lo usa como respaldo)
     twitter: {
       card: 'summary_large_image',
-      title: 'Selección Personalizada',
-      description: 'Exclusivo para vos...',
+      title: shareTitle,
+      description: "Catálogo exclusivo",
       images: [imageUrl],
     },
-    
-    // Esto ayuda a que el robot no se pierda en los parámetros
+
+    // 🛡️ 5. CANONICAL (Para que no intente leer los parámetros largos como parte del dominio)
     alternates: {
-      canonical: `/catalogo-premium?p=${pParam}`,
+      canonical: domain, 
     }
   }
 }
