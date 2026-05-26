@@ -35,7 +35,6 @@
   gap: 15px; 
 }
 
-/* Redes en Desktop */
 .socialDesktop {
   display: flex;
   align-items: center;
@@ -49,7 +48,6 @@
 .center { 
   display: flex; 
   align-items: center; 
-  /* Ajuste visual para centrar logo con asimetría de botones */
   padding-left: 20px; 
 }
 
@@ -147,11 +145,7 @@
   align-items: center;
 }
 
-.brand { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 4px;
-}
+.brand { display: flex; flex-direction: column; gap: 4px; }
 
 .sidebarLogo {
   height: 25px;
@@ -167,12 +161,7 @@
   font-weight: 800;
 }
 
-.sidebarHeader button { 
-  background: none; 
-  border: none; 
-  color: white; 
-  cursor: pointer; 
-}
+.sidebarHeader button { background: none; border: none; color: white; cursor: pointer; }
 
 /* =========================
    NAVEGACIÓN Y ACORDEONES
@@ -200,22 +189,12 @@
   text-align: left;
 }
 
-.accordionTrigger {
-  justify-content: space-between;
-  border-left: none; border-right: none; border-top: none;
-}
-
+.accordionTrigger { justify-content: space-between; border: none; }
 .triggerLeft { display: flex; align-items: center; gap: 15px; }
-
 .active { background: #fff0f1; color: #ff0000; }
-
 .rotate { transform: rotate(180deg); transition: transform 0.3s; }
 
-.accordionContent {
-  background: #fafafa;
-  display: flex; 
-  flex-direction: column;
-}
+.accordionContent { background: #fafafa; display: flex; flex-direction: column; }
 
 .subItem {
   padding: 12px 20px 12px 65px;
@@ -241,29 +220,31 @@
   margin-bottom: 15px;
 }
 
-.socialIconsContainer {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-}
+.socialIconsContainer { display: flex; justify-content: center; gap: 30px; }
+.socialIconsContainer a:active { transform: scale(0.9); }
 
-.socialIconsContainer a {
-  transition: transform 0.2s;
-}
-
-.socialIconsContainer a:active {
-  transform: scale(0.9);
-}
-
-/* ICONOS HÍBRIDOS */
+/* 🖼️ ICONOS HÍBRIDOS (CORREGIDO) */
 .iconWrapper {
-  width: 32px; height: 32px;
-  display: flex; align-items: center; justify-content: center;
+  width: 36px;  /* Tamaño más grande para los PNG del sidebar */
+  height: 36px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
   position: relative;
 }
 
-.sidebarPng { width: 100%; height: 100%; object-fit: contain; z-index: 2; }
-.sidebarLucide { color: #ff0000; z-index: 1; position: absolute; }
+.sidebarPng { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: contain; 
+  z-index: 2; 
+}
+
+.sidebarLucide { 
+  color: #ff0000; 
+  z-index: 1; 
+  position: absolute; 
+}
 
 .overlay {
   position: fixed; top: 0; left: 0;

@@ -1,45 +1,142 @@
-.page { padding: 80px 16px 40px; min-height: 100vh; animation: fadeIn 0.8s ease-out; }
-.title { color: #FF0000; font-size: 32px; letter-spacing: 2px; font-weight: 800; margin-bottom: 5px; text-transform: capitalize; text-align: center; }
-.subtitle { color: #666; font-size: 14px; letter-spacing: 1px; text-align: center; }
-.sectionTitle { color: #ff4d6d; text-align: center; margin: 50px 0 20px; font-size: 22px; font-weight: 700; letter-spacing: 1px; text-transform: capitalize; }
-
-.carouselContainer { width: 100%; overflow: hidden; margin: 20px 0; padding: 15px 0; background: rgba(255, 255, 255, 0.2); }
-.track { display: flex; width: max-content; animation-name: scrollX; animation-timing-function: linear; animation-iteration-count: infinite; }
-.trackReverse { animation-name: scrollX; animation-timing-function: linear; animation-iteration-count: infinite; animation-direction: reverse; }
-.carouselCard { width: 180px; height: 250px; margin-right: 15px; border-radius: 16px; overflow: hidden; cursor: pointer; border: 1px solid #ffc9cb; position: relative; background: white; transition: transform 0.4s ease; }
-.carouselCard img { width: 100%; height: 100%; object-fit: cover; }
-.miniLabel { position: absolute; bottom: 0; width: 100%; background: rgba(255, 77, 109, 0.9); color: white; font-size: 13px; font-weight: 600; text-align: center; padding: 8px 4px; text-transform: capitalize; backdrop-filter: blur(2px); }
-
-.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 30px 0; }
-@media (min-width: 768px) { .grid { grid-template-columns: repeat(4, 1fr); gap: 25px; } .carouselCard { width: 240px; height: 320px; } }
-
-.productCard { cursor: pointer; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(5px); border-radius: 16px; overflow: hidden; border: none; transition: all 0.3s ease; animation: fadeInUp 0.6s ease backwards; box-shadow: 0 10px 25px rgba(255, 0, 0, 0.25); }
-.productCard:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(255, 0, 0, 0.4); }
-
-.imageBox { width: 100%; aspect-ratio: 3/4; overflow: hidden; position: relative; }
-.imageBox img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
-.productCard:hover .imageBox img { transform: scale(1.1); }
-
-.info { padding: 15px; text-align: center; }
-.productName { display: block; font-size: 15px; font-weight: 700; color: #ff4d6d; margin-bottom: 5px; text-transform: capitalize; }
-.price { color: #FF0000; font-weight: 800; font-size: 18px; }
-
-.quickWish, .quickBag, .quickShare {
-  position: absolute; width: 38px; height: 38px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: transform 0.2s, background-color 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+.container {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-.quickBag, .quickShare { background: #FF0000; }
-.quickWish { background: #FFF8F8; border: 1px solid #ffcccc; }
-.quickBag { top: 10px; left: 10px; }
-.quickWish { top: 10px; right: 10px; }
-.quickShare { bottom: 10px; right: 10px; }
-.quickWish img { width: 22px; height: auto; }
-.quickWish:hover, .quickBag:hover, .quickShare:hover { transform: scale(1.1); background: #ff4d6d; }
-.quickWish:active, .quickBag:active, .quickShare:active { transform: scale(0.9); }
 
-.bannerContainer { width: 100%; margin: 40px 0; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-.bannerImg { width: 100%; height: auto; display: block; }
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
 
-@keyframes scrollX { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-.track:hover { animation-play-state: paused; }
+.title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ff0000;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 14px;
+}
+
+/* GRID DE CATEGORÍAS */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+  }
+}
+
+/* CARDS COMPACTAS */
+.card {
+  background: white;
+  border-radius: 15px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: 2px solid #ffc9cb;
+  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s forwards;
+}
+
+@media (min-width: 768px) {
+  .card { padding: 20px; }
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(255, 0, 0, 0.15);
+    border-color: #ff0000;
+  }
+}
+
+/* CONTENEDOR DEL ICONO */
+.iconBox {
+  width: 100%;
+  height: 100px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  position: relative;
+  color: #ff0000;
+}
+
+/* EL ICONO PNG */
+.customIcon {
+  max-width: 100px; 
+  max-height: 90px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .customIcon {
+  transform: scale(1.1);
+}
+
+/* TEXTOS DENTRO DE LA CARD */
+.cardInfo {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.catName {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  color: #333;
+}
+
+.explore {
+  font-size: 9px;
+  font-weight: bold;
+  color: #ff9c9f;
+  letter-spacing: 1px;
+}
+
+@media (min-width: 768px) {
+  .catName { font-size: 16px; }
+  .iconBox { height: 130px; }
+  .customIcon { max-width: 120px; max-height: 110px; }
+}
+
+/* BANNERS */
+.bannerContainer {
+  width: 100%;
+  margin: 20px 0;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.bannerImg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ICONOS DE RESPALDO */
+.fallbackIcon { display: none; }
+.showFallback .fallbackIcon { display: block; color: #ff0000; }
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}

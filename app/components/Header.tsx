@@ -14,7 +14,7 @@ import { useWishlistStore } from '../store/useWishlistStore'
 import CartModal from './CartModal'
 import { STORE_CONFIG } from '@/lib/storeConfig'
 
-// Icono TikTok personalizado para hacer match con Lucide
+// Icono TikTok personalizado
 const TikTokIcon = ({ size = 24, color = "white" }) => (
   <svg 
     width={size} height={size} viewBox="0 0 24 24" fill="none" 
@@ -48,17 +48,24 @@ export default function Header() {
   const indumentariaCats = cats.filter(c => c.tipo === 'indumentaria')
   const accesoriosCats = cats.filter(c => c.tipo === 'accesorios')
 
-  const NavIcon = ({ slug, fallback: Fallback }: { slug: string, fallback: any }) => (
-    <div className={styles.iconWrapper}>
-      <img 
-        src={`/icons/${slug}.png`} 
-        alt="" 
-        className={styles.sidebarPng}
-        onError={(e) => (e.currentTarget.style.display = 'none')}
-      />
-      <Fallback size={20} className={styles.sidebarLucide} />
-    </div>
-  )
+  // 🪄 HELPER NavIcon CORREGIDO: Elimina la "flecha" si el PNG existe
+  const NavIcon = ({ slug, fallback: Fallback }: { slug: string, fallback: any }) => {
+    const [hasError, setHasError] = useState(false);
+    return (
+      <div className={styles.iconWrapper}>
+        {!hasError ? (
+          <img 
+            src={`/icons/${slug}.png`} 
+            alt="" 
+            className={styles.sidebarPng}
+            onError={() => setHasError(true)}
+          />
+        ) : (
+          <Fallback size={24} className={styles.sidebarLucide} />
+        )}
+      </div>
+    )
+  }
 
   return (
     <>
@@ -144,7 +151,6 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* Footer del Sidebar con Redes Sociales (Mobile Only) */}
         <div className={styles.sidebarFooterSocial}>
           <p className={styles.footerSocialTitle}>Seguinos</p>
           <div className={styles.socialIconsContainer}>
