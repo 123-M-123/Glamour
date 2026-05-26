@@ -17,12 +17,12 @@ export default function WishlistPage() {
   const ids = wishlist.map(item => item.id).join(',')
   const base = typeof window !== 'undefined' ? window.location.origin : ''
   
-  // 📉 URL ACORTADA CON $
   const shareUrl = `${base}/c-p?p=${ids}&$=${conPrecios ? '1' : '0'}`
   const imageUrl = `${base}/c-p/og?p=${ids}&$=${conPrecios ? '1' : '0'}`
 
+  // 🪄 WHATSAPP: LIMPIEZA TOTAL (SOLO LINK)
   const handleWA = () => {
-    const text = encodeURIComponent(`${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`)
+    const text = encodeURIComponent(shareUrl) // 👈 Borramos las leyendas de aquí
     window.open(`https://wa.me/?text=${text}`, '_blank')
   }
 
@@ -41,7 +41,6 @@ export default function WishlistPage() {
     if (navigator.share) {
       await navigator.share({ 
         title: 'Glamour', 
-        text: 'Ahora Tienda On line\nSeleccion personalizada para vos..',
         url: shareUrl 
       })
     }

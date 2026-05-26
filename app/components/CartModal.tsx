@@ -18,24 +18,20 @@ export default function CartModal({ open, onClose }: any) {
   const ahorro = totalLista - totalTransfer
   const totalFinal = totalTransfer + envioGlobal
 
-  // 🪄 FUNCIÓN EXPORTAR (CON RUTA ACORTADA /C-P)
-  // ... (mantené tus imports y lógica inicial igual)
-
+  // 🪄 FUNCIÓN EXPORTAR: LIMPIEZA TOTAL (SOLO LINK)
   const handleExportSelection = () => {
     if (items.length === 0) return;
 
     const ids = items.map(item => item.producto.id).join(',');
     const baseUrl = "https://glamour-urquiza.vercel.app"; 
-    // 📉 REDUCCIÓN MÁXIMA CON $
     const shareUrl = `${baseUrl}/c-p?p=${ids}&$=1`;
 
-    const message = `${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`;
+    // 💡 Al dejar solo el link, WhatsApp muestra el recuadro gris sin texto repetido abajo
+    const message = shareUrl;
     
     const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank');
   };
-
-// ... (resto del archivo igual)
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -54,9 +50,11 @@ export default function CartModal({ open, onClose }: any) {
             onChange={(e) => setEnvioGlobal(Number(e.target.value))}
           >
             <option value={0}>Retiro Gratis (Villa Urquiza)</option>
-            <option value={3000}>Envío Zona 1 ($3.000)</option>
-            <option value={5000}>Envío Zona 2 ($5.000)</option>
-            <option value={7000}>Envío Zona 3 ($7.000)</option>
+            <option value={0}>Paquete interior (ANDREANI)</option>
+            <option value={4000}>Caba Env Zona 1 ($4.000)</option>
+            <option value={6000}>Caba Env Zona 2 ($6.000)</option>
+            <option value={8000}>Caba Env Zona 3 ($8.000)</option>
+            <option value={10000}>Caba Env Zona 4 ($10.000)</option>
           </select>
         </div>
 
@@ -78,7 +76,6 @@ export default function CartModal({ open, onClose }: any) {
         </div>
 
         <div className={styles.footer}>
-          {/* BOTÓN EXPORTAR */}
           {items.length > 0 && (
             <button className={styles.exportBtn} onClick={handleExportSelection}>
               <Share2 size={16} /> COMPARTIR ESTA SELECCIÓN POR WHATSAPP
