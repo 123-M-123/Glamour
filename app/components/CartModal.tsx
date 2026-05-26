@@ -18,25 +18,24 @@ export default function CartModal({ open, onClose }: any) {
   const ahorro = totalLista - totalTransfer
   const totalFinal = totalTransfer + envioGlobal
 
-  // 🪄 FUNCIÓN EXPORTAR (TEXTOS SIMÉTRICOS ACTUALIZADOS)
+ // ... (mantené tus imports y lógica de estado igual)
+
   const handleExportSelection = () => {
     if (items.length === 0) return;
 
     const ids = items.map(item => item.producto.id).join(',');
-    // Usamos el dominio de producción para asegurar la limpieza
     const baseUrl = "https://glamour-urquiza.vercel.app"; 
     const shareUrl = `${baseUrl}/catalogo-premium?p=${ids}&precios=si`;
 
-    // 💡 ESTRUCTURA DE LIMPIEZA: 
-    // 1. Link (Sin texto al lado)
-    // 2. Título solicitado
-    // 3. Subtítulo solicitado
-    const message = `${shareUrl}\n\n*Ahora Tienda On line*\nSeleccion personalizada para vos.. 🛍️`;
+    // 💡 ESTRUCTURA DE MÁXIMA LIMPIEZA:
+    // No usamos "*" para negritas aquí, mandamos el link crudo primero.
+    const message = `${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`;
     
     const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank');
   };
 
+// ... (resto del archivo igual)
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
