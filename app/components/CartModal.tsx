@@ -18,7 +18,7 @@ export default function CartModal({ open, onClose }: any) {
   const ahorro = totalLista - totalTransfer
   const totalFinal = totalTransfer + envioGlobal
 
-  // 🪄 FUNCIÓN: COMPARTIR SELECCIÓN UNIVERSAL (SUBLIME)
+  // 🪄 FUNCIÓN: COMPARTIR SELECCIÓN UNIVERSAL (LIMPIEZA TOTAL)
   const handleShareSelection = async () => {
     if (items.length === 0) return;
 
@@ -26,21 +26,19 @@ export default function CartModal({ open, onClose }: any) {
     const baseUrl = "https://glamour-urquiza.vercel.app"; 
     const shareUrl = `${baseUrl}/c-p?p=${ids}&$=1`;
 
-    // 💡 Preparamos la data para el sistema operativo
-    const shareData = {
-      title: 'Glamour',
-      text: `Ahora Tienda On line\nSeleccion personalizada para vos.. 🛍️`,
-      url: shareUrl,
-    };
-
     try {
-      // 📱 Si es un celular o navegador moderno con soporte de compartir:
+      // 📱 CELULARES (Menú compartir nativo)
       if (navigator.share) {
-        await navigator.share(shareData);
+        // 💡 SECRETO DE SENIOR: Mandamos SOLAMENTE la URL.
+        // Al no haber texto extra, WhatsApp no tiene otra opción que
+        // renderizar la previsualización (Metadata) que configuramos antes.
+        await navigator.share({
+          url: shareUrl,
+        });
       } else {
-        // 💻 Si es una PC vieja o no soporta share, fallback a WhatsApp:
-        const message = `${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`;
-        const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        // 💻 PC / NAVEGADORES VIEJOS (WhatsApp directo)
+        // En PC también mandamos solo el link para evitar la doble leyenda.
+        const waUrl = `https://wa.me/?text=${encodeURIComponent(shareUrl)}`;
         window.open(waUrl, '_blank');
       }
     } catch (err) {
@@ -91,7 +89,7 @@ export default function CartModal({ open, onClose }: any) {
         </div>
 
         <div className={styles.footer}>
-          {/* 🚀 BOTÓN COMPARTIR UNIVERSAL (UPGRADE) */}
+          {/* 🚀 BOTÓN COMPARTIR (Limpieza aplicada) */}
           {items.length > 0 && (
             <button className={styles.exportBtn} onClick={handleShareSelection}>
               <Share2 size={16} /> EXPORTAR SELECCIÓN PERSONALIZADA
