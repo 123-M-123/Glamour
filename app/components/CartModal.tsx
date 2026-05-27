@@ -18,19 +18,34 @@ export default function CartModal({ open, onClose }: any) {
   const ahorro = totalLista - totalTransfer
   const totalFinal = totalTransfer + envioGlobal
 
-  // 🪄 FUNCIÓN EXPORTAR: LIMPIEZA TOTAL (SOLO LINK)
-  const handleExportSelection = () => {
+  // 🪄 FUNCIÓN: COMPARTIR SELECCIÓN UNIVERSAL (SUBLIME)
+  const handleShareSelection = async () => {
     if (items.length === 0) return;
 
     const ids = items.map(item => item.producto.id).join(',');
     const baseUrl = "https://glamour-urquiza.vercel.app"; 
     const shareUrl = `${baseUrl}/c-p?p=${ids}&$=1`;
 
-    // 💡 Al dejar solo el link, WhatsApp muestra el recuadro gris sin texto repetido abajo
-    const message = shareUrl;
-    
-    const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(waUrl, '_blank');
+    // 💡 Preparamos la data para el sistema operativo
+    const shareData = {
+      title: 'Glamour',
+      text: `Ahora Tienda On line\nSeleccion personalizada para vos.. 🛍️`,
+      url: shareUrl,
+    };
+
+    try {
+      // 📱 Si es un celular o navegador moderno con soporte de compartir:
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // 💻 Si es una PC vieja o no soporta share, fallback a WhatsApp:
+        const message = `${shareUrl}\n\nAhora Tienda On line\nSeleccion personalizada para vos.. 🛍️`;
+        const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(waUrl, '_blank');
+      }
+    } catch (err) {
+      console.error("Error al compartir:", err);
+    }
   };
 
   return (
@@ -76,9 +91,10 @@ export default function CartModal({ open, onClose }: any) {
         </div>
 
         <div className={styles.footer}>
+          {/* 🚀 BOTÓN COMPARTIR UNIVERSAL (UPGRADE) */}
           {items.length > 0 && (
-            <button className={styles.exportBtn} onClick={handleExportSelection}>
-              <Share2 size={16} /> COMPARTIR ESTA SELECCIÓN POR WHATSAPP
+            <button className={styles.exportBtn} onClick={handleShareSelection}>
+              <Share2 size={16} /> EXPORTAR SELECCIÓN PERSONALIZADA
             </button>
           )}
 
@@ -88,7 +104,7 @@ export default function CartModal({ open, onClose }: any) {
               <span>TOTAL</span>
               <span className={styles.finalPrice}>$ {new Intl.NumberFormat('es-AR').format(totalFinal)}</span>
             </div>
-            <p className={styles.payway}>Aceptamos todos los medios de pago (Payway)</p>
+            <p className={styles.payway}>Todos los medios de pago! (También PayWay)</p>
           </div>
 
           <div className={styles.actions}>

@@ -14,14 +14,14 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
   
   useEffect(() => { setMounted(true) }, [])
 
-  // 🪄 COMPARTIR INTERNO ACORTADO
+  // 🪄 COMPARTIR INTERNO (LIMPIEZA TOTAL - SOLO LINK)
   const handleShareSelection = async () => {
     const url = window.location.href;
     try {
       if (navigator.share) {
+        // 💡 Quitamos el campo 'text' para evitar duplicados en el re-envío
         await navigator.share({
             title: 'Glamour',
-            text: `Ahora Tienda On line\nSeleccion personalizada para vos..`,
             url: url
         });
       } else {

@@ -17,7 +17,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const pageUrl = `${domain}/c-p?p=${pParam}&$=${preParam}`;
 
   const brandName = "Glamour"; 
-  const mainTitle = "Ahora Tienda On line";
+  const mainTitle = "Ahora Tienda on Line";
   const subTitle = "Seleccion personalizada para vos..";
 
   return {
