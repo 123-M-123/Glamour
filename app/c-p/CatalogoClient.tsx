@@ -39,7 +39,7 @@ export default function CatalogoClient({ productos }: { productos: any[] }) {
       <div className={styles.container} style={{ paddingTop: '40px', background: 'transparent' }}>
         
         <header style={{ textAlign: 'center', marginBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <img src="/icons/logo-no.png" alt="Logo" style={{ height: '75px', width: 'auto', objectFit: 'contain', marginBottom: '20px' }} />
+          <img src="/icons/logo-no.png" alt="Logo" style={{ height: '65px', width: 'auto', objectFit: 'contain', marginBottom: '20px' }} />
           <h1 style={{ fontWeight: 950, color: 'white', fontSize: '1.6rem', margin: 0, letterSpacing: '1px' }}>AHORA TIENDA ON LINE</h1>
           
           <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>

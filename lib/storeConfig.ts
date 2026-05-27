@@ -1,8 +1,8 @@
 export const STORE_CONFIG = {
   "glamour-urquiza": {
     name: "Glamour",
-    instagram: "https://www.instagram.com/glamour.urquiza",
-    tiktok: "https://www.tiktok.com/@glamour.urquiza",
+    instagram: "https://instagram.com/glamour.urquiza",
+    tiktok: "https://tiktok.com/@glamour.urquiza",
     whatsapp: "5491167914366",
     dataFiscalText: "Formulario 960/D - AFIP - Comercio Autorizado",
     politicas: {

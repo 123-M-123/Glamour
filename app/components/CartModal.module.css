@@ -8,18 +8,20 @@
 
 .modal {
   position: absolute;
-  top: 110px; 
+  /* ↕️ MARCOS: Bajamos un poco el inicio para compensar el crecimiento */
+  top: 90px; 
   right: 15px;
   width: 90%;
-  max-width: 400px;
-  height: 78vh;
+  /* 📏 ALTURA MOBILE: Subimos de 78vh a 86vh (Crecimiento ~10%) */
+  height: 86vh;
   background-color: #ffffff;
   
   /* 🖼️ CONFIGURACIÓN DE SILUETA */
   background-image: url("/icons/silueta%20carrito.png");
   background-repeat: no-repeat;
-  background-position: center 55%; /* 👈 Bajamos un poco el centro para ver pies */
-  background-size: 280px; /* 👈 Reducido un 10% para que no se corte nada */
+  /* 📍 MARCOS: Centramos la silueta un poco más arriba para el nuevo alto */
+  background-position: center 50%; 
+  background-size: 280px; 
   
   border-radius: 20px;
   border: 4px solid #FF0000;
@@ -30,7 +32,7 @@
   animation: slideIn 0.4s ease-out;
 }
 
-/* 👜 MANIJA */
+/* 👜 MANIJA (Mantiene posición relativa al tope del modal) */
 .modal::after {
   content: '';
   position: absolute;
@@ -44,8 +46,19 @@
   border-radius: 50px 50px 0 0;
 }
 
+/* ==========================================================================
+   VERSION DESKTOP (Adelgazada y Estirada)
+   ========================================================================== */
 @media (min-width: 768px) {
-  .modal { top: 85px; height: 85vh; background-size: 320px; }
+  .modal { 
+    /* 📍 MARCOS: Lo subimos para que no se corte abajo al ser más largo */
+    top: 40px; 
+    /* 📉 ANCHO DESKTOP: Bajamos de 400px a 360px (Adelgazamos un 10%) */
+    max-width: 360px; 
+    /* 📈 ALTO DESKTOP: Subimos de 85vh a 94vh (Estiramos ~10%) */
+    height: 94vh; 
+    background-size: 320px; 
+  }
 }
 
 .header { 
@@ -53,17 +66,16 @@
   display: flex; 
   justify-content: space-between; 
   align-items: center;
-  background: transparent; /* Sin fondo para no tapar cabeza */
+  background: transparent; 
 }
 
 .title { color: #FF0000; font-weight: 800; font-size: 20px; text-transform: uppercase; }
 .close { background: none; border: none; cursor: pointer; color: #666; }
 
-/* 🚫 LIMPIEZA DE SOMBRAS EN ENVÍO */
 .shippingSection { 
   padding: 0 20px 15px; 
-  background: transparent; /* Sin fondo sólido */
-  border-bottom: none; /* Quitamos cualquier línea que corte la imagen */
+  background: transparent; 
+  border-bottom: none; 
 }
 
 .label { 
@@ -78,24 +90,24 @@
   width: 100%; 
   padding: 10px; 
   border-radius: 10px; 
-  border: 1px solid rgba(255, 156, 159, 0.5); /* Borde más suave */
+  border: 1px solid rgba(255, 156, 159, 0.5); 
   font-size: 14px; 
   background: rgba(255, 255, 255, 0.8); 
 }
 
-/* 🛒 LISTA Y FOOTER TRASLÚCIDOS */
+/* 🛒 LISTA: Flex 1 hace que se estire según el alto del modal */
 .list { 
   flex: 1; 
   overflow-y: auto; 
   padding: 10px 20px; 
-  background: rgba(255, 255, 255, 0.3); /* 👈 Muy traslúcido */
+  background: rgba(255, 255, 255, 0.3); 
 }
 
 .card {
   display: flex; 
   align-items: center; 
   gap: 12px; 
-  background: rgba(255, 240, 241, 0.9); /* Card un poco más sólida para leer bien */
+  background: rgba(255, 240, 241, 0.9); 
   padding: 10px; 
   border-radius: 12px; 
   margin-bottom: 10px;
@@ -107,11 +119,10 @@
 .name { font-weight: 700; color: #444444; font-size: 14px; text-transform: uppercase; }
 .price { color: #FF0000; font-weight: 700; font-size: 13px; }
 
-/* 🦶 PIE DE PÁGINA TRASLÚCIDO PARA VER ZAPATOS */
 .footer { 
   padding: 15px 20px; 
-  background: rgba(255, 255, 255, 0.6); /* 👈 Deja ver a través */
-  backdrop-filter: blur(2px); /* Efecto pro */
+  background: rgba(255, 255, 255, 0.6); 
+  backdrop-filter: blur(2px); 
   border-top: 1px solid rgba(255, 0, 0, 0.1); 
   border-radius: 0 0 20px 20px; 
 }
@@ -137,6 +148,25 @@
   font-weight: 800; 
   font-size: 12px; 
   cursor: pointer; 
+}
+
+/* 🪄 MARCOS: Agrego el estilo del botón Exportar por si lo perdiste antes */
+.exportBtn {
+  width: 100%;
+  background: #f0f0f0;
+  color: #FF0000;
+  border: 1px dashed #FF0000;
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: all 0.2s;
 }
 
 @keyframes slideIn {
