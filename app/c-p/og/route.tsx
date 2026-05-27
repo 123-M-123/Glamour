@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
         <div style={{
           background: '#FF0000',
           width: '1500px',
-          height: '1200px',
+          height: '1300px',
           display: 'flex',
           flexDirection: 'column',
           padding: '50px',
@@ -51,11 +51,11 @@ export async function GET(req: NextRequest) {
           </div>
 
           {/* Grilla de Productos */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', justifyContent: 'center', width: '1350px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '35px', justifyContent: 'center', width: '1350px' }}>
             {items.map((item) => (
               <div key={item.id} style={{ 
                 display: 'flex', background: 'white', borderRadius: '25px', 
-                width: '380px', height: '320px', overflow: 'hidden', position: 'relative'
+                width: '420px', height: '320px', overflow: 'hidden', position: 'relative'
               }}>
                 <img src={getThumb(item.imagen)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 
@@ -85,27 +85,27 @@ export async function GET(req: NextRequest) {
   borderTop: '2px solid rgba(255,255,255,0.3)', 
   padding: '40px 0', 
   gap: '40px',
-  background: 'rgba(255, 255, 255, 0.42)', // 🌸 Genera el efecto rosado sobre el fondo rojo
-  borderRadius: '0 0 25px 25px' // Opcional: redondea las puntas de abajo
+  background: 'rgba(255, 255, 255, 0.30)', // 🌸 Genera el efecto rosado sobre el fondo rojo
+  borderRadius: '35px 35px 35px 35px' // Opcional: redondea las puntas de abajo
 }}>
             {/* Icono Izquierdo */}
-  <img src={`${origin}/c-p-t-r.png`} style={{ width: '180px', height: '180px', objectFit: 'contain' }} />
+  <img src={`${origin}/c-p-t-r.png`} style={{ width: '150px', height: '150px', objectFit: 'contain' }} />
             
             {/* Bloque de Texto de 2 Renglones */}
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-    <span style={{ color: 'white', fontSize: '75px', fontWeight: 900, textTransform: 'uppercase' }}>
+    <span style={{ color: 'white', fontSize: '70px', fontWeight: 900, textTransform: 'none' }}>
       Catálogo Exclusivo Redes
     </span>
-    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '75px', fontWeight: 600, marginTop: '5px' }}>
+    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '70px', fontWeight: 600, marginTop: '5px' }}>
       Tienda de Tiendas
     </span>
   </div>
             {/* Icono Derecho */}
-  <img src={`${origin}/c-p-t-t.png`} style={{ width: '180px', height: '180px', objectFit: 'contain' }} />
+  <img src={`${origin}/c-p-t-t.png`} style={{ width: '150px', height: '150px', objectFit: 'contain' }} />
 </div>
         </div>
       ),
-      { width: 1500, height: 1200 }
+      { width: 1500, height: 1300 }
     )
 
     // 2️⃣ CONVERSIÓN A JPG (Sharp)
