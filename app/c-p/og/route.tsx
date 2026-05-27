@@ -88,21 +88,22 @@ export async function GET(req: NextRequest) {
   background: 'rgba(255, 255, 255, 0.15)', // 🌸 Genera el efecto rosado sobre el fondo rojo
   borderRadius: '0 0 25px 25px' // Opcional: redondea las puntas de abajo
 }}>
-  {/* Icono Izquierdo */}
+            {/* Icono Izquierdo */}
   <img src={`${origin}/c-p-t-r.png`} style={{ width: '130px', height: '130px', objectFit: 'contain' }} />
-  
-  {/* Bloque de Texto de 2 Renglones */}
+            
+            {/* Bloque de Texto de 2 Renglones */}
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
     <span style={{ color: 'white', fontSize: '65px', fontWeight: 900, textTransform: 'uppercase' }}>
-      Catálogo Exclusivo Redes    </span>
+      CATÁLOGO EXCLUSIVO REDES
+    </span>
     <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '40px', fontWeight: 600, marginTop: '5px' }}>
-      Tienda de Tiendas
+      Selección personalizada para vos..
     </span>
   </div>
-
-  {/* Icono Derecho */}
+            {/* Icono Derecho */}
   <img src={`${origin}/c-p-t-t.png`} style={{ width: '130px', height: '130px', objectFit: 'contain' }} />
 </div>
+        </div>
       ),
       { width: 1500, height: 1300 }
     )
