@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
       (
         <div style={{
           background: '#FF0000',
-          width: '1200px',
-          height: '1000px',
+          width: '1500px',
+          height: '1300px',
           display: 'flex',
           flexDirection: 'column',
           padding: '50px',
@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
           </div>
 
           {/* Grilla de Productos */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '25px', justifyContent: 'center', width: '1100px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '25px', justifyContent: 'center', width: '1350px' }}>
             {items.map((item) => (
               <div key={item.id} style={{ 
                 display: 'flex', background: 'white', borderRadius: '25px', 
@@ -77,28 +77,34 @@ export async function GET(req: NextRequest) {
 
           {/* 🏁 Footer con doble icono y frase central */}
           <div style={{ 
-            marginTop: 'auto', 
-            display: 'flex', 
-            width: '100%', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            borderTop: '2px solid rgba(255,255,255,0.3)', 
-            paddingTop: '30px', 
-            gap: '30px' 
-          }}>
-            {/* Icono Redes 1 */}
-            <img src={`${origin}/c-p-t-r.png`} style={{ width: '120px', height: '120px', objectFit: 'contain' }} />
-            
-            <span style={{ color: 'white', fontSize: '60px', fontWeight: 800, display: 'flex' }}>
-              CATÁLOGO EXCLUSIVO REDES
-            </span>
+  marginTop: 'auto', 
+  display: 'flex', 
+  width: '100%', 
+  justifyContent: 'center', 
+  alignItems: 'center', 
+  borderTop: '2px solid rgba(255,255,255,0.3)', 
+  padding: '40px 0', 
+  gap: '40px',
+  background: 'rgba(255, 255, 255, 0.15)', // 🌸 Genera el efecto rosado sobre el fondo rojo
+  borderRadius: '0 0 25px 25px' // Opcional: redondea las puntas de abajo
+}}>
+  {/* Icono Izquierdo */}
+  <img src={`${origin}/c-p-t-r.png`} style={{ width: '130px', height: '130px', objectFit: 'contain' }} />
+  
+  {/* Bloque de Texto de 2 Renglones */}
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <span style={{ color: 'white', fontSize: '65px', fontWeight: 900, textTransform: 'uppercase' }}>
+      Catálogo Exclusivo Redes    </span>
+    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '40px', fontWeight: 600, marginTop: '5px' }}>
+      Tienda de Tiendas
+    </span>
+  </div>
 
-            {/* Icono Redes 2 */}
-            <img src={`${origin}/c-p-t-t.png`} style={{ width: '120px', height: '120px', objectFit: 'contain' }} />
-          </div>
-        </div>
+  {/* Icono Derecho */}
+  <img src={`${origin}/c-p-t-t.png`} style={{ width: '130px', height: '130px', objectFit: 'contain' }} />
+</div>
       ),
-      { width: 1200, height: 1000 }
+      { width: 1500, height: 1300 }
     )
 
     // 2️⃣ CONVERSIÓN A JPG (Sharp)

@@ -33,8 +33,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       images: [
         {
           url: imageUrl,
-          width: 1200,
-          height: 1000,
+          width: 1500,
+          height: 1300,
           type: 'image/jpeg', 
         },
       ],
