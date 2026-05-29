@@ -46,7 +46,7 @@ export default function Footer() {
         </p>
 
         {/* RENGLÓN 4: PIRÁMIDE (Agregado FAQ) */}
-        <p
+          <p
           style={{
             fontSize: '0.75rem',
             color: '#ffffff', opacity: 0.85,
@@ -54,12 +54,12 @@ export default function Footer() {
             marginTop: '5px'
           }}
         >
-          <Link href="/politicas#arrepentimiento" style={{ color: 'inherit', textDecoration: 'none' }}>Botón de arrepentimiento</Link> &nbsp;|&nbsp; 
+          <Link href="/politicas#arrepentimiento" style={{ color: 'inherit', textDecoration: 'none' }}>Arrepentimiento</Link> &nbsp;|&nbsp; 
           <Link href="/politicas#faq" style={{ color: 'inherit', textDecoration: 'none' }}>FAQ</Link> &nbsp;|&nbsp; 
-          <Link href="/politicas#contacto" style={{ color: 'inherit', textDecoration: 'none' }}>Contacto directo</Link>
+          <Link href="/politicas#contacto" style={{ color: 'inherit', textDecoration: 'none' }}>Contacto</Link>
         </p>
 
-        {/* RENGLÓN 5: PIRÁMIDE (La base más ancha) */}
+        {/* RENGLÓN 5: PIRÁMIDE (Base ancha con palabras clave de Google) */}
         <p
           style={{
             fontSize: '0.75rem',
@@ -67,9 +67,10 @@ export default function Footer() {
             lineHeight: '1.6',
           }}
         >
-          <Link href="/politicas#envio" style={{ color: 'inherit', textDecoration: 'none' }}>Política de envío</Link> &nbsp;|&nbsp; 
-          <Link href="/politicas#devolucion" style={{ color: 'inherit', textDecoration: 'none' }}>Política de devolución</Link> &nbsp;|&nbsp; 
-          <Link href="/politicas#terminos" style={{ color: 'inherit', textDecoration: 'none' }}>Términos y condiciones</Link>
+          <Link href="/politicas#envio" style={{ color: 'inherit', textDecoration: 'none' }}>Envíos</Link> &nbsp;|&nbsp; 
+          <Link href="/politicas#devolucion" style={{ color: 'inherit', textDecoration: 'none' }}>Devoluciones</Link> &nbsp;|&nbsp; 
+          <Link href="/politicas#terminos" style={{ color: 'inherit', textDecoration: 'none' }}>Privacidad</Link> &nbsp;|&nbsp; 
+          <Link href="/politicas#terminos" style={{ color: 'inherit', textDecoration: 'none' }}>Términos y Condiciones</Link>
         </p>
       </footer>
 
