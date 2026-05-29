@@ -3,7 +3,7 @@
 import { STORE_CONFIG } from '@/lib/storeConfig'
 import { 
   ArrowLeft, ShieldCheck, Truck, RefreshCcw, 
-  HelpCircle, Scale, MessageCircle, AlertTriangle 
+  HelpCircle, Scale, MessageCircle, AlertTriangle, Mail, Phone
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -30,13 +30,13 @@ export default function PoliticasPage() {
           
           {/* SECCIÓN 1: OPERACIONES (Cambios y Envíos) */}
           <div style={gridTwo}>
-            <section style={smallCard}>
+            <section id="devolucion" style={smallCard}>
               <div style={iconBox}><RefreshCcw size={20} color={K.accent} /></div>
               <h2 style={cardTitle}>{p.cambios.titulo}</h2>
               <p style={cardText}>{p.cambios.cuerpo}</p>
             </section>
 
-            <section style={smallCard}>
+            <section id="envio" style={smallCard}>
               <div style={iconBox}><Truck size={20} color={K.accent} /></div>
               <h2 style={cardTitle}>{p.envios.titulo}</h2>
               <p style={cardText}>{p.envios.cuerpo}</p>
@@ -44,7 +44,7 @@ export default function PoliticasPage() {
           </div>
 
           {/* SECCIÓN 2: BOTÓN DE ARREPENTIMIENTO (Destacado por Ley) */}
-          <section style={highlightCard}>
+          <section id="arrepentimiento" style={highlightCard}>
             <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '15px' }}>
               <AlertTriangle color="white" size={24} />
               <h2 style={{ ...cardTitle, color: 'white', margin: 0 }}>{p.arrepentimiento.titulo}</h2>
@@ -59,7 +59,7 @@ export default function PoliticasPage() {
           </section>
 
           {/* SECCIÓN 3: FAQ (Preguntas Frecuentes) */}
-          <section style={cardStyle}>
+          <section id="faq" style={cardStyle}>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
               <HelpCircle color={K.accent} size={22} />
               <h2 style={cardTitle}>PREGUNTAS FRECUENTES</h2>
@@ -75,7 +75,7 @@ export default function PoliticasPage() {
           </section>
 
           {/* SECCIÓN 4: LEGAL (Términos y AFIP) */}
-          <section style={{ ...cardStyle, background: 'transparent', border: `1px dashed ${K.border}` }}>
+          <section id="terminos" style={{ ...cardStyle, background: 'transparent', border: `1px dashed ${K.border}` }}>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '15px' }}>
               <Scale color={K.muted} size={20} />
               <h2 style={{ ...cardTitle, color: K.muted }}>LEGALES Y DATA FISCAL</h2>
@@ -88,12 +88,16 @@ export default function PoliticasPage() {
 
         </div>
 
-        {/* FOOTER DE PÁGINA */}
-        <div style={pageFooter}>
-          <p>© 2026  Glamour</p>
+        {/* FOOTER DE PÁGINA (Sección de Contacto con IDs para Google) */}
+        <div id="contacto" style={pageFooter}>
+          <p>© 2026 Glamour</p>
           <div style={socials}>
-             <a href={config.instagram} target="_blank" style={socialLink}>INSTAGRAM</a>
-             <a href={config.tiktok} target="_blank" style={socialLink}>TIKTOK</a>
+             <a href={config.instagram} target="_blank" style={socialLink}>INSTAGRAM @glamour.urquiza</a>
+             <a href={config.tiktok} target="_blank" style={socialLink}>TIKTOK @glamour.urquiza</a>
+          </div>
+          <div style={{ ...socials, marginTop: '15px' }}>
+             <a href={`https://wa.me/${config.whatsapp}`} target="_blank" style={socialLink}>WHATSAPP +{config.whatsapp}</a>
+             <a href="mailto:glamoururquiza@gmail.com" style={socialLink}>EMAIL glamoururquiza@gmail.com</a>
           </div>
         </div>
 
@@ -142,5 +146,5 @@ const dataFiscalContainer = { marginTop: '20px', paddingTop: '15px', borderTop: 
 const f960 = { fontSize: '0.75rem', fontWeight: 800, color: K.muted, letterSpacing: '1px' };
 
 const pageFooter = { marginTop: '60px', textAlign: 'center' as 'center', borderTop: '1px solid #eee', paddingTop: '30px' };
-const socials = { display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '10px' };
+const socials = { display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '10px', flexWrap: 'wrap' as 'wrap' };
 const socialLink = { fontSize: '0.75rem', fontWeight: 800, color: K.muted, textDecoration: 'none' };
