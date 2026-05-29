@@ -34,7 +34,7 @@
     /* 👈 AYUDA: Tamaño del botón en el celular (80px es GRANDE y queda bien) */
     width: 70px; 
     height: 70px;
-    bottom: 100px; /* Subimos un poco para que no tape el footer */
+    bottom: 130px; /* Subimos un poco para que no tape el footer */
     right: 15px;
   }
   
