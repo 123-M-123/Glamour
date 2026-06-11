@@ -36,12 +36,12 @@ const nextConfig = {
         source: "/og/image.jpg",
         headers: [
           {
-            key: "Cache-Control",
-            value: "public, max-age=0, must-revalidate",
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://tienda-de-tiendas.vercel.app http://localhost:3000",
           },
         ],
       },
-    ]
+    ];
   },
 }
 
