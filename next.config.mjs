@@ -32,11 +32,22 @@ const nextConfig = {
 
   async headers() {
     return [
-      {
+        {
         source: "/og/image.jpg",
         headers: [
           {
+            key: "Cache-Control",
+            value: "public, max-age=0, must-revalidate",
+          },
+        ],
+      },
+      // 🚩 REGLA 2: Habilitar el Visor (LiveMonitor) para TODO el sitio
+      {
+        source: "/:path*",
+        headers: [
+          {
             key: 'Content-Security-Policy',
+            // Esto permite que Marcos te vea desde el panel central
             value: "frame-ancestors 'self' https://tienda-de-tiendas.vercel.app http://localhost:3000",
           },
         ],
