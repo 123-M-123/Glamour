@@ -13,7 +13,7 @@ const VENDEDOR_EMAIL = "tiendadtiendas@gmail.com";
 
 const OPCIONES = [
   { id: 'alias', label: 'Transferencia', sub: '20% OFF directo', icon: '/ico-ui/alias.png' },
-  { id: 'qr', label: 'QR Bancario', sub: 'MODO o bancos', icon: '/ico-ui/qr.png' },
+  { id: 'qr', label: 'QR MP', sub: 'MercadoPago', icon: '/ico-ui/qr.png' },
   { id: 'tarjeta', label: 'Tarjeta / Efectivo', sub: 'Crédito o Rapipago', icon: '/ico-ui/tarjeta.png' },
   { id: 'mp', label: 'Cuenta MP', sub: 'Saldo o tarjetas MP', icon: '/ico-ui/mp.png' },
   { id: 'payway', label: 'Tarjeta Bancaria', sub: 'Débito o Crédito', icon: '/ico-ui/payway.png' },
@@ -85,7 +85,7 @@ export default function CheckoutContent() {
           <img src={OPCIONES.find(o => o.id === metodo)?.icon} style={{ width: 34, height: 34, objectFit: 'contain' }} alt="icon" />
           <p style={{ margin: 0, fontSize: '0.88rem', fontWeight: 700, color: '#333', lineHeight: 1.4 }}>
              {metodo === 'alias' && 'TRANSFERENCIA: 20% OFF aplicado. Transferí y subí el comprobante.'}
-             {metodo === 'qr' && 'QR BANCARIO: 10% OFF aplicado. Pagá con MODO, Ualá o tu Banco.'}
+             {metodo === 'qr' && 'QR MercadoPago: 10% OFF aplicado. Pagá con MercadoPago'}
              {metodo === 'tarjeta' && 'TARJETAS: Pagá en cuotas de forma segura vía Mercado Pago.'}
              {metodo === 'mp' && 'CUENTA MERCADO PAGO: Usá tu saldo o tarjetas guardadas.'}
              {metodo === 'payway' && 'TARJETA BANCARIA: Pagá con débito o crédito mediante Payway.'}
