@@ -14,7 +14,7 @@ import { useWishlistStore } from '../store/useWishlistStore'
 import CartModal from './CartModal'
 import { STORE_CONFIG } from '@/lib/storeConfig'
 
-// Icono TikTok personalizado
+// Icono TikTok personalizado para hacer match con Lucide
 const TikTokIcon = ({ size = 24, color = "white" }) => (
   <svg 
     width={size} height={size} viewBox="0 0 24 24" fill="none" 
@@ -67,6 +67,9 @@ export default function Header() {
     )
   }
 
+  // Texto para el loop infinito
+  const promoText = "🚀 ¡NUEVO CANAL DE WHATSAPP! SEGUINOS PARA NOVEDADES Y OFERTAS EXCLUSIVAS ✨ UNITE HACIENDO CLIC AQUÍ 🚀 "
+
   return (
     <>
       <header className={styles.header}>
@@ -97,6 +100,27 @@ export default function Header() {
           </button>
         </div>
       </header>
+
+      {/* 🚀 CINTILLA DE CANAL WHATSAPP (Marquee Loop) */}
+      <a 
+        href="https://whatsapp.com/channel/0029Vb7g5bRBvvsXcbhEaD2n" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className={styles.promoBar}
+      >
+        <motion.div 
+          className={styles.marquee}
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ 
+            duration: 20, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+        >
+          <span>{promoText}</span>
+          <span>{promoText}</span> {/* Duplicado para loop sin cortes */}
+        </motion.div>
+      </a>
 
       <div className={`${styles.sidebar} ${openMenu ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
