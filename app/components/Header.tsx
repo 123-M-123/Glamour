@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { 
   Menu, X, Instagram, ShoppingBag, Home, 
   ChevronDown, ChevronRight, Shirt, Sparkles,
-  Info
+  Info, ExternalLink // 👈 Ícono de link externo
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -14,7 +14,7 @@ import { useWishlistStore } from '../store/useWishlistStore'
 import CartModal from './CartModal'
 import { STORE_CONFIG } from '@/lib/storeConfig'
 
-// Icono TikTok personalizado para hacer match con Lucide
+// Icono TikTok personalizado
 const TikTokIcon = ({ size = 24, color = "white" }) => (
   <svg 
     width={size} height={size} viewBox="0 0 24 24" fill="none" 
@@ -48,7 +48,6 @@ export default function Header() {
   const indumentariaCats = cats.filter(c => c.tipo === 'indumentaria')
   const accesoriosCats = cats.filter(c => c.tipo === 'accesorios')
 
-  // 🪄 HELPER NavIcon CORREGIDO: Elimina la "flecha" si el PNG existe
   const NavIcon = ({ slug, fallback: Fallback }: { slug: string, fallback: any }) => {
     const [hasError, setHasError] = useState(false);
     return (
@@ -67,8 +66,8 @@ export default function Header() {
     )
   }
 
-  // Texto para el loop infinito
-  const promoText = "🚀 ¡NUEVO CANAL DE WHATSAPP! SEGUINOS PARA NOVEDADES Y OFERTAS EXCLUSIVAS ✨ UNITE HACIENDO CLIC AQUÍ 🚀 "
+  // Texto para el loop sin emojis
+  const promoText = "UNITE A NUESTRO NUEVO CANAL DE WHATSAPP PARA NOVEDADES Y OFERTAS EXCLUSIVAS"
 
   return (
     <>
@@ -101,7 +100,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 🚀 CINTILLA DE CANAL WHATSAPP (Marquee Loop) */}
+      {/* 🚀 CINTILLA DE CANAL WHATSAPP (SUBLIME) */}
       <a 
         href="https://whatsapp.com/channel/0029Vb7g5bRBvvsXcbhEaD2n" 
         target="_blank" 
@@ -111,14 +110,25 @@ export default function Header() {
         <motion.div 
           className={styles.marquee}
           animate={{ x: ["0%", "-50%"] }}
-          transition={{ 
-            duration: 20, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
         >
-          <span>{promoText}</span>
-          <span>{promoText}</span> {/* Duplicado para loop sin cortes */}
+          {[1, 2].map((i) => (
+            <div key={i} className={styles.marqueeGroup}>
+              {/* Icono WA Animado (Salto/Parpadeo) */}
+              <motion.img 
+                src="/icons/whats.png" 
+                className={styles.waIconBar}
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"]
+                }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              />
+              <span>{promoText}</span>
+              <ExternalLink size={14} color="white" />
+              <span className={styles.separator}>|</span>
+            </div>
+          ))}
         </motion.div>
       </a>
 
