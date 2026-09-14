@@ -15,7 +15,10 @@ const MASTER_ID = process.env.MASTER_PAYMENTS_SHEET_ID;
 const CLIENT_ID = process.env.CLIENT_CONTENT_SHEET_ID; 
 
 const SOCIOS_AUTORIZADOS = ["gla_142@hotmail.com", "elcampito@gmail.com"];
-const ACCESORIOS_EXISTENTES = ['cinturones', 'carteras', 'gorras', 'billeteras', 'sobres-de-fiesta', 'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'];
+const ACCESORIOS_EXISTENTES = [
+  'cinturones', 'carteras', 'gorras', 'billeteras', 'sobres-de-fiesta', 
+  'perfuminas', 'chokers', 'porta-celulares', 'panuelos', 'pashminas'
+];
 
 function getDriveDirectLink(url: string, version: string = "1") {
   if (!url || !url.includes("drive.google.com")) return url;
@@ -33,7 +36,14 @@ export async function getProductsFromSheets() {
     if (!rows) return [];
 
     return rows
-      .filter((row: any) => row[0] && SOCIOS_AUTORIZADOS.includes(row[0].trim().toLowerCase()))
+      .filter((row: any) => {
+        const emailValido = row[0] && SOCIOS_AUTORIZADOS.includes(row[0].trim().toLowerCase());
+        const tieneNombre = !!row[2]?.toString().trim();
+        // 🛑 FILTRO DE STOCK: Si es 0 o menor, se oculta de toda la tienda automáticamente
+        const tieneStock = (Number(row[7]) || 0) > 0;
+
+        return emailValido && tieneNombre && tieneStock;
+      })
       .map((row: any) => {
         const precioTransfer = Number(row[3]) || 0;
         const catRaw = row[6]?.toString().trim() || "sin categoría";
@@ -47,7 +57,7 @@ export async function getProductsFromSheets() {
         return {
           id: row[1]?.toString() || "",
           nombre: row[2]?.toString() || "",
-          precio: Math.round(precioTransfer / 0.8),
+          precio: Math.round(precioTransfer / 0.8), // Lógica Glamour: 20% OFF en transferencia
           precioTransfer: precioTransfer,
           descripcion: row[4] || "",
           imagen: principal,
@@ -66,30 +76,25 @@ export async function getProductsFromSheets() {
   }
 }
 
-// lib/googleSheets.ts - SOLO LA FUNCIÓN DE BANNERS (Asegurate de pegarla bien)
-
 export async function getBannersFromSheets() {
   try {
-    const range = "'Baners Publicidad'!A2:E"; // Leemos hasta la E para la versión
+    const range = "'Baners Publicidad'!A2:E"; 
     const response = await sheets.spreadsheets.values.get({ spreadsheetId: MASTER_ID, range });
     const rows = response.data.values;
     if (!rows) return [];
 
     return rows
       .filter((row: any) => {
-        // Filtro estricto por mail para que no se mezclen clientes
         const emailEnFila = row[0]?.toString().trim().toLowerCase();
         return emailEnFila && SOCIOS_AUTORIZADOS.includes(emailEnFila);
       })
       .map((row: any) => {
         const urlOriginal = row[1] || "";
-        const version = row[4] || "1"; // Columna E para el ?v=
+        const version = row[4] || "1";
         
         return {
-          // 🚀 CACHE AGRESIVO: Usamos lh3 directo con el parámetro de versión
           imagen: getDriveDirectLink(urlOriginal, version),
           ubicacion: row[2]?.toString().toLowerCase().trim() || "",
-          // 🔗 LINK DE DESTINO: Capturamos la columna D
           linkDestino: row[3] || null
         };
       });
@@ -116,8 +121,6 @@ export async function getCategoriesFromSheets() {
  */
 export async function savePaymentToMaster(paymentData: any[]) {
   try {
-    // Apuntamos a la pestaña "Pedidos" o "webhoock MP" según definas. 
-    // Usaremos 'Pedidos' como estándar, si tu pestaña se llama distinto, cambiar 'Pedidos!A:J'
     const targetRange = 'Pedidos!A:J'; 
     
     await sheets.spreadsheets.values.append({

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { 
   Menu, X, Instagram, ShoppingBag, Home, 
   ChevronDown, ChevronRight, Shirt, Sparkles,
-  Info, ExternalLink // 👈 Ícono de link externo
+  Info, ExternalLink 
 } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -13,6 +13,7 @@ import { useCartStore } from '../store/useCartStore'
 import { useWishlistStore } from '../store/useWishlistStore'
 import CartModal from './CartModal'
 import { STORE_CONFIG } from '@/lib/storeConfig'
+import CintillaAviso from './CintillaAviso' // 👈 1. Importamos la nueva Cintilla Magenta
 
 // Icono TikTok personalizado
 const TikTokIcon = ({ size = 24, color = "white" }) => (
@@ -71,67 +72,89 @@ export default function Header() {
 
   return (
     <>
-      <header className={styles.header}>
-        <div className={styles.left}>
-          <button className={styles.menuBtn} onClick={() => setOpenMenu(true)}>
-            <Menu color="white" size={35} />
-          </button>
-          <div className={styles.socialDesktop}>
-            <a href={config.instagram} target="_blank" rel="noopener noreferrer">
-              <Instagram color="white" size={28} />
-            </a>
-            <a href={config.tiktok} target="_blank" rel="noopener noreferrer">
-              <TikTokIcon size={28} />
-            </a>
-          </div>
-        </div>
-        <div className={styles.center}>
-          <Link href="/"><img src="/logo.png" className={styles.logo} alt="Logo" /></Link>
-        </div>
-        <div className={styles.right}>
-          <Link href="/wishlist" className={styles.wishlistBtn}>
-            <img src="/icons/corazon-blanco.png" alt="Favoritos" className={styles.wishlistIcon} />
-            {totalWishlist > 0 && <span className={styles.badge}>{totalWishlist}</span>}
-          </Link>
-          <button className={styles.cart} onClick={() => setOpenCart(true)}>
-            <ShoppingBag color="white" size={35} />
-            {totalItems > 0 && <span className={styles.badge}>{totalItems}</span>}
-          </button>
-        </div>
-      </header>
+      {/* 
+        📦 CONTENEDOR MAESTRO FIJO:
+        1. Cintilla Magenta (www.glamour.tdt.ar)
+        2. Barra Roja (Header con Logo y Controles)
+        3. Ticker Marquee de WhatsApp
+        Todo viaja junto y fijado al techo.
+      */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        {/* ✨ 1. CINTILLA MAGENTA NUEVA */}
+        <CintillaAviso />
 
-      {/* 🚀 CINTILLA DE CANAL WHATSAPP (SUBLIME) */}
-      <a 
-        href="https://whatsapp.com/channel/0029Vb7g5bRBvvsXcbhEaD2n" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className={styles.promoBar}
-      >
-        <motion.div 
-          className={styles.marquee}
-          animate={{ x: ["0%", "-50%"] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        >
-          {[1, 2].map((i) => (
-            <div key={i} className={styles.marqueeGroup}>
-              {/* Icono WA Animado (Salto/Parpadeo) */}
-              <motion.img 
-                src="/icons/whats.png" 
-                className={styles.waIconBar}
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"]
-                }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-              <span>{promoText}</span>
-              <ExternalLink size={14} color="white" />
-              <span className={styles.separator}>|</span>
+        {/* 🔴 2. BARRA ROJA PRINCIPAL */}
+        <header className={styles.header} style={{ position: 'relative', top: 'auto' }}>
+          <div className={styles.left}>
+            <button className={styles.menuBtn} onClick={() => setOpenMenu(true)}>
+              <Menu color="white" size={35} />
+            </button>
+            <div className={styles.socialDesktop}>
+              <a href={config.instagram} target="_blank" rel="noopener noreferrer">
+                <Instagram color="white" size={28} />
+              </a>
+              <a href={config.tiktok} target="_blank" rel="noopener noreferrer">
+                <TikTokIcon size={28} />
+              </a>
             </div>
-          ))}
-        </motion.div>
-      </a>
+          </div>
+          <div className={styles.center}>
+            <Link href="/"><img src="/logo.png" className={styles.logo} alt="Logo" /></Link>
+          </div>
+          <div className={styles.right}>
+            <Link href="/wishlist" className={styles.wishlistBtn}>
+              <img src="/icons/corazon-blanco.png" alt="Favoritos" className={styles.wishlistIcon} />
+              {totalWishlist > 0 && <span className={styles.badge}>{totalWishlist}</span>}
+            </Link>
+            <button className={styles.cart} onClick={() => setOpenCart(true)}>
+              <ShoppingBag color="white" size={35} />
+              {totalItems > 0 && <span className={styles.badge}>{totalItems}</span>}
+            </button>
+          </div>
+        </header>
 
+        {/* 🚀 3. CINTILLA DE CANAL WHATSAPP */}
+        <a 
+          href="https://whatsapp.com/channel/0029Vb7g5bRBvvsXcbhEaD2n" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className={styles.promoBar}
+          style={{ position: 'relative', top: 'auto' }}
+        >
+          <motion.div 
+            className={styles.marquee}
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          >
+            {[1, 2].map((i) => (
+              <div key={i} className={styles.marqueeGroup}>
+                <motion.img 
+                  src="/icons/whats.png" 
+                  className={styles.waIconBar}
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"]
+                  }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <span>{promoText}</span>
+                <ExternalLink size={14} color="white" />
+                <span className={styles.separator}>|</span>
+              </div>
+            ))}
+          </motion.div>
+        </a>
+      </div>
+
+      {/* 🧭 SIDEBAR DRAWER (LATERAL) */}
       <div className={`${styles.sidebar} ${openMenu ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.brand}>
