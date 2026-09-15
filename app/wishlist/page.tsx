@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { X, ShoppingBag, ArrowLeft, Share2, Eraser, Facebook, Download, Send } from 'lucide-react'
+import { X, ShoppingBag, Share2, Eraser, Facebook, Download, Send, Sparkles, Heart } from 'lucide-react'
 import { useWishlistStore } from '../store/useWishlistStore'
 import { useCartStore } from '../store/useCartStore'
 import styles from './wishlist.module.css'
@@ -20,9 +20,8 @@ export default function WishlistPage() {
   const shareUrl = `${base}/c-p?p=${ids}&$=${conPrecios ? '1' : '0'}`
   const imageUrl = `${base}/c-p/og?p=${ids}&$=${conPrecios ? '1' : '0'}`
 
-  // 🪄 WHATSAPP: LIMPIEZA TOTAL (SOLO LINK)
   const handleWA = () => {
-    const text = encodeURIComponent(shareUrl) // 👈 Borramos las leyendas de aquí
+    const text = encodeURIComponent(shareUrl)
     window.open(`https://wa.me/?text=${text}`, '_blank')
   }
 
@@ -40,20 +39,45 @@ export default function WishlistPage() {
   const handleUniversal = async () => {
     if (navigator.share) {
       await navigator.share({ 
-        title: 'Glamour', 
+        title: 'Glamour Urquiza - Mis Favoritos', 
         url: shareUrl 
       })
     }
   }
 
+  // ✨ ESTADO VACÍO: DISEÑO BOUTIQUE EXPLICATIVO
   if (wishlist.length === 0) {
     return (
       <div className={styles.emptyContainer}>
         <div className={styles.emptyCard}>
-          <img src="/icons/corazon-rojo-deseotexto.png" alt="Favoritos" className={styles.mainHeartIcon} />
-          <p className={styles.emptyText}>Tu lista está vacía.</p>
-          <Link href="/" className={styles.wishBtn} style={{background:'white', color:'#ff0000', border:'2px solid #ff0000', textDecoration:'none', width:'100%', display:'flex', alignItems:'center', justifyContent:'center'}}>
-            VOLVER A LA TIENDA
+          <div className={styles.iconPulse}>
+            <img src="/icons/corazon-rojo-deseotexto.png" alt="Favoritos" className={styles.mainHeartIcon} />
+          </div>
+
+          <h1 className={styles.emptyTitle}>Empezá tu lista de favoritos</h1>
+          
+          <p className={styles.emptyText}>
+            Guardá las prendas y accesorios que más te gustan tocando el corazón en cada producto.
+          </p>
+
+          <div className={styles.featureBox}>
+            <div className={styles.featureItem}>
+              <span className={styles.featureIcon}>📸</span>
+              <p><strong>Catálogo Premium:</strong> Al sumar prendas podés generar un flyer en alta calidad para compartir en WhatsApp o redes.</p>
+            </div>
+            <div className={styles.featureItem}>
+              <span className={styles.featureIcon}>🏷️</span>
+              <p><strong>Con o sin precios:</strong> Elegí si querés exportar tu selección mostrando los valores o solo las fotos.</p>
+            </div>
+            <div className={styles.featureItem}>
+              <span className={styles.featureIcon}>🛍️</span>
+              <p><strong>Compra directa:</strong> Pasá tus favoritos a la bolsa de compras en un solo clic.</p>
+            </div>
+          </div>
+
+          <Link href="/indumentaria" className={styles.exploreBtn}>
+            <Sparkles size={18} />
+            EXPLORAR COLECCIÓN
           </Link>
         </div>
       </div>
@@ -69,7 +93,7 @@ export default function WishlistPage() {
           <button className={`${styles.wishBtn} ${styles.btnGreen}`} onClick={() => setShowModal(true)}>
             <Share2 size={20} /> COMPARTIR
           </button>
-          <Link href="/" className={`${styles.wishBtn} ${styles.btnWhite}`}>MIRAR MÁS</Link>
+          <Link href="/indumentaria" className={`${styles.wishBtn} ${styles.btnWhite}`}>MIRAR MÁS</Link>
           <button className={`${styles.wishBtn} ${styles.btnGrey}`} onClick={() => confirm('¿Vaciar?') && clearWishlist()}>
             <Eraser size={20} /> VACIAR
           </button>

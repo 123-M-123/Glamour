@@ -42,11 +42,36 @@ export async function GET(req: NextRequest) {
           height: '1300px',
           display: 'flex',
           flexDirection: 'column',
-          padding: '50px',
+          padding: '45px 50px 35px',
           alignItems: 'center',
+          position: 'relative',
         }}>
+
+          {/* 💧 MARCA DE AGUA C-P-T-R (90% transparencia / 15% debajo del centro) */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '1500px',
+            height: '1300px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: '180px', // 👈 Desplaza ~15% por debajo del centro
+          }}>
+            <img 
+              src={`${origin}/c-p-t-r.png`} 
+              style={{ 
+                width: '780px', 
+                height: '780px', 
+                objectFit: 'contain',
+                opacity: 0.10, // 👈 90% transparente (efecto marca de agua suave)
+              }} 
+            />
+          </div>
+
           {/* Cabecera con Logo */}
-          <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginBottom: '40px' }}>
+          <div style={{ display: 'flex', width: '100%', justifyContent: 'center', marginBottom: '35px' }}>
             <img src={`${origin}/icons/logo-no.png`} style={{ height: '120px', objectFit: 'contain' }} />
           </div>
 
@@ -75,34 +100,43 @@ export async function GET(req: NextRequest) {
             ))}
           </div>
 
-          {/* 🏁 Footer con doble icono y frase central */}
+          {/* 🏁 ZÓCALO FOOTER (25% más chico de ancho y alto, sin logos laterales) */}
           <div style={{ 
-  marginTop: 'auto', 
-  display: 'flex', 
-  width: '100%', 
-  justifyContent: 'center', 
-  alignItems: 'center', 
-  borderTop: '2px solid rgba(255,255,255,0.3)', 
-  padding: '40px 0', 
-  gap: '40px',
-  background: 'rgba(255, 255, 255, 0.30)', // 🌸 Genera el efecto rosado sobre el fondo rojo
-  borderRadius: '35px 35px 35px 35px' // Opcional: redondea las puntas de abajo
-}}>
-            {/* Icono Izquierdo */}
-  <img src={`${origin}/c-p-t-r.png`} style={{ width: '150px', height: '150px', objectFit: 'contain' }} />
-            
-            {/* Bloque de Texto de 2 Renglones */}
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-    <span style={{ color: 'white', fontSize: '70px', fontWeight: 900, textTransform: 'none' }}>
-      Catálogo Exclusivo Redes
-    </span>
-    <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '70px', fontWeight: 600, marginTop: '5px' }}>
-      Tienda de Tiendas
-    </span>
-  </div>
-            {/* Icono Derecho */}
-  <img src={`${origin}/c-p-t-t.png`} style={{ width: '150px', height: '150px', objectFit: 'contain' }} />
-</div>
+            marginTop: 'auto', 
+            display: 'flex', 
+            flexDirection: 'column',
+            width: '1050px', // 👈 25% más chico que el ancho total (1400px -> 1050px)
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            border: '2px solid rgba(255, 255, 255, 0.35)', 
+            padding: '24px 20px', // 👈 Altura reducida proporcionalmente
+            background: 'rgba(255, 255, 255, 0.30)', // 🌸 Tono esmerilado rosado intacto
+            borderRadius: '35px',
+          }}>
+            {/* Renglón 1: Blanco con ligera transparencia (80% vivo) */}
+            <span style={{ 
+              color: 'rgba(255, 255, 255, 0.82)', 
+              fontSize: '52px', 
+              fontWeight: 900, 
+              letterSpacing: '1px',
+              lineHeight: 1.15,
+            }}>
+              Catálogo Exclusivo Redes
+            </span>
+
+            {/* Renglón 2: Color dorado vivo institucional con ligera transparencia */}
+            <span style={{ 
+              color: 'rgba(255, 230, 0, 0.85)', 
+              fontSize: '50px', 
+              fontWeight: 700, 
+              marginTop: '6px',
+              letterSpacing: '1.5px',
+              lineHeight: 1.15,
+            }}>
+              Tienda de Tiendas
+            </span>
+          </div>
+
         </div>
       ),
       { width: 1500, height: 1300 }

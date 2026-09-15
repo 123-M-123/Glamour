@@ -5,13 +5,15 @@ import Link from 'next/link'
 export default function Footer() {
   return (
     <>
-      {/* FOOTER CLIENTE (normal, baja con el contenido) */}
+      {/* FOOTER CLIENTE (normal, pero empujado abajo con marginTop: auto) */}
       <footer
         style={{
+          marginTop: 'auto', // 👈 CLAVE: Empuja el footer al fondo si hay poco contenido
           background: '#Ff4248',
           textAlign: 'center',
           padding: '1rem',
           borderTop: '3px solid #ffffff',
+          width: '100%',
         }}
       >
         <p
@@ -46,7 +48,7 @@ export default function Footer() {
         </p>
 
         {/* RENGLÓN 4: PIRÁMIDE (Agregado FAQ) */}
-          <p
+        <p
           style={{
             fontSize: '0.75rem',
             color: '#ffffff', opacity: 0.85,
@@ -74,7 +76,7 @@ export default function Footer() {
         </p>
       </footer>
 
-      {/* ESPACIO RESERVADO para que no tape contenido */}
+      {/* ESPACIO RESERVADO para que el footer fijo de abajo no tape los links */}
       <div style={{ height: '75px' }} />
 
       {/* FOOTER TU MARCA (fijo abajo SIEMPRE) */}
@@ -91,47 +93,31 @@ export default function Footer() {
           zIndex: 300,
         }}
       >
-       <p
-  style={{
-    fontSize: '0.8rem',
-    fontWeight: 700,
-    lineHeight: '1.4',
-    margin: 0,
-  }}
->
-  <a
-    href="https://tienda-de-tiendas.vercel.app"
-    target="_blank"
-    rel="noopener noreferrer"
-    style={{
-      color: '#ffffff', 
-      textDecoration: 'underline',
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '4px', // espacio fino entre texto e icono
-    }}
-  >
-    <span>Diseño y Desarrollo web: Tienda de Tiendas</span>
-    <ExternalLink size={13} strokeWidth={2} />
-  </a>
-</p>
         <p
           style={{
-            fontSize: '0.85rem',
+            fontSize: '0.8rem',
+            fontWeight: 700,
             lineHeight: '1.4',
             margin: 0,
           }}
         >
           <a
-            href="https://tienda-de-tiendas.vercel.app"
+            href="https://tdt.ar"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
-              color: '#ffffff', opacity: 0.75,
-              textDecoration: 'none',
+              color: '#ffffff', 
+              textDecoration: 'underline',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
             }}
           >
-            Promo Micro Emp 50% off hasta Dic 2026
+            <span>Diseño y Desarrollo web: Tienda de Tiendas</span>
+            <ExternalLink size={13} strokeWidth={2} />
           </a>
         </p>
+        
 
         <p
           style={{
@@ -141,13 +127,13 @@ export default function Footer() {
           }}
         >
           <a
-            href="mailto:tiendadtiendas@gmail.com"
+            href="mailto:info@tdt.ar"
             style={{
               color: '#ffffff', opacity: 0.75,
               textDecoration: 'none',
             }}
           >
-            Tené tu Web en 2 días ✉️ Contacto
+            Tené tu Tienda Web ✉️ Contacto
           </a>
         </p>
       </footer>
