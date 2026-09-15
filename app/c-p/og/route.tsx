@@ -47,7 +47,19 @@ export async function GET(req: NextRequest) {
           position: 'relative',
         }}>
 
-          {/* 💧 MARCA DE AGUA C-P-T-R (90% transparencia / 15% debajo del centro) */}
+          {/* ✨ BRILLO BLANCO TENUE E IMPERCEPTIBLE AL FONDO (CENTRO) */}
+          <div style={{
+            position: 'absolute',
+            top: '50px',
+            left: '150px',
+            width: '1200px',
+            height: '1200px',
+            borderRadius: '600px',
+            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 0, 0, 0) 65%)',
+            display: 'flex',
+          }} />
+
+          {/* 💧 MARCA DE AGUA C-P-T-R (CENTRADA TOTAL, +40% TAMAÑO, OPACIDAD 0.20) */}
           <div style={{
             position: 'absolute',
             top: 0,
@@ -57,15 +69,14 @@ export async function GET(req: NextRequest) {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            paddingTop: '180px', // 👈 Desplaza ~15% por debajo del centro
           }}>
             <img 
               src={`${origin}/c-p-t-r.png`} 
               style={{ 
-                width: '780px', 
-                height: '780px', 
+                width: '1090px', // 👈 +40% agrandado
+                height: '1090px', 
                 objectFit: 'contain',
-                opacity: 0.10, // 👈 90% transparente (efecto marca de agua suave)
+                opacity: 0.20, // 👈 80% transparente / 20% visible
               }} 
             />
           </div>
@@ -100,23 +111,23 @@ export async function GET(req: NextRequest) {
             ))}
           </div>
 
-          {/* 🏁 ZÓCALO FOOTER (25% más chico de ancho y alto, sin logos laterales) */}
+          {/* 🏁 ZÓCALO FOOTER (+15% EN TAMAÑO, FONDO Y TEXTOS) */}
           <div style={{ 
             marginTop: 'auto', 
             display: 'flex', 
             flexDirection: 'column',
-            width: '1050px', // 👈 25% más chico que el ancho total (1400px -> 1050px)
+            width: '1210px', // 👈 +15% de ancho (1050px -> 1210px)
             justifyContent: 'center', 
             alignItems: 'center', 
             border: '2px solid rgba(255, 255, 255, 0.35)', 
-            padding: '24px 20px', // 👈 Altura reducida proporcionalmente
-            background: 'rgba(255, 255, 255, 0.30)', // 🌸 Tono esmerilado rosado intacto
+            padding: '28px 25px', // 👈 +15% de altura/padding
+            background: 'rgba(255, 255, 255, 0.30)',
             borderRadius: '35px',
           }}>
-            {/* Renglón 1: Blanco con ligera transparencia (80% vivo) */}
+            {/* Renglón 1: +15% tamaño (52px -> 60px) */}
             <span style={{ 
-              color: 'rgba(255, 255, 255, 0.82)', 
-              fontSize: '52px', 
+              color: 'rgba(255, 255, 255, 0.90)', 
+              fontSize: '60px', 
               fontWeight: 900, 
               letterSpacing: '1px',
               lineHeight: 1.15,
@@ -124,11 +135,11 @@ export async function GET(req: NextRequest) {
               Catálogo Exclusivo Redes
             </span>
 
-            {/* Renglón 2: Color dorado vivo institucional con ligera transparencia */}
+            {/* Renglón 2: +15% tamaño (50px -> 58px) en ROJO INTENSO */}
             <span style={{ 
-              color: 'rgba(255, 230, 0, 0.85)', 
-              fontSize: '50px', 
-              fontWeight: 700, 
+              color: '#D60000', // 👈 Rojo en lugar de dorado
+              fontSize: '58px', 
+              fontWeight: 900, 
               marginTop: '6px',
               letterSpacing: '1.5px',
               lineHeight: 1.15,
@@ -146,7 +157,7 @@ export async function GET(req: NextRequest) {
     const pngBuffer = await res.arrayBuffer();
     const jpgBuffer = await sharp(Buffer.from(pngBuffer))
       .jpeg({ 
-        quality: 75, // Balance ideal peso/calidad para WhatsApp
+        quality: 75,
         mozjpeg: true 
       })
       .toBuffer();
