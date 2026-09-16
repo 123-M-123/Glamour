@@ -73,10 +73,10 @@ export async function GET(req: NextRequest) {
             <img 
               src={`${origin}/c-p-t-r.png`} 
               style={{ 
-                width: '1090px', // 👈 +40% agrandado
-                height: '1090px', 
+                width: '1200px', // 👈 +40% agrandado
+                height: '1200px', 
                 objectFit: 'contain',
-                opacity: 0.20, // 👈 80% transparente / 20% visible
+                opacity: 0.12, // 👈 80% transparente / 20% visible
               }} 
             />
           </div>
