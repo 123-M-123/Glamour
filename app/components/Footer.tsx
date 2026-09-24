@@ -77,7 +77,7 @@ export default function Footer() {
       </footer>
 
       {/* ESPACIO RESERVADO para que el footer fijo de abajo no tape los links */}
-      <div style={{ height: '75px' }} />
+      <div style={{ height: '60px' }} />
 
       {/* FOOTER TU MARCA (fijo abajo SIEMPRE) */}
       <footer

@@ -37,19 +37,22 @@ export async function GET(req: NextRequest) {
 
     const restoCount = Math.max(0, totalOriginal - items.length);
 
-    // 🟢 CÁLCULO DE ALTURA DINÁMICA (Sin huecos vacíos)
+    // 🟢 CÁLCULO DE ALTURA PROPORCIONAL Y HOLGADA (CERO SOLAPAMIENTOS)
     const totalItems = items.length || 1;
     const filas = Math.max(1, Math.ceil(totalItems / 3));
     const canvasWidth = 1500;
 
-    // Encabezado (logo + frase) = ~250px | Cada fila = 355px | Cartel resto = 105px | Footer = 175px
-    const baseHeader = 250;
+    // Medidas verticales reales:
+    // Header (logo): 185px | Grilla: filas * 320px + gaps | Novedades: 90px | Zócalo: 180px | Margen seguridad: 70px
+    const headerHeight = 185;
     const gridHeight = filas * 320 + (filas - 1) * 35;
-    const extraHeight = restoCount > 0 ? 105 : 0;
-    const footerHeight = 175;
-    const canvasHeight = baseHeader + gridHeight + extraHeight + footerHeight;
+    const extraCountHeight = restoCount > 0 ? 100 : 0;
+    const enterateHeight = 90;
+    const footerHeight = 180;
+    const paddingTotal = 80; // 40 top + 40 bottom
+    const canvasHeight = headerHeight + gridHeight + extraCountHeight + enterateHeight + footerHeight + paddingTotal + 70;
 
-    // 1️⃣ GENERACIÓN DEL FLYER ADAPTATIVO (Next/OG - Satori)
+    // 1️⃣ GENERACIÓN DEL FLYER (Next/OG - Satori)
     const res = new ImageResponse(
       (
         <div style={{
@@ -58,12 +61,12 @@ export async function GET(req: NextRequest) {
           height: `${canvasHeight}px`,
           display: 'flex',
           flexDirection: 'column',
-          padding: '30px 50px 30px', // 👈 Subido unos píxeles arriba
+          padding: '40px 50px',
           alignItems: 'center',
           position: 'relative',
         }}>
 
-          {/* 💧 MARCA DE AGUA Y RESPLANDOR (SIEMPRE AL CENTRO EXACTO DEL ALTO TOTAL) */}
+          {/* 💧 MARCA DE AGUA Y RESPLANDOR (SIEMPRE AL CENTRO GEOMÉTRICO EXACTO) */}
           <div style={{
             position: 'absolute',
             top: 0,
@@ -77,10 +80,10 @@ export async function GET(req: NextRequest) {
             {/* Brillo blanco tenue */}
             <div style={{
               position: 'absolute',
-              width: '1150px',
-              height: '1150px',
-              borderRadius: '575px',
-              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 0, 0, 0) 65%)',
+              width: '1200px',
+              height: '1200px',
+              borderRadius: '600px',
+              background: 'radial-gradient(circle, rgba(255, 255, 255, 0.20) 0%, rgba(255, 0, 0, 0) 65%)',
               display: 'flex',
             }} />
 
@@ -91,59 +94,53 @@ export async function GET(req: NextRequest) {
                 width: '1150px',
                 height: '1150px', 
                 objectFit: 'contain',
-                opacity: 0.16, // 👈 Sutil y elegante
+                opacity: 0.16,
               }} 
             />
           </div>
 
-          {/* 👑 Cabecera con Logo Glamour (+20% tamaño y elevado) */}
+          {/* 👑 1. CABECERA: Logo Glamour limpio y elevado */}
           <div style={{ 
             display: 'flex', 
-            flexDirection: 'column', 
             width: '100%', 
-            alignItems: 'center', 
-            marginBottom: '20px' 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            height: '145px',
+            marginBottom: '40px',
+            flexShrink: 0,
           }}>
             <img 
               src={`${origin}/icons/logo-no.png`} 
-              style={{ height: '145px', objectFit: 'contain', marginBottom: '8px' }} // 👈 +20% agrandado
+              style={{ height: '145px', objectFit: 'contain' }} 
             />
-            {/* ✨ Frase de Novedades */}
-            <span style={{ 
-              color: 'rgba(255, 255, 255, 0.95)', 
-              fontSize: '36px', 
-              fontWeight: 800, 
-              letterSpacing: '1px',
-              textTransform: 'uppercase',
-              textShadow: '0 3px 12px rgba(0,0,0,0.3)'
-            }}>
-              ¡Enterate de estas Novedades!
-            </span>
           </div>
 
-          {/* 🎴 Grilla de Productos */}
+          {/* 🎴 2. GRILLA DE PRODUCTOS (3 Columnas de 420px = 1330px total) */}
           <div style={{ 
             display: 'flex', 
             flexWrap: 'wrap', 
-            gap: '35px', 
+            columnGap: '35px', 
+            rowGap: '35px', 
             justifyContent: 'center', 
-            width: '1350px' 
+            width: '1330px',
+            flexShrink: 0,
           }}>
             {items.map((item) => (
               <div key={item.id} style={{ 
                 display: 'flex', background: 'white', borderRadius: '25px', 
                 width: '420px', height: '320px', overflow: 'hidden', position: 'relative',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.25)'
+                boxShadow: '0 12px 28px rgba(0,0,0,0.3)',
+                flexShrink: 0,
               }}>
                 <img src={getThumb(item.imagen)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 
-                {/* Etiqueta de Precio Condicional */}
+                {/* Etiqueta de Precio */}
                 {mostrarPrecios && (
                   <div style={{ 
                     position: 'absolute', bottom: '15px', right: '15px', 
                     background: '#FF0000', color: 'white', 
                     padding: '8px 20px', borderRadius: '50px', 
-                    fontSize: '60px', fontWeight: 'bold', display: 'flex',
+                    fontSize: '56px', fontWeight: 'bold', display: 'flex',
                     boxShadow: '0 5px 15px rgba(0,0,0,0.25)'
                   }}>
                     ${new Intl.NumberFormat('es-AR').format(item.precioTransfer)}
@@ -153,41 +150,65 @@ export async function GET(req: NextRequest) {
             ))}
           </div>
 
-          {/* 📢 CARTEL DE PRODUCTOS RESTANTES (BLANCO CON ROJO, ANCHO TOTAL 1350px, +25% TAMAÑO) */}
+          {/* 📢 3. CARTEL DE PRODUCTOS RESTANTES (Si hay más de 9) */}
           {restoCount > 0 && (
             <div style={{
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              width: '1350px', // 👈 Abarca todo el ancho de la grilla
-              marginTop: '25px',
+              width: '1330px',
+              marginTop: '30px',
               background: '#ffffff',
               color: '#FF0000',
               padding: '14px 25px',
               borderRadius: '50px',
-              fontSize: '34px', // 👈 +25% tamaño de letra
+              fontSize: '32px',
               fontWeight: 900,
               border: '4px solid #FF0000',
               boxShadow: '0 8px 25px rgba(0, 0, 0, 0.3)',
               textTransform: 'uppercase',
-              letterSpacing: '0.5px'
+              letterSpacing: '0.5px',
+              flexShrink: 0,
             }}>
               + {restoCount} PRODUCTOS MÁS EN ESTE CATÁLOGO · TOCÁ EL LINK PARA VERLOS
             </div>
           )}
 
-          {/* 🏁 ZÓCALO FOOTER */}
+          {/* ✨ 4. FRASE DE NOVEDADES (ANCHO 1330px, +35% MÁS GRANDE, ARRIBA DEL ZÓCALO) */}
+          <div style={{
+            display: 'flex',
+            width: '1330px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: '35px',
+            marginBottom: '20px',
+            flexShrink: 0,
+          }}>
+            <span style={{ 
+              color: '#ffffff', 
+              fontSize: '50px', // 👈 +35% más grande (era 36px)
+              fontWeight: 900, 
+              letterSpacing: '1.5px',
+              textTransform: 'uppercase',
+              textAlign: 'center',
+              textShadow: '0 4px 15px rgba(0,0,0,0.5)',
+            }}>
+              ¡Enterate de estas Novedades!
+            </span>
+          </div>
+
+          {/* 🏁 5. ZÓCALO FOOTER (TEXTO OSCURO CON tdt.ar) */}
           <div style={{ 
-            marginTop: 'auto', 
             display: 'flex', 
             flexDirection: 'column',
             width: '1250px',
             justifyContent: 'center', 
             alignItems: 'center', 
             border: '2px solid rgba(255, 255, 255, 0.4)', 
-            padding: '22px 25px',
+            padding: '24px 25px',
             background: 'rgba(255, 255, 255, 0.35)', 
             borderRadius: '35px',
+            flexShrink: 0,
           }}>
             {/* Renglón 1: Blanco nítido */}
             <span style={{ 
@@ -200,16 +221,16 @@ export async function GET(req: NextRequest) {
               Catálogo Exclusivo Redes
             </span>
 
-            {/* Renglón 2: Tienda de Tiendas en Rojo Oscuro / Carbón Elegante */}
+            {/* Renglón 2: Tienda de Tiendas (tdt.ar) en tono carbón/bordó oscuro */}
             <span style={{ 
-              color: '#3B0000', // 👈 Tono oscuro contrastante sobre fondo translúcido
-              fontSize: '54px', 
+              color: '#1c0404', // 👈 Oscuro contrastante
+              fontSize: '52px', 
               fontWeight: 900, 
               marginTop: '4px',
-              letterSpacing: '1.5px',
+              letterSpacing: '1.2px',
               lineHeight: 1.15,
             }}>
-              Tienda de Tiendas
+              Tienda de Tiendas (tdt.ar)
             </span>
           </div>
 
@@ -222,7 +243,7 @@ export async function GET(req: NextRequest) {
     const pngBuffer = await res.arrayBuffer();
     const jpgBuffer = await sharp(Buffer.from(pngBuffer))
       .jpeg({ 
-        quality: 75,
+        quality: 75, 
         mozjpeg: true 
       })
       .toBuffer();
